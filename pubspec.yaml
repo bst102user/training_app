@@ -44,6 +44,9 @@ dependencies:
   custom_navigation_bar: ^0.8.2
   loader_animated: ^0.0.2
   country_picker: ^2.0.11
+  url_launcher: ^6.0.18
+  syncfusion_flutter_pdfviewer: ^19.4.50-beta
+  flutter_rating_bar: ^4.0.0
 
 dev_dependencies:
   flutter_test:

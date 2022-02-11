@@ -75,6 +75,9 @@ class RegisterPageState extends State<RegisterPage>{
           });
         }
         else if(status == 'success'){
+          CommonMethods.saveStrPref('user_email', emailController.text);
+          CommonMethods.saveStrPref('user_fname', nameController.text);
+          CommonMethods.saveStrPref('user_lname', lastnameController.text);
           CommonMethods.getDialoge('Registered successfully');
           Get.to(NavDashboard());
         }
@@ -178,6 +181,7 @@ class RegisterPageState extends State<RegisterPage>{
                   mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,),
                 CommonWidgets.mHeightSizeBox(),
                 CommonWidgets.countryCodeContainer(
+                  mController: mobileController,
                     mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
                     mIcon: Icons.phone,
                     mTitle: '',

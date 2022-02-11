@@ -21,11 +21,6 @@ class NavDashboardState extends State<NavDashboard>{
       backgroundColor: Colors.transparent,
       items: [
         CustomNavigationBarItem(
-          // icon: Image.asset(
-          //   0'assets/images/rest.png':'assets/images/rest.png',
-          //   height: 25.0,
-          //   width: 25.0,
-          // ),
           icon: Icon(
               Icons.home_outlined,
               color: _currentIndex==0?Colors.white:Colors.white60,

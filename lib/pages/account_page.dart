@@ -7,6 +7,7 @@ import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/pages/document_page.dart';
 import 'package:training_app/pages/login_page.dart';
 import 'package:training_app/pages/profile_page.dart';
+import 'package:training_app/pages/racing_calender.dart';
 import 'package:training_app/pages/upgrade_page.dart';
 
 class AccountPage extends StatefulWidget{
@@ -14,41 +15,7 @@ class AccountPage extends StatefulWidget{
 }
 
 class AccountPageState extends State<AccountPage>{
-  logoutDialoge(){
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Logout'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                const Text(
-                  "Would you like to logout from the Application?",
-                ),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Container(width: 50,),
-                      FlatButton(
-                          child: Text('Cancel'),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          }),
-                      FlatButton(
-                          child: Text('Yes'),
-                          onPressed: () {
-                            CommonMethods.saveBoolPref('is_login', false);
-                            Get.to(() => LoginPage());
-                          }),
 
-                    ])
-              ],
-            ),
-          );
-        });
-  }
 
   Widget commonView(IconData mIcon, String label, {mCallback}){
     const borderSide = BorderSide(color: Colors.white, width: 0.5);
@@ -119,7 +86,10 @@ class AccountPageState extends State<AccountPage>{
                 Get.to(ProfilePage());
               }),
               commonView(Icons.notifications_rounded, 'Notification'),
-              commonView(Icons.calendar_today_outlined, 'Race Calender'),
+              commonView(Icons.calendar_today_outlined, 'Race Calender',mCallback: (){
+                // Navigator.push(context, MaterialPageRoute(builder: (context)=>RacingCalender()));
+                Get.to(RacingCalender());
+              }),
               commonView(Icons.document_scanner, 'Documents',mCallback: (){
                 Navigator.push(
                     context,
@@ -134,7 +104,10 @@ class AccountPageState extends State<AccountPage>{
                 );
               }),
               commonView(Icons.person, 'Logout',mCallback: (){
-                logoutDialoge();
+                CommonMethods.twoButtonDialoge(context, 'Logout', 'Would you like to logout from the Application?',(){
+                  CommonMethods.saveBoolPref('is_login', false);
+                  Get.to(() => LoginPage());
+                });
               }),
             ],
           ),

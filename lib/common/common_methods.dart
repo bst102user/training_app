@@ -75,6 +75,40 @@ class CommonMethods{
     return val;
   }
 
+  static void twoButtonDialoge(BuildContext context, String title, String message, VoidCallback mCallback){
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(title),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  message
+                  // "Would you like to logout from the Application?",
+                ),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Container(width: 50,),
+                      FlatButton(
+                          child: const Text('Cancel'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          }),
+                      FlatButton(
+                          child: const Text('Yes'),
+                          onPressed: mCallback
+                      ),
+                    ])
+              ],
+            ),
+          );
+        });
+  }
+
   static Future<dynamic> commonPostApiData(String url, Map mMap)async{
     Dio dio = new Dio();
     dio.options.connectTimeout = 50000;
@@ -120,12 +154,28 @@ class CommonMethods{
     }
   }
 
+  static Future<dynamic> commonDeleteRequest(String url,BuildContext context)async{
+    showAlertDialog(context);
+    Dio dio = Dio();
+    dio.options.connectTimeout = 50000;
+    dio.options.receiveTimeout = 30000;
+    dio.options.sendTimeout = 30000;
+    try {
+      var response = await Dio().delete(url);
+      print(response);
+      Get.back();
+      return response;
+    } catch (e) {
+      print(e);
+      return e;
+    }
+  }
+
   static Future<dynamic> getRequest(String url,BuildContext context) async {
-    CommonMethods.showAlertDialog(context);
     dynamic response;
     try {
       response = await Dio().get(url);
-      Get.back();
+      // Get.back();
       print('response $response');
     } on DioError catch (e) {
       print(e.message);

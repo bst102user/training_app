@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:training_app/common/api_interface.dart';
@@ -19,26 +20,6 @@ class RacingCalender extends StatefulWidget{
 class RacingCalenderState extends State<RacingCalender>{
   bool shouldCal = true;
   Future<dynamic>? returnData;
-  // Future<dynamic>? allRaceData(){
-  //   CommonMethods.commonGetApiData(ApiInterface.ALL_RACEES).then((response){
-  //     Map mMap = json.decode(response.toString());
-  //     if(mMap['status'] == 'success'){
-  //       if(shouldCal) {
-  //         setState(() {
-  //           AllRaceModel allRaceModel = allRaceModelFromJson(response.toString());
-  //           returnData = allRaceModel as Future<dynamic>?;
-  //           shouldCal = false;
-  //         });
-  //       }
-  //     }
-  //     else{
-  //       setState(() {
-  //         returnData = null;
-  //       });
-  //     }
-  //   });
-  //   return returnData;
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +43,11 @@ class RacingCalenderState extends State<RacingCalender>{
               CommonWidgets.mHeightSizeBox(height: 30.0),
               InkWell(
                 onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>AddRace()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>AddRace(""))).then((value){
+                    setState(() {
+
+                    });
+                  });
                 },
                 child: Container(
                   height: 50.0,
@@ -143,11 +128,20 @@ class RacingCalenderState extends State<RacingCalender>{
                                             ),
                                           ],
                                         ),
-                                        const Padding(
-                                          padding: EdgeInsets.only(right: 15.0),
-                                          child: Icon(
-                                            Icons.edit_outlined,
-                                            color: Colors.white,
+                                        InkWell(
+                                          onTap: (){
+                                            Get.to(AddRace(allRaceDetum[i]))!.then((value){
+                                              setState(() {
+
+                                              });
+                                            });
+                                          },
+                                          child: const Padding(
+                                            padding: EdgeInsets.only(right: 15.0),
+                                            child: Icon(
+                                              Icons.edit_outlined,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         )
                                       ],
@@ -173,11 +167,24 @@ class RacingCalenderState extends State<RacingCalender>{
                                             ),
                                           ],
                                         ),
-                                        const Padding(
-                                          padding: EdgeInsets.only(right: 15.0),
-                                          child: Icon(
-                                            Icons.cancel,
-                                            color: Colors.white,
+                                        InkWell(
+                                          onTap: (){
+                                            CommonMethods.twoButtonDialoge(context, 'Delete', 'Are you sure want to delete this race?', () {
+                                              Get.back();
+                                              CommonMethods.commonDeleteRequest(ApiInterface.DELETE_RACE+'/'+allRaceDetum[i].id,context).then((value){
+                                                setState(() {
+
+                                                });
+                                              });
+                                            });
+                                            //
+                                          },
+                                          child: const Padding(
+                                            padding: EdgeInsets.only(right: 15.0),
+                                            child: Icon(
+                                              Icons.cancel,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         )
                                       ],

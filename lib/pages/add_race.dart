@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
@@ -9,8 +11,11 @@ import 'package:training_app/common/api_interface.dart';
 import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
+import 'package:training_app/models/all_race_model.dart';
 
 class AddRace extends StatefulWidget{
+  final dynamic canData;
+  AddRace(this.canData);
   AddRaceState createState() => AddRaceState();
 }
 
@@ -24,8 +29,11 @@ class AddRaceState extends State<AddRace>{
   String firstDayStr='First Day',lastDayStr='Last Day';
   bool isFirstDay = true;
   DateTime selectedDate = DateTime.now();
+  String titleStr = '';
+  String buttonName = '';
 
-  addRace(){
+
+  addOrUpdateRace(String keyUrl){
     if(nameCtrl.text.isEmpty||distanceCtrl.text.isEmpty||verMetCtrl.text.isEmpty
         ||goalCtrl.text.isEmpty||priorityCtrl.text.isEmpty||arrivalCtrl.text.isEmpty||
     firstDayStr=='First Day'||lastDayStr=='Last Day'){
@@ -34,6 +42,7 @@ class AddRaceState extends State<AddRace>{
       });
     }
     else {
+      CommonMethods.showAlertDialog(context);
       Map addRaceMap = {
         "name": nameCtrl.text,
         "first_day": firstDayStr,
@@ -45,8 +54,9 @@ class AddRaceState extends State<AddRace>{
         "arrival": arrivalCtrl.text
       };
 
-      CommonMethods.commonPostApiData(ApiInterface.ADD_RACE, addRaceMap).then((
+      CommonMethods.commonPostApiData(keyUrl, addRaceMap).then((
           response) {
+        Get.back();
         print(response);
         Map mMap = json.decode(response.data);
         var status = mMap['status'];
@@ -57,7 +67,7 @@ class AddRaceState extends State<AddRace>{
           });
         }
         else if (status == 'success') {
-          CommonMethods.getDialoge('Race add successfully',intTitle: 2,voidCallback: (){
+          CommonMethods.getDialoge(widget.canData==""?'Race added successfully':'Race updated successfully',intTitle: 2,voidCallback: (){
             Get.back();
             Get.back();
           });
@@ -73,7 +83,7 @@ class AddRaceState extends State<AddRace>{
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     );
-    if (selected != null && selected != selectedDate)
+    if (selected != null && selected != selectedDate) {
       setState(() {
         selectedDate = selected;
         print(selectedDate);
@@ -81,10 +91,52 @@ class AddRaceState extends State<AddRace>{
           firstDayStr = DateFormat('dd/MM/yyyy').format(selectedDate);
         }
         else{
-          lastDayStr = DateFormat('dd/MM/yyyy').format(selectedDate);
+          if(firstDayStr=='First Day'){
+            CommonMethods.showToast(context, 'Select start date first');
+          }
+          else{
+            lastDayStr = DateFormat('dd/MM/yyyy').format(selectedDate);
+            if(lastDayStr != 'Last Day'){
+              DateTime fDateTime = DateFormat('dd/MM/yyyy').parse(firstDayStr);
+              DateTime lDateTime = DateFormat('dd/MM/yyyy').parse(lastDayStr);
+              int differenceInDays = lDateTime.difference(fDateTime).inDays;
+              if(differenceInDays<0){
+                CommonMethods.getDialoge('Last date should be greater then first date',voidCallback: (){
+                  setState(() {
+                    lastDayStr = 'Last Day';
+                  });
+                  Get.back();
+                });
+              }
+            }
+          }
         }
       });
+    }
   }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    if(widget.canData!=""){
+      titleStr = 'update race';
+      buttonName = 'UPDATE';
+      nameCtrl.text = widget.canData.name;
+      distanceCtrl.text = widget.canData.distance;
+      verMetCtrl.text = widget.canData.verticalMeters;
+      goalCtrl.text = widget.canData.goal;
+      priorityCtrl.text = widget.canData.priority;
+      arrivalCtrl.text = widget.canData.arrival;
+      firstDayStr = widget.canData.firstDay;
+      lastDayStr = widget.canData.lastDay;
+    }
+    else{
+      titleStr = 'Add race';
+      buttonName = 'SAVE';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -104,7 +156,7 @@ class AddRaceState extends State<AddRace>{
             padding: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 20.0),
             child: ListView(
               children: [
-                CommonWidgets.commonHeader(context,'Add Race'),
+                CommonWidgets.commonHeader(context,titleStr),
                 CommonWidgets.mHeightSizeBox(height: 25.0),
                 CommonWidgets.commonTextField(
                     mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
@@ -174,8 +226,13 @@ class AddRaceState extends State<AddRace>{
                     keybordType: TextInputType.text
                 ),
                 CommonWidgets.mHeightSizeBox(height: 20.0),
-                CommonWidgets.commonButton('SAVE',(){
-                  addRace();
+                CommonWidgets.commonButton(buttonName,(){
+                  if(widget.canData==""){
+                    addOrUpdateRace(ApiInterface.ADD_RACE);
+                  }
+                  else{
+                    addOrUpdateRace(ApiInterface.UPDATE_RACE+'/'+widget.canData.id);
+                  }
                 })
               ],
             ),
@@ -184,5 +241,4 @@ class AddRaceState extends State<AddRace>{
       ),
     );
   }
-
 }
