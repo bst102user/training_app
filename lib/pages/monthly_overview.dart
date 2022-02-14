@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart'
-    show CalendarCarousel;
+import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart' show CalendarCarousel;
 import 'package:flutter_calendar_carousel/classes/event.dart';
 import 'package:flutter_calendar_carousel/classes/event_list.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart' show DateFormat;
+import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/pages/daily_training.dart';
@@ -29,6 +29,13 @@ class MonthlyOverview extends StatefulWidget {
 }
 
 class MonthlyOverviewState extends State<MonthlyOverview> {
+  final List<ChartData> chartData = [
+    ChartData(2010, 35),
+    ChartData(2011, 13),
+    ChartData(2012, 34),
+    ChartData(2013, 27),
+    ChartData(2014, 40)
+  ];
   DateTime _currentDate = DateTime.now();
   DateTime _currentDate2 = DateTime.now();
   String _currentMonth = DateFormat.yMMM().format(DateTime(2022, 1, 31));
@@ -136,10 +143,28 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: CommonWidgets.commonButton('Training time in this month\n120 hours', () { },iconData: Icons.motorcycle),
+              ),
+              Container(
+                  child: SfCartesianChart(
+                      series: <ChartSeries>[
+                        // Renders spline chart
+                        SplineSeries<ChartData, int>(
+                            dataSource: chartData,
+                            xValueMapper: (ChartData sales, _) => sales.x,
+                            yValueMapper: (ChartData sales, _) => sales.y
+                        )
+                      ]
+                  )
               )//
             ],
           ),
         )
     );
   }
+}
+
+class ChartData {
+  ChartData(this.x, this.y);
+  final int x;
+  final double? y;
 }
