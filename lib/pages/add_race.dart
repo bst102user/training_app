@@ -81,7 +81,7 @@ class AddRaceState extends State<AddRace>{
       context: context,
       initialDate: selectedDate,
       firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
+      lastDate: DateTime(2025),
     );
     if (selected != null && selected != selectedDate) {
       setState(() {

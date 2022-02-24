@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:country_picker/country_picker.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,7 +10,7 @@ import 'package:training_app/common/api_interface.dart';
 import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
-import 'package:training_app/pages/dashboard.dart';
+import 'package:training_app/firebase/methods.dart';
 import 'package:training_app/pages/nav_dashboard.dart';
 
 class RegisterPage extends StatefulWidget{
@@ -75,11 +74,20 @@ class RegisterPageState extends State<RegisterPage>{
           });
         }
         else if(status == 'success'){
-          CommonMethods.saveStrPref('user_email', emailController.text);
-          CommonMethods.saveStrPref('user_fname', nameController.text);
-          CommonMethods.saveStrPref('user_lname', lastnameController.text);
-          CommonMethods.getDialoge('Registered successfully');
-          Get.to(NavDashboard());
+          createAccount(nameController.text, emailController.text, passController.text).then((user){
+            if (user != null) {
+              print("Account Created Sucessfull");
+              CommonMethods.saveStrPref('user_email', emailController.text);
+              CommonMethods.saveStrPref('user_fname', nameController.text);
+              CommonMethods.saveStrPref('user_lname', lastnameController.text);
+              CommonMethods.saveStrPref('user_lname', lastnameController.text);
+              CommonMethods.saveBoolPref('is_login', true);
+              CommonMethods.getDialoge('Registered successfully');
+              Get.to(NavDashboard());
+            } else {
+              print("Login Failed");
+            }
+          });
         }
       });
     }

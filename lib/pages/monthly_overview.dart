@@ -6,11 +6,11 @@ import 'package:flutter_calendar_carousel/classes/event_list.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart' show DateFormat;
-import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/pages/daily_training.dart';
 import 'package:training_app/pages/racing_calender.dart';
+import 'package:training_app/pages/test.dart';
 
 class MonthlyOverview extends StatefulWidget {
 
@@ -39,7 +39,7 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
   DateTime _currentDate = DateTime.now();
   DateTime _currentDate2 = DateTime.now();
   String _currentMonth = DateFormat.yMMM().format(DateTime(2022, 1, 31));
-  DateTime _targetDateTime = DateTime.now();
+  DateTime _targetDateTime = DateTime(2055, 1, 31);
 //  List<DateTime> _markedDate = [DateTime(2018, 9, 20), DateTime(2018, 10, 11)];
   static Widget _eventIcon = new Container(
     decoration: new BoxDecoration(
@@ -120,7 +120,7 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
       },
     );
 
-    return new Scaffold(
+    return Scaffold(
         body: Container(
           decoration: const BoxDecoration(
             image: DecorationImage(
@@ -141,20 +141,13 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
                 child: _calendarCarouselNoHeader,
               ), 
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                padding: const EdgeInsets.symmetric(horizontal: 20.0,vertical: 20.0),
                 child: CommonWidgets.commonButton('Training time in this month\n120 hours', () { },iconData: Icons.motorcycle),
               ),
               Container(
-                  child: SfCartesianChart(
-                      series: <ChartSeries>[
-                        // Renders spline chart
-                        SplineSeries<ChartData, int>(
-                            dataSource: chartData,
-                            xValueMapper: (ChartData sales, _) => sales.x,
-                            yValueMapper: (ChartData sales, _) => sales.y
-                        )
-                      ]
-                  )
+                height: 200.0,
+                  width: 200.0,
+                  child: LLineChart(isShowingMainData: true)
               )//
             ],
           ),

@@ -1,6 +1,7 @@
 import 'package:custom_navigation_bar/custom_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:training_app/firebase/screens/home_screen.dart';
 import 'package:training_app/pages/account_page.dart';
 import 'package:training_app/pages/dashboard.dart';
 
@@ -55,7 +56,7 @@ class NavDashboardState extends State<NavDashboard>{
         mmWidget = Dashboard();
         break;
       case 1:
-        mmWidget = Dashboard();
+        mmWidget = HomeScreen();
         break;
       case 2:
         mmWidget = AccountPage();

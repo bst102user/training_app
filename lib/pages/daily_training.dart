@@ -1,8 +1,12 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:training_app/common/api_interface.dart';
 import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_var.dart';
@@ -17,6 +21,11 @@ class DailyTraining extends StatefulWidget{
 }
 
 class DailyTrainingState extends State<DailyTraining>{
+  Future<String> getUserId()async{
+    SharedPreferences mPref = await SharedPreferences.getInstance();
+    String userId = mPref.getString('user_id') as String;
+    return userId;
+  }
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -58,19 +67,38 @@ class DailyTrainingState extends State<DailyTraining>{
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   CommonWidgets.textBelowIcon(Icons.outbox, 'Move', () {
-
+                    // CommonMethods.commonPostApiData(ApiInterface., mMap)
                   }),
                   CommonWidgets.textBelowIcon(Icons.cancel_outlined, 'Miss', () {
-
+                    CommonMethods.showAlertDialog(context);
+                    Map mMap = {"null_date" : "12/29/2021"};
+                    CommonMethods.commonPostApiData(ApiInterface.NOT_ATTEND, mMap).then((value){
+                      Get.back();
+                      String mResponse = value.data;
+                      Map resMap = json.decode(mResponse);
+                      String status = resMap['status'];
+                      String message = resMap['msg'];
+                      CommonMethods.showToast(context, message);
+                    });
                   }),
                   CommonWidgets.textBelowIcon(Icons.sick_rounded, 'Sick', () {
-
+                    CommonMethods.showAlertDialog(context);
+                    Map mMap = {"ill_date" : "12/29/2021"};
+                    CommonMethods.commonPostApiData(ApiInterface.UPDATE_ILLNESS, mMap).then((value){
+                      Get.back();
+                      String mResponse = value.data;
+                      Map resMap = json.decode(mResponse);
+                      String status = resMap['status'];
+                      String message = resMap['msg'];
+                      CommonMethods.showToast(context, message);
+                    });
                   })
                 ],
               ),
               CommonWidgets.mHeightSizeBox(height: 15.0),
+              // FutureBuilder(),
               FutureBuilder(
-                future: CommonMethods.commonPostApiData(ApiInterface.DAILY_TRAINING, {'first_date':'29/12/21'}),
+                future: CommonMethods.commonPostApiData(ApiInterface.DAILY_TRAINING+'/6', {'first_date':'29/12/2021'}),
                 builder: (context, snapshot){
                   if(snapshot.data == null){
                     return Text('Loading...');

@@ -8,6 +8,7 @@ import 'package:training_app/common/api_interface.dart';
 import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
+import 'package:training_app/firebase/methods.dart';
 import 'package:training_app/models/profile_model.dart';
 import 'package:training_app/pages/forget_password.dart';
 import 'package:training_app/pages/nav_dashboard.dart';
@@ -51,17 +52,18 @@ class LoginPageState extends State<LoginPage> {
         }
         else if(status == 'success'){
           Get.back();
-          CommonMethods.showToast(context, 'Login success');
-          CommonMethods.saveBoolPref('is_login', true);
-          CommonMethods.saveStrPref('user_id', mMap['data']);
-          CommonMethods.getRequest(ApiInterface.GET_PROFILE+mMap['data'],context).then((value)async{
-            print(value);
-            ProfileModel profileModel = profileModelFromJson(value.toString());
-            List<ProfileDatum> list = profileModel.data;
-            CommonMethods.saveStrPref('user_email', list[0].email);
-            CommonMethods.saveStrPref('user_fname', list[0].fname);
-            CommonMethods.saveStrPref('user_lname', list[0].lname);
-            Get.to(NavDashboard());
+          logIn(emailController.text, passController.text).then((user){
+            if(user!=null){
+              CommonMethods.showToast(context, 'Login success');
+              CommonMethods.saveBoolPref('is_login', true);
+              CommonMethods.saveStrPref('user_id', mMap['data']['id']);
+              CommonMethods.saveStrPref('user_email', mMap['data']['email']);
+              CommonMethods.saveStrPref('user_fname', mMap['data']['fname']);
+              CommonMethods.saveStrPref('user_lname', mMap['data']['lname']);
+              Get.to(NavDashboard());
+            }else{
+              CommonMethods.showToast(context, 'Something went wrong');
+            }
           });
         }
       });
@@ -194,10 +196,6 @@ class LoginPageState extends State<LoginPage> {
                                 'Login',
                                     (){
                                   loginData();
-                                  // Navigator.push(
-                                  //     context,
-                                  //     MaterialPageRoute(builder: (context) => Dashboard())
-                                  // );
                                 }
                             ),
                             Padding(

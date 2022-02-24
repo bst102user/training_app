@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_widgets.dart';
+import 'package:training_app/firebase/methods.dart';
 import 'package:training_app/pages/document_page.dart';
 import 'package:training_app/pages/login_page.dart';
 import 'package:training_app/pages/profile_page.dart';
@@ -105,8 +106,10 @@ class AccountPageState extends State<AccountPage>{
               }),
               commonView(Icons.person, 'Logout',mCallback: (){
                 CommonMethods.twoButtonDialoge(context, 'Logout', 'Would you like to logout from the Application?',(){
-                  CommonMethods.saveBoolPref('is_login', false);
-                  Get.to(() => LoginPage());
+                  logOut(context).then((value){
+                    CommonMethods.saveBoolPref('is_login', false);
+                    Get.to(() => LoginPage());
+                  });
                 });
               }),
             ],

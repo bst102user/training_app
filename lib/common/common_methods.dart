@@ -3,10 +3,11 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:loader_animated/loader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:toast/toast.dart';
+import 'package:training_app/common/common_var.dart';
 
 class CommonMethods{
   static double deviceWidth(BuildContext context){
@@ -20,8 +21,20 @@ class CommonMethods{
   }
 
   static void showToast(BuildContext context, String message){
-    Toast.show(message, context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
+    Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: CommonVar.RED_BUTTON_COLOR,
+        textColor: Colors.white,
+        fontSize: 16.0
+    );
   }
+
+  // static void showToast(BuildContext context, String message){
+  //   Toast.show(message, context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
+  // }
   static bool isEmailValid(email){
     bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email);
     return emailValid;

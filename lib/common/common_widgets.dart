@@ -65,7 +65,7 @@ class CommonWidgets{
         enterTextColor = Colors.white,
         mController,
         shouldPreIcon = true,
-        contentPadding = const EdgeInsets.all(0.0),
+        contentPadding = const EdgeInsets.all(15.0),
       }){
     return Container(
       height: 50.0,
@@ -274,21 +274,24 @@ class CommonWidgets{
   }
 
   static Widget textBelowIcon(IconData mIconData, String text, VoidCallback mCallback){
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-            mIconData,
-          color: Colors.white,
-          size: 50.0,
-        ),
-        Text(
-            text,
-          style: GoogleFonts.roboto(
-            color: Colors.white
+    return InkWell(
+      onTap: mCallback,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+              mIconData,
+            color: Colors.white,
+            size: 50.0,
           ),
-        )
-      ],
+          Text(
+              text,
+            style: GoogleFonts.roboto(
+              color: Colors.white
+            ),
+          )
+        ],
+      ),
     );
   }
 

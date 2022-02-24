@@ -12,4 +12,6 @@ class ApiInterface{
   static const String SHOW_DOCUMENT          = BASE_URL+'sportsfood/api/show_pdf';
   static const String DAILY_TRAINING         = BASE_URL+'sportsfood/api/monthlyOverViewDate';
   static const String UPDATE_DAILY_TRAINING  = BASE_URL+'sportsfood/api/daily_lrating_update/';
+  static const String UPDATE_ILLNESS         = BASE_URL+'sportsfood/api/update_illness';
+  static const String NOT_ATTEND             = BASE_URL+'sportsfood/api/update_null';
 }

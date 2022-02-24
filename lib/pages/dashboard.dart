@@ -33,6 +33,60 @@ class DashboardState extends State<Dashboard>{
     super.initState();
   }
 
+  Widget commonTile(String date, String time, IconData iconData){
+    return Container(
+        width: double.infinity,
+        height: 80.0,
+        decoration: BoxDecoration(
+            border: Border.all(
+                color: Colors.white,
+                width: 2.0
+            ),
+            borderRadius: const BorderRadius.all(Radius.circular(20))
+        ),
+        child: Row(
+          children: [
+            Expanded(
+                child: Icon(
+                  iconData,
+                  size: 60.0,
+                  color: Colors.white,
+            )
+            ),
+            const Center(
+              child: VerticalDivider(
+                color: Colors.white,
+                thickness: 1,
+              ),
+            ),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    date,
+                    style: GoogleFonts.roboto(
+                        fontSize: 17.0,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white
+                    ),
+                  ),
+                  Text(
+                    time,
+                    style: GoogleFonts.roboto(
+                        fontSize: 17.0,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white
+                    ),
+                  ),
+                ],
+              ),
+            )
+          ],
+        )
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -200,51 +254,11 @@ class DashboardState extends State<Dashboard>{
                       color: Colors.white,
                     ),
                   ),
-                  Container(
-                    width: double.infinity,
-                      height: 80.0,
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 2.0
-                          ),
-                          borderRadius: const BorderRadius.all(Radius.circular(20))
-                      ),
-                      child: Row(
-                        children: [
-                          const Expanded(child: Icon(Icons.calendar_today)),
-                          const Center(
-                            child: VerticalDivider(
-                              color: Colors.white,
-                              thickness: 1,
-                            ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  '13/01/2022',
-                                  style: GoogleFonts.roboto(
-                                      fontSize: 17.0,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white
-                                  ),
-                                ),
-                                Text(
-                                  '120 min',
-                                  style: GoogleFonts.roboto(
-                                      fontSize: 17.0,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
-                      )
-                  ),
+                  commonTile('12/03/2022', '120 min', Icons.timelapse_outlined),
+                  const SizedBox(height: 15.0,),
+                  commonTile('13/03/2022', '140 min', Icons.motorcycle),
+                  const SizedBox(height: 15.0,),
+                  commonTile('14/03/2022', '200 min', Icons.local_restaurant_rounded),
                   const Center(
                     child: Icon(
                       Icons.keyboard_arrow_down,
