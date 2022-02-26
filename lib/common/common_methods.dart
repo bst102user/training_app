@@ -215,4 +215,10 @@ class CommonMethods{
     return regExp.hasMatch(value);
   }
 
+  static Future<String> getUserId()async{
+    SharedPreferences mPref = await SharedPreferences.getInstance();
+    String userId = mPref.getString('user_id') as String;
+    return userId;
+  }
+
 }

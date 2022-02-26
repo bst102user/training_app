@@ -228,10 +228,15 @@ class AddRaceState extends State<AddRace>{
                 CommonWidgets.mHeightSizeBox(height: 20.0),
                 CommonWidgets.commonButton(buttonName,(){
                   if(widget.canData==""){
-                    addOrUpdateRace(ApiInterface.ADD_RACE);
+                    CommonMethods.getUserId().then((userId){
+                      addOrUpdateRace(ApiInterface.ADD_RACE+'/'+userId);
+                    });
                   }
                   else{
-                    addOrUpdateRace(ApiInterface.UPDATE_RACE+'/'+widget.canData.id);
+                    CommonMethods.getUserId().then((userId){
+                      addOrUpdateRace(ApiInterface.UPDATE_RACE+'/'+widget.canData.id+'/'+userId);
+                    });
+
                   }
                 })
               ],

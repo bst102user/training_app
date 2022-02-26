@@ -60,9 +60,19 @@ class LoginPageState extends State<LoginPage> {
               CommonMethods.saveStrPref('user_email', mMap['data']['email']);
               CommonMethods.saveStrPref('user_fname', mMap['data']['fname']);
               CommonMethods.saveStrPref('user_lname', mMap['data']['lname']);
-              Get.to(NavDashboard());
+              Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => NavDashboard()),
+                      (Route<dynamic> route) => false);
             }else{
-              CommonMethods.showToast(context, 'Something went wrong');
+              CommonMethods.showToast(context, 'Login success');
+              CommonMethods.saveBoolPref('is_login', true);
+              CommonMethods.saveStrPref('user_id', mMap['data']['id']);
+              CommonMethods.saveStrPref('user_email', mMap['data']['email']);
+              CommonMethods.saveStrPref('user_fname', mMap['data']['fname']);
+              CommonMethods.saveStrPref('user_lname', mMap['data']['lname']);
+              Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => NavDashboard()),
+                      (Route<dynamic> route) => false);
             }
           });
         }

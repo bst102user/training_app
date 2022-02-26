@@ -248,17 +248,17 @@ class CommonWidgets{
     );
   }
 
-  static Widget commonHeader(BuildContext context,String title){
+  static Widget commonHeader(BuildContext context,String title,{isShowBack = true}){
     return InkWell(
       onTap: (){
         Navigator.pop(context);
       },
       child: Row(
         children: [
-          const Icon(
+          isShowBack?const Icon(
             Icons.arrow_back_ios_rounded,
             color: Colors.white,
-          ),
+          ):Container(),
           const SizedBox(width: 10.0,),
           Text(
             title.toUpperCase(),

@@ -111,7 +111,6 @@ class ChatRoom extends StatelessWidget {
     );
     final size = MediaQuery.of(context).size;
     final double screenHeight = MediaQuery.of(context).size.height;
-    final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     return SafeArea(
       child: Scaffold(
         backgroundColor: CommonVar.BLACK_BG_COLOR,
@@ -119,54 +118,54 @@ class ChatRoom extends StatelessWidget {
           children: [
             Align(
               alignment: Alignment.topCenter,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: InkWell(
-                  onTap: (){
-                    Get.back();
-                  },
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(top: 10.0),
+              child: Container(
+                color: Colors.red,
+                height: 50.0,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    InkWell(
+                      onTap: (){
+                        Get.back();
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.all(10.0),
                         child: Icon(
                           Icons.arrow_back_ios_rounded,
                           color: Colors.white,
                         ),
                       ),
-                      const SizedBox(width: 10.0,),
-                      StreamBuilder<DocumentSnapshot>(
-                        stream:
-                        _firestore.collection("users").doc(userMap['uid']).snapshots(),
-                        builder: (context, snapshot) {
-                          if (snapshot.data != null) {
-                            return Container(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(userMap['name'],
-                                    style: GoogleFonts.roboto(
-                                        fontSize: 20.0,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white
-                                    ),),
-                                  Text(
-                                    snapshot.data!['status'],
-                                    style: GoogleFonts.roboto(
-                                        color: Colors.white
-                                    ),
+                    ),
+                    StreamBuilder<DocumentSnapshot>(
+                      stream:
+                      _firestore.collection("users").doc(userMap['uid']).snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.data != null) {
+                          return Container(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(userMap['name'],
+                                  style: GoogleFonts.roboto(
+                                      fontSize: 20.0,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white
+                                  ),),
+                                Text(
+                                  snapshot.data!['status'],
+                                  style: GoogleFonts.roboto(
+                                      color: Colors.white
                                   ),
-                                ],
-                              ),
-                            );
-                          } else {
-                            return Container();
-                          }
-                        },
-                      ),
-                    ],
-                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        } else {
+                          return Container();
+                        }
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -183,7 +182,7 @@ class ChatRoom extends StatelessWidget {
                     AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (snapshot.data != null) {
                     return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 50.0),
+                      padding: const EdgeInsets.only(top: 50, bottom: 70.0),
                       child: Container(
                         height: screenHeight*0.8,
                         child: ListView.builder(
@@ -205,46 +204,50 @@ class ChatRoom extends StatelessWidget {
             ),
             Align(
               alignment: Alignment.bottomCenter,
-              child: Container(
-                height: 50.0,
-                width: size.width / 1.1,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      height: size.height / 17,
-                      width: size.width / 1.3,
-                      child: TextField(
-                        controller: _message,
-                        decoration: InputDecoration(
-                          enabledBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white, width: 0.0),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 15.0),
+                child: Container(
+                  height: 50.0,
+                  width: size.width / 1.1,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        height: size.height / 17,
+                        width: size.width / 1.3,
+                        child: TextField(
+                          controller: _message,
+                          keyboardType: TextInputType.text,
+                          decoration: InputDecoration(
+                            hintText: 'Type a message..',
+                            hintStyle: const TextStyle(fontSize: 16),
+                            suffixIcon: IconButton(
+                              onPressed: () => getImage(),
+                              icon: const Icon(
+                                Icons.attach_file,
+                                color: CommonVar.RED_BUTTON_COLOR,),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                width: 0,
+                                style: BorderStyle.none,
+                              ),
+                            ),
+                            filled: true,
+                            contentPadding: const EdgeInsets.all(16),
+                            fillColor: Colors.white,
                           ),
-                          disabledBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white, width: 0.0),
-                          ),
-                          suffixIcon: IconButton(
-                            onPressed: () => getImage(),
-                            icon: const Icon(
-                              Icons.attach_file,
-                              color: Colors.white,),
-                          ),
-                          hintText: "Type a message..",
-                          hintStyle: GoogleFonts.roboto(
-                              color: Colors.white
-                          ),
-                        ),
-                        style: GoogleFonts.roboto(
-                            color: Colors.white
                         ),
                       ),
-                    ),
-                    IconButton(
-                        icon: const Icon(
-                          Icons.send,
-                          color: Colors.white,
-                        ), onPressed: onSendMessage),
-                  ],
+                      IconButton(
+                          icon: const Icon(
+                            Icons.send,
+                            color: Colors.white,
+                            size: 30.0,
+                          ), onPressed: onSendMessage),
+                    ],
+                  ),
                 ),
               ),
             ),
