@@ -1,24 +1,21 @@
-// import 'package:chat_app/Authenticate/Methods.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loader_animated/loader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/firebase/screens/chat_room.dart';
-// import 'package:chat_app/group_chats/group_chat_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 
-import '../methods.dart';
-
-class HomeScreen extends StatefulWidget {
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
+class MyAthleteChat extends StatefulWidget{
+  MyAthleteChatState createState() => MyAthleteChatState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
+class MyAthleteChatState extends State<MyAthleteChat> with WidgetsBindingObserver{
   Map<String, dynamic>? userMap;
   bool isLoading = false;
   final TextEditingController _search = TextEditingController();
@@ -96,8 +93,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     SharedPreferences mPref = await SharedPreferences.getInstance();
     String emailStr = mPref.getString('user_email') as String;
     String userId = mPref.getString('user_id') as String;
+    String trainerId = mPref.getString('trainer_id') as String;
     sharePrefValue.add(emailStr);
     sharePrefValue.add(userId);
+    sharePrefValue.add(trainerId);
     return sharePrefValue;
   }
 
@@ -140,17 +139,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           future: getCurrentUser(),
                           builder: (context, snapshot){
                             if(snapshot.data == null){
-                              return Center(child: LoadingBouncingLine(size: 20,));
+                              return const Text('Loading');
                             }
                             else{
                               List<String> prefVal = snapshot.data as List<String>;
                               // String emailStr = snapshot.data as String;
-                              return (prefVal[0] == usersList[index]['email']||prefVal[1]!=usersList[index]['trainer_id'])?Container():Padding(
+                              return (usersList[index]['user_type'] == 'trainer' && usersList[index]['trainer_id'] == prefVal[2])?Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 15.0),
                                 child: Column(
                                   children: [
                                     InkWell(
-                                      onTap:(){
+                                      onTap:() async {
+                                        String userId = await CommonMethods.getUserId();
                                         String roomId = chatRoomId(
                                             _auth.currentUser!.email!,
                                             usersList[index]['email']);
@@ -210,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                     const Divider(color: Colors.white,)
                                   ],
                                 ),
-                              );
+                              ):Container();
                             }
                           },
                         );

@@ -1,10 +1,10 @@
 import 'dart:convert';
 
+import 'package:country_picker/country_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:training_app/common/api_interface.dart';
@@ -27,6 +27,7 @@ class ProfilePageState extends State<ProfilePage>{
   String birthDate = 'Birthday';
   bool isDataShown = true;
   List<ProfileDatum>? listData;
+  String phoneCode = '+1';
 
   Future<dynamic> getProfileData()async{
     // CommonMethods.showAlertDialog(context);
@@ -82,6 +83,19 @@ class ProfilePageState extends State<ProfilePage>{
 
   }
 
+  showCountryCode(){
+    showCountryPicker(
+      context: context,
+      showPhoneCode: true, // optional. Shows phone code before the country name.
+      onSelect: (Country country) {
+        print('Select country: ${country.displayName}');
+        setState(() {
+          phoneCode = "+"+country.phoneCode;
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -128,6 +142,18 @@ class ProfilePageState extends State<ProfilePage>{
                     keybordType: TextInputType.emailAddress,
                     mController: emailController
                 ),
+                // CommonWidgets.mHeightSizeBox(),
+                // CommonWidgets.countryCodeContainer(
+                //     mController: mobileController,
+                //     mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
+                //     mIcon: Icons.phone,
+                //     mTitle: '',
+                //     mTitleText: phoneCode,
+                //     callBack: (){
+                //       FocusScope.of(context).unfocus();
+                //       showCountryCode();
+                //     }
+                // ),
                 CommonWidgets.mHeightSizeBox(),
                 CommonWidgets.commonTextField(
                     mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
@@ -148,32 +174,49 @@ class ProfilePageState extends State<ProfilePage>{
                 CommonWidgets.mHeightSizeBox(height: 20.0),
                 CommonWidgets.mHeightSizeBox(height: 20.0),
                 CommonWidgets.commonButton('SAVE',()async{
-                  CommonMethods.showAlertDialog(context);
-                  SharedPreferences mPref = await SharedPreferences.getInstance();
-                  String userId = mPref.getString('user_id').toString();
-                  Map mMap = {
-                    "fname" : nameController.text,
-                    "lname" : lastnameController.text,
-                    "email" : emailController.text,
-                    "phone" : mobileController.text,
-                    "dob" : birthDate
-                  };
-                  CommonMethods.commonPutApiData(ApiInterface.UPDATE_PROFILE+userId, mMap).then((response){
-                    print(response.toString());
-                    Map mMap = json.decode(response.toString());
-                    String status = mMap['status'];
-                    String message = mMap['message'];
-                    if(status == 'success'){
-                      Get.back();
-                      CommonMethods.getDialoge('Profile updated',intTitle: 2,voidCallback: (){
+                  if(emailController.text.isEmpty
+                      ||nameController.text.isEmpty
+                      ||mobileController.text.isEmpty||birthDate=='Birthday'){
+                    CommonMethods.showToast(context, 'All Fields Mandatory');
+                  }
+                  else if(!CommonMethods.isEmailValid(emailController.text)){
+                    CommonMethods.showToast(context, 'Pleas enter valid email');
+                  }
+                  // else if(!CommonMethods.validateMobile(mobileController.text)){
+                  //   CommonMethods.showToast(context, 'Pleas enter valid mobile');
+                  // }
+                  else {
+                    CommonMethods.showAlertDialog(context);
+                    SharedPreferences mPref = await SharedPreferences
+                        .getInstance();
+                    String userId = mPref.getString('user_id').toString();
+                    Map mMap = {
+                      "fname": nameController.text,
+                      "lname": lastnameController.text,
+                      "email": emailController.text,
+                      "phone": mobileController.text,
+                      "dob": birthDate
+                    };
+                    CommonMethods.commonPutApiData(
+                        ApiInterface.UPDATE_PROFILE + userId, mMap).then((
+                        response) {
+                      print(response.toString());
+                      Map mMap = json.decode(response.toString());
+                      String status = mMap['status'];
+                      String message = mMap['message'];
+                      if (status == 'success') {
                         Get.back();
-                        Get.back();
-                      });
-                    }
-                    else{
-                      CommonMethods.getDialoge(message,intTitle: 1);
-                    }
-                  });
+                        CommonMethods.getDialoge(
+                            'Profile updated', intTitle: 2, voidCallback: () {
+                          Get.back();
+                          Get.back();
+                        });
+                      }
+                      else {
+                        CommonMethods.getDialoge(message, intTitle: 1);
+                      }
+                    });
+                  }
                 })
               ],
             ),

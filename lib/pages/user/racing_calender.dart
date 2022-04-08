@@ -1,17 +1,14 @@
-import 'dart:convert';
-
-import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:loader_animated/loader.dart';
 import 'package:training_app/common/api_interface.dart';
 import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/models/all_race_model.dart';
-import 'package:training_app/pages/add_race.dart';
+import 'add_race.dart';
 
 class RacingCalender extends StatefulWidget{
   RacingCalenderState createState() => RacingCalenderState();
@@ -83,7 +80,7 @@ class RacingCalenderState extends State<RacingCalender>{
                 future: CommonMethods.getUserId(),
                 builder: (context, snapshot){
                   if(snapshot.data == null){
-                    return const Text('Loading...');
+                    return Center(child: LoadingBouncingLine());
                   }
                   else{
                     String userId = snapshot.data as String;
@@ -91,7 +88,7 @@ class RacingCalenderState extends State<RacingCalender>{
                       future: CommonMethods.getRequest(ApiInterface.ALL_RACEES+'/'+userId,context),
                       builder: (context, snapshot){
                         if(snapshot.data == null){
-                          return const Text('Loading...');
+                          return Center(child: LoadingBouncingLine());
                         }
                         else{
                           AllRaceModel allRaceModel = allRaceModelFromJson(snapshot.data.toString());

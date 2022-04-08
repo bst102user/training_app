@@ -2,8 +2,9 @@ import 'package:custom_navigation_bar/custom_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:training_app/firebase/screens/home_screen.dart';
-import 'package:training_app/pages/account_page.dart';
-import 'package:training_app/pages/dashboard.dart';
+import 'package:training_app/pages/trainer/my_athlete_chat.dart';
+import 'account_page.dart';
+import 'dashboard.dart';
 
 class NavDashboard extends StatefulWidget{
   NavDashboardState createState() => NavDashboardState();
@@ -56,7 +57,7 @@ class NavDashboardState extends State<NavDashboard>{
         mmWidget = Dashboard();
         break;
       case 1:
-        mmWidget = HomeScreen();
+        mmWidget = MyAthleteChat();
         break;
       case 2:
         mmWidget = AccountPage();

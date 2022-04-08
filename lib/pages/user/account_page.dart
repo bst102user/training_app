@@ -5,11 +5,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/firebase/methods.dart';
-import 'package:training_app/pages/document_page.dart';
-import 'package:training_app/pages/login_page.dart';
-import 'package:training_app/pages/profile_page.dart';
-import 'package:training_app/pages/racing_calender.dart';
-import 'package:training_app/pages/upgrade_page.dart';
+import 'package:training_app/pages/user/login_page.dart';
+import 'package:training_app/pages/user/notification_page.dart';
+import 'document_page.dart';
+import 'profile_page.dart';
+import 'racing_calender.dart';
+import 'upgrade_page.dart';
 
 class AccountPage extends StatefulWidget{
   AccountPageState createState() => AccountPageState();
@@ -86,7 +87,9 @@ class AccountPageState extends State<AccountPage>{
               commonView(Icons.person, 'Profile',mCallback: (){
                 Get.to(ProfilePage());
               }),
-              commonView(Icons.notifications_rounded, 'Notification'),
+              commonView(Icons.notifications_rounded, 'Notification',mCallback: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>NotificationPage()));
+              }),
               commonView(Icons.calendar_today_outlined, 'Race Calender',mCallback: (){
                 // Navigator.push(context, MaterialPageRoute(builder: (context)=>RacingCalender()));
                 Get.to(RacingCalender());

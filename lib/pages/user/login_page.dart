@@ -10,9 +10,10 @@ import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/firebase/methods.dart';
 import 'package:training_app/models/profile_model.dart';
-import 'package:training_app/pages/forget_password.dart';
-import 'package:training_app/pages/nav_dashboard.dart';
-import 'package:training_app/pages/register_page.dart';
+import 'package:training_app/pages/trainer/tr_dashboard.dart';
+import 'package:training_app/pages/user/forget_password.dart';
+import 'nav_dashboard.dart';
+import 'register_page.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPageState createState() => LoginPageState();
@@ -53,27 +54,87 @@ class LoginPageState extends State<LoginPage> {
         else if(status == 'success'){
           Get.back();
           logIn(emailController.text, passController.text).then((user){
-            if(user!=null){
-              CommonMethods.showToast(context, 'Login success');
-              CommonMethods.saveBoolPref('is_login', true);
-              CommonMethods.saveStrPref('user_id', mMap['data']['id']);
-              CommonMethods.saveStrPref('user_email', mMap['data']['email']);
-              CommonMethods.saveStrPref('user_fname', mMap['data']['fname']);
-              CommonMethods.saveStrPref('user_lname', mMap['data']['lname']);
-              Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => NavDashboard()),
-                      (Route<dynamic> route) => false);
-            }else{
-              CommonMethods.showToast(context, 'Login success');
-              CommonMethods.saveBoolPref('is_login', true);
-              CommonMethods.saveStrPref('user_id', mMap['data']['id']);
-              CommonMethods.saveStrPref('user_email', mMap['data']['email']);
-              CommonMethods.saveStrPref('user_fname', mMap['data']['fname']);
-              CommonMethods.saveStrPref('user_lname', mMap['data']['lname']);
-              Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => NavDashboard()),
-                      (Route<dynamic> route) => false);
+            if(user==null){
+              String userType = mMap['data']['type'];
+              createAccount(mMap['data']['fname'], mMap['data']['email'],
+                  passController.text,
+                  userType == 'Trainer'?mMap['data']['id']:mMap['data']['parent']).then((registerUser){
+                    if(registerUser!=null){
+                      CommonMethods.showToast(context, 'Login success');
+                      CommonMethods.saveBoolPref('is_login', true);
+                      CommonMethods.saveStrPref('user_id', mMap['data']['id']);
+                      CommonMethods.saveStrPref('user_email', mMap['data']['email']);
+                      CommonMethods.saveStrPref('user_fname', mMap['data']['fname']);
+                      CommonMethods.saveStrPref('user_lname', mMap['data']['lname']);
+                      CommonMethods.saveStrPref('trainer_id', mMap['data']['parents']);
+                      CommonMethods.saveStrPref('user_type', mMap['data']['type']);
+                      String userType = mMap['data']['type'];
+                      if(userType == 'Trainer'){
+                        Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(builder: (context) => TrDashboard()),
+                                (Route<dynamic> route) => false);
+                      }
+                      else {
+                        Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(builder: (context) => NavDashboard()),
+                                (Route<dynamic> route) => false);
+                      }
+                    }
+              });
             }
+            else{
+              CommonMethods.showToast(context, 'Login success');
+              CommonMethods.saveBoolPref('is_login', true);
+              CommonMethods.saveStrPref('user_id', mMap['data']['id']);//7(128) and 90(admin) ids for trainers
+              CommonMethods.saveStrPref('user_email', mMap['data']['email']);
+              CommonMethods.saveStrPref('user_fname', mMap['data']['fname']);
+              CommonMethods.saveStrPref('user_lname', mMap['data']['lname']);
+              CommonMethods.saveStrPref('trainer_id', mMap['data']['parents']);
+              CommonMethods.saveStrPref('user_type', mMap['data']['type']);
+              String userType = mMap['data']['type'];
+              if(userType == 'Trainer'){
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => TrDashboard()),
+                        (Route<dynamic> route) => false);
+              }
+              else {
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => NavDashboard()),
+                        (Route<dynamic> route) => false);
+              }
+            }
+            // if(user!=null){
+            //   CommonMethods.showToast(context, 'Login success');
+            //   CommonMethods.saveBoolPref('is_login', true);
+            //   CommonMethods.saveStrPref('user_id', mMap['data']['id']);
+            //   CommonMethods.saveStrPref('user_email', mMap['data']['email']);
+            //   CommonMethods.saveStrPref('user_fname', mMap['data']['fname']);
+            //   CommonMethods.saveStrPref('user_lname', mMap['data']['lname']);
+            //   CommonMethods.saveStrPref('user_lname', mMap['data']['type']);
+            //   Navigator.of(context).pushAndRemoveUntil(
+            //       MaterialPageRoute(builder: (context) => NavDashboard()),
+            //           (Route<dynamic> route) => false);
+            // }else{
+            //   // createAccount(name, email, password, trainerId)
+            //   CommonMethods.showToast(context, 'Login success');
+            //   CommonMethods.saveBoolPref('is_login', true);
+            //   CommonMethods.saveStrPref('user_id', mMap['data']['id']);
+            //   CommonMethods.saveStrPref('user_email', mMap['data']['email']);
+            //   CommonMethods.saveStrPref('user_fname', mMap['data']['fname']);
+            //   CommonMethods.saveStrPref('user_lname', mMap['data']['lname']);
+            //   CommonMethods.saveStrPref('user_type', mMap['data']['type']);
+            //   String userType = mMap['data']['type'];
+            //   if(userType == 'Trainer'){
+            //     Navigator.of(context).pushAndRemoveUntil(
+            //         MaterialPageRoute(builder: (context) => TrDashboard()),
+            //             (Route<dynamic> route) => false);
+            //   }
+            //   else {
+            //     Navigator.of(context).pushAndRemoveUntil(
+            //         MaterialPageRoute(builder: (context) => NavDashboard()),
+            //             (Route<dynamic> route) => false);
+            //   }
+            // }
           });
         }
       });
@@ -92,7 +153,12 @@ class LoginPageState extends State<LoginPage> {
                 checkedValue = !checkedValue;
               });
             },
-            title: const Text('Remember Me'),
+            title: Text(
+                'Remember Me',
+              style: GoogleFonts.roboto(
+                fontSize: 50.0
+              ),
+            ),
             controlAffinity: ListTileControlAffinity.leading,
             activeColor: CommonVar.RED_BUTTON_COLOR));
   }
@@ -176,7 +242,7 @@ class LoginPageState extends State<LoginPage> {
                                         'Remember Me',
                                         style: GoogleFonts.roboto(
                                             color: Colors.white,
-                                            fontSize: 18.0
+                                            fontSize: 15.0
                                         ),
                                       )
                                     ],
@@ -192,7 +258,6 @@ class LoginPageState extends State<LoginPage> {
                                       'Forget Password',
                                       style: GoogleFonts.roboto(
                                           color: Colors.white,
-                                          fontSize: 18.0
                                       ),
                                     ),
                                   )

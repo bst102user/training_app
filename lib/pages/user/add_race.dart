@@ -26,7 +26,7 @@ class AddRaceState extends State<AddRace>{
   TextEditingController goalCtrl = TextEditingController();
   TextEditingController priorityCtrl = TextEditingController();
   TextEditingController arrivalCtrl = TextEditingController();
-  String firstDayStr='First Day',lastDayStr='Last Day';
+  String firstDayStr='First Day',lastDayStr='Last Day',departureStr='Departure',arrivalStr='Arrival';
   bool isFirstDay = true;
   DateTime selectedDate = DateTime.now();
   String titleStr = '';
@@ -35,8 +35,8 @@ class AddRaceState extends State<AddRace>{
 
   addOrUpdateRace(String keyUrl){
     if(nameCtrl.text.isEmpty||distanceCtrl.text.isEmpty||verMetCtrl.text.isEmpty
-        ||goalCtrl.text.isEmpty||priorityCtrl.text.isEmpty||arrivalCtrl.text.isEmpty||
-    firstDayStr=='First Day'||lastDayStr=='Last Day'){
+        ||goalCtrl.text.isEmpty||priorityCtrl.text.isEmpty||(arrivalStr=='Arrival')||
+    firstDayStr=='First Day'||lastDayStr=='Last Day'||departureStr=='Last Day'){
       CommonMethods.getDialoge('All fields are mandatory',voidCallback: (){
         Get.back();
       });
@@ -45,13 +45,14 @@ class AddRaceState extends State<AddRace>{
       CommonMethods.showAlertDialog(context);
       Map addRaceMap = {
         "name": nameCtrl.text,
-        "first_day": firstDayStr,
-        "last_day": lastDayStr,
+        "first_day" : firstDayStr,
+        "last_day"  : lastDayStr,
         "distance": distanceCtrl.text,
         "vertical_meters": verMetCtrl.text,
         "goal": goalCtrl.text,
         "priority": priorityCtrl.text,
-        "arrival": arrivalCtrl.text
+        "arrival" : arrivalStr,
+        "departure" : departureStr,
       };
 
       CommonMethods.commonPostApiData(keyUrl, addRaceMap).then((
@@ -88,17 +89,17 @@ class AddRaceState extends State<AddRace>{
         selectedDate = selected;
         print(selectedDate);
         if(isFirstDay){
-          firstDayStr = DateFormat('dd/MM/yyyy').format(selectedDate);
+          firstDayStr = DateFormat('yyyy-MM-dd').format(selectedDate);
         }
         else{
           if(firstDayStr=='First Day'){
             CommonMethods.showToast(context, 'Select start date first');
           }
           else{
-            lastDayStr = DateFormat('dd/MM/yyyy').format(selectedDate);
+            lastDayStr = DateFormat('yyyy-MM-dd').format(selectedDate);
             if(lastDayStr != 'Last Day'){
-              DateTime fDateTime = DateFormat('dd/MM/yyyy').parse(firstDayStr);
-              DateTime lDateTime = DateFormat('dd/MM/yyyy').parse(lastDayStr);
+              DateTime fDateTime = DateFormat('yyyy-MM-dd').parse(firstDayStr);
+              DateTime lDateTime = DateFormat('yyyy-MM-dd').parse(lastDayStr);
               int differenceInDays = lDateTime.difference(fDateTime).inDays;
               if(differenceInDays<0){
                 CommonMethods.getDialoge('Last date should be greater then first date',voidCallback: (){
@@ -115,6 +116,38 @@ class AddRaceState extends State<AddRace>{
     }
   }
 
+  _selectDeparture(BuildContext context) async {
+    final DateTime? selected = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2025),
+    );
+    if (selected != null && selected != selectedDate) {
+      setState(() {
+        selectedDate = selected;
+        print(selectedDate);
+        departureStr = DateFormat('yyyy-MM-dd').format(selectedDate);
+      });
+    }
+  }
+
+  _selectArrival(BuildContext context) async {
+    final DateTime? selected = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2025),
+    );
+    if (selected != null && selected != selectedDate) {
+      setState(() {
+        selectedDate = selected;
+        print(selectedDate);
+        arrivalStr = DateFormat('yyyy-MM-dd').format(selectedDate);
+      });
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -127,7 +160,8 @@ class AddRaceState extends State<AddRace>{
       verMetCtrl.text = widget.canData.verticalMeters;
       goalCtrl.text = widget.canData.goal;
       priorityCtrl.text = widget.canData.priority;
-      arrivalCtrl.text = widget.canData.arrival;
+      arrivalStr = widget.canData.arrival;
+      departureStr = widget.canData.departure;
       firstDayStr = widget.canData.firstDay;
       lastDayStr = widget.canData.lastDay;
     }
@@ -218,12 +252,24 @@ class AddRaceState extends State<AddRace>{
                     keybordType: TextInputType.text
                 ),
                 CommonWidgets.mHeightSizeBox(),
-                CommonWidgets.commonTextField(
+                CommonWidgets.containerLikeTextField(
                     mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
-                    mIcon: Icons.share_arrival_time,
-                    mTitle: 'Arrival',
-                    mController: arrivalCtrl,
-                    keybordType: TextInputType.text
+                    mIcon: Icons.date_range,
+                    mTitle: arrivalStr,
+                    callBack: (){
+                      // isFirstDay = true;
+                      _selectArrival(context);
+                    }
+                ),
+                CommonWidgets.mHeightSizeBox(),
+                CommonWidgets.containerLikeTextField(
+                    mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
+                    mIcon: Icons.date_range,
+                    mTitle: departureStr,
+                    callBack: (){
+                      isFirstDay = true;
+                      _selectDeparture(context);
+                    }
                 ),
                 CommonWidgets.mHeightSizeBox(height: 20.0),
                 CommonWidgets.commonButton(buttonName,(){

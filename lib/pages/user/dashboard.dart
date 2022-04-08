@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:training_app/common/api_interface.dart';
-import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/models/profile_model.dart';
-import 'package:training_app/pages/monthly_overview.dart';
+import 'account_page.dart';
+import 'monthly_overview.dart';
 
 class Dashboard extends StatefulWidget{
   DashboardState createState() => DashboardState();
@@ -168,10 +168,15 @@ class DashboardState extends State<Dashboard>{
 
                     ],
                   ),
-                  const Icon(
-                      Icons.settings,
-                      color: Colors.white,
-                    size: 30.0,
+                  InkWell(
+                    onTap: (){
+                      Get.to(AccountPage());
+                    },
+                    child: Icon(
+                        Icons.settings,
+                        color: Colors.white,
+                      size: 30.0,
+                    ),
                   )
                 ],
               ),

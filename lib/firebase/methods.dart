@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:training_app/pages/login_page.dart';
+import 'package:training_app/pages/user/login_page.dart';
 
-Future<User?> createAccount(String name, String email, String password) async {
+Future<User?> createAccount(String name, String email, String password,String trainerId) async {
   FirebaseAuth _auth = FirebaseAuth.instance;
 
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -20,6 +20,7 @@ Future<User?> createAccount(String name, String email, String password) async {
       "name": name,
       "email": email,
       "status": "Unavalible",
+      "trainer_id": trainerId,
       "uid": _auth.currentUser!.uid,
     });
 

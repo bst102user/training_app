@@ -43,6 +43,7 @@ class AllRaceDatum {
     required this.goal,
     required this.priority,
     required this.arrival,
+    required this.departure,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -56,6 +57,7 @@ class AllRaceDatum {
   String goal;
   String priority;
   String arrival;
+  String departure;
   DateTime createdAt;
   DateTime updatedAt;
 
@@ -69,6 +71,7 @@ class AllRaceDatum {
     goal: json["goal"],
     priority: json["priority"],
     arrival: json["arrival"],
+    departure: json["departure"],
     createdAt: DateTime.parse(json["created_at"]),
     updatedAt: DateTime.parse(json["updated_at"]),
   );
@@ -83,6 +86,7 @@ class AllRaceDatum {
     "goal": goal,
     "priority": priority,
     "arrival": arrival,
+    "departure": departure,
     "created_at": createdAt.toIso8601String(),
     "updated_at": updatedAt.toIso8601String(),
   };

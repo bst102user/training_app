@@ -11,7 +11,9 @@ import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/firebase/methods.dart';
-import 'package:training_app/pages/nav_dashboard.dart';
+import 'package:training_app/models/all_trainers_model.dart';
+import 'package:training_app/pages/user/select_trainer.dart';
+import 'nav_dashboard.dart';
 
 class RegisterPage extends StatefulWidget{
   RegisterPageState createState() => RegisterPageState();
@@ -31,6 +33,22 @@ class RegisterPageState extends State<RegisterPage>{
   DateTime selectedDate = DateTime.now();
   String birthDate = 'Birthday';
   String phoneCode = '+1';
+  String trainerName = 'Select Trainer';
+  String? trainerId;
+
+  getTrainer()async{
+    AlTrainerDatum mData = await Navigator.push(context, MaterialPageRoute(builder: (context)=>SelectTrainer()));
+    setState(() {
+      trainerName = mData.fname+' '+mData.lname;
+      trainerId = mData.id;
+    });
+  }
+
+  @override
+  initState(){
+    super.initState();
+    // getTrainerData();
+  }
 
   registerData()async{
     if(emailController.text.isEmpty||passController.text.isEmpty
@@ -39,7 +57,7 @@ class RegisterPageState extends State<RegisterPage>{
       CommonMethods.showToast(context, 'All Fields Mandatory');
     }
     else if(!CommonMethods.isEmailValid(emailController.text)){
-      CommonMethods.showToast(context, 'Pleas enter valid email');
+      CommonMethods.showToast(context, 'Please enter valid email');
     }
     else if(!CommonMethods.passwordValidation(passController.text)){
       CommonMethods.getDialoge('Password should include-\n1-8 digit length\n2-One upper case one lower case\n3-One special charecter\n4-One numeric value',voidCallback: (){
@@ -50,7 +68,10 @@ class RegisterPageState extends State<RegisterPage>{
       CommonMethods.showToast(context, 'Password and confirm password does not match');
     }
     else if(!CommonMethods.validateMobile(mobileController.text)){
-      CommonMethods.showToast(context, 'Pleas enter valid mobile');
+      CommonMethods.showToast(context, 'Please enter valid mobile');
+    }
+    else if(trainerName == 'Select Trainer'){
+      CommonMethods.showToast(context, 'Please select trainer');
     }
     else {
       CommonMethods.showAlertDialog(context);
@@ -61,7 +82,9 @@ class RegisterPageState extends State<RegisterPage>{
         "password" : passController.text,
         "cpassword" : conPassController.text,
         "phone" : phoneCode+mobileController.text,
-        "dob" : birthDate
+        "dob" : birthDate,
+        "allownotification" : "0",
+        "parents" : trainerId
       };
       CommonMethods.commonPostApiData(ApiInterface.REGISTER_USER, registerMap).then((response){
         Get.back();
@@ -74,18 +97,19 @@ class RegisterPageState extends State<RegisterPage>{
           });
         }
         else if(status == 'success'){
-          createAccount(nameController.text, emailController.text, passController.text).then((user){
+          createAccount(nameController.text, emailController.text, passController.text, trainerId!).then((user){
             if (user != null) {
               print("Account Created Sucessfull");
               CommonMethods.saveStrPref('user_email', emailController.text);
               CommonMethods.saveStrPref('user_fname', nameController.text);
               CommonMethods.saveStrPref('user_lname', lastnameController.text);
-              CommonMethods.saveStrPref('user_lname', lastnameController.text);
+              CommonMethods.saveStrPref('user_id', mMap['data']['id']);
+              CommonMethods.saveStrPref('trainer_id', mMap['data']['parents']);
               CommonMethods.saveBoolPref('is_login', true);
               CommonMethods.getDialoge('Registered successfully');
               Get.to(NavDashboard());
             } else {
-              print("Login Failed");
+              CommonMethods.showToast(context, 'Email already exist');
             }
           });
         }
@@ -100,12 +124,13 @@ class RegisterPageState extends State<RegisterPage>{
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     );
-    if (selected != null && selected != selectedDate)
+    if (selected != null && selected != selectedDate) {
       setState(() {
         selectedDate = selected;
         print(selectedDate);
         birthDate = DateFormat('yyyy-MM-dd').format(selectedDate);
       });
+    }
   }
 
   showCountryCode(){
@@ -210,6 +235,12 @@ class RegisterPageState extends State<RegisterPage>{
                     }
                 ),
                 CommonWidgets.mHeightSizeBox(height: 20.0),
+                CommonWidgets.containerLikeTextField(
+                  mTitle: trainerName,
+                  callBack: (){
+                    getTrainer();
+                  }
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

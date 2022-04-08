@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:training_app/common/api_interface.dart';
 import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_widgets.dart';
-import 'package:training_app/pages/pdf_page.dart';
+import 'pdf_page.dart';
 
 class DocumentPage extends StatefulWidget{
   DocumentPageState createState() => DocumentPageState();
@@ -19,7 +19,7 @@ class DocumentPageState extends State<DocumentPage>{
     return InkWell(
       onTap: (){
         CommonMethods.getRequest(mUrl, context).then((value){
-          Get.to(PdfPage(label, value.toString()));
+          Get.to(PdfPage(label, 'https://teamwebdevelopers.com/sportsfood/api/show_pdf/9/5'));
         });
       },
       child: Container(
