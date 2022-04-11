@@ -11,7 +11,7 @@ class ApiInterface{
   static const String UPDATE_PROFILE         = BASE_URL+'sportsfood/api/user_update/';
   static const String SHOW_DOCUMENT          = BASE_URL+'sportsfood/api/show_pdf';
   static const String DAILY_TRAINING         = BASE_URL+'sportsfood/api/monthlyOverViewDate/';
-  static const String UPDATE_DAILY_TRAINING  = BASE_URL+'sportsfood/api/daily_lrating_update/';
+  static const String UPDATE_DAILY_TRAINING  = BASE_URL+'sportsfood/api/daily_rating_update/';
   static const String UPDATE_ILLNESS         = BASE_URL+'sportsfood/api/update_illness';
   static const String NOT_ATTEND             = BASE_URL+'sportsfood/api/update_null';
   static const String ALL_TRAINER            = BASE_URL+'sportsfood/api/alltrainer';
@@ -22,5 +22,6 @@ class ApiInterface{
 
   static const String LIST_ATHLETES             = BASE_URL+'sportsfood/api/trainer_athletics/';
   static const String UPLOAD_XLS_FILE           = BASE_URL+'sportsfood/api/upload_file';
+  static const String IMPORT_FILE               = BASE_URL+'sportsfood/api/export_file/101';
 
 }

@@ -26,16 +26,23 @@ class PdfPage extends StatelessWidget{
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 20.0),
-          child: ListView(
+          child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 10.0),
-                child: CommonWidgets.commonHeader(context, title),
+              Flexible(
+                flex: 1,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 15.0,),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10.0),
+                      child: CommonWidgets.commonHeader(context, title),
+                    ),
+                    const SizedBox(height: 10.0,),
+                  ],
+                ),
               ),
-              const SizedBox(height: 10.0,),
-              Container(
-                height: CommonMethods.deviceHeight(context)*0.9,
-                width: CommonMethods.deviceWidth(context),
+              Flexible(
+                flex: 10,
                 child: SfPdfViewer.network(
                   urlStr,
                   controller: _pdfViewerController,

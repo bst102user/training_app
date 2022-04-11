@@ -207,8 +207,9 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
             ),
           ),
             const SizedBox(height: 20.0,),
-            CommonWidgets.commonButton('Save', () {
-              Map updateMap = {
+            CommonWidgets.commonButton('Save', ()async {
+              String userId = await CommonMethods.getUserId();
+              Map updateMap = /*{
                 "weight" : weightCtrl.text,
                 "dr_time" : time1Ctrl.text,
                 "intervals" : time1Ctrl.text,
@@ -217,8 +218,16 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                 "condense" : codenseCtrl.text,
                 "ipsmm"  : ipsmmCtrl.text,
                 "dolriop" : dolariopCtrl.text
+              };*/
+
+              {
+                "trainingstime_min" :time1Ctrl.text,
+                "power_watt" : wayCtrl.text,
+                "pulse" : pulseCtrl.text,
+                "cadence" : codenseCtrl.text,
+                "rainingstime" : time1Ctrl.text
               };
-              CommonMethods.commonPostApiData(ApiInterface.UPDATE_DAILY_TRAINING+widget.dailyTrainDatum.id, updateMap).then((value){
+              CommonMethods.commonPostApiData(ApiInterface.UPDATE_DAILY_TRAINING+widget.dailyTrainDatum.id+'/'+userId, updateMap).then((value){
                 String mResponse = value.toString();
                 Map responseMap = json.decode(mResponse);
                 String mStatus = responseMap['status'];

@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
-
-import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart' show CalendarCarousel;
-import 'package:flutter_calendar_carousel/classes/event.dart';
-import 'package:flutter_calendar_carousel/classes/event_list.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:table_calendar/table_calendar.dart';
-import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/common/utils.dart';
 import 'daily_training.dart';
-import 'racing_calender.dart';
 import 'test.dart';
 
 class MonthlyOverview extends StatefulWidget {

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/models/trainer/tr_assign_athletes_model.dart';
 import 'package:training_app/pages/trainer/export_page.dart';
+import 'package:training_app/pages/trainer/import_page.dart';
 
 class AthletesDetail extends StatelessWidget{
   final AssignDatum athlDetail;
@@ -85,6 +86,13 @@ class AthletesDetail extends StatelessWidget{
                 Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => ExportPage(athlDetail.id))
+                );
+              }),
+              const SizedBox(height: 20.0,),
+              CommonWidgets.commonButton('Import', () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ImportPage())
                 );
               }),
               commonView('Racing Calender'),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:loader_animated/loader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:training_app/common/api_interface.dart';
 import 'package:training_app/common/common_methods.dart';
@@ -143,14 +144,27 @@ class DailyTrainingState extends State<DailyTraining>{
                       future: CommonMethods.commonPostApiData(ApiInterface.DAILY_TRAINING+userId, {'first_date' : workingDate}),
                       builder: (context, snapshot){
                         if(snapshot.data == null){
-                          return Text('Loading...');
+                          return Center(child: LoadingBouncingLine(size: 50,));
                         }
                         else{
                           String result = snapshot.data.toString();
                           Map mMap = json.decode(result);
                           String isDataThere = mMap['status'];
                           if(isDataThere == 'error'){
-                            return const Text(' No Data ');
+                            return Center(child: Column(
+                              children: [
+                                const SizedBox(height: 50.0,),
+                                Text(
+                                    ' No data found',
+                                  style: GoogleFonts.roboto(
+                                    color: Colors.white,
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.w600
+                                  ),
+                                ),
+                              ],
+                            )
+                            );
                           }
                           else{
                             DailyTrainingModel dtm = dailyTrainingModelFromJson(snapshot.data.toString());

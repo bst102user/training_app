@@ -1,6 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Response;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:training_app/common/api_interface.dart';
 import 'package:training_app/common/common_methods.dart';
@@ -17,10 +18,10 @@ class DocumentPageState extends State<DocumentPage>{
   Widget commonView(String label, String mUrl, {mCallback}){
     const borderSide = BorderSide(color: Colors.white, width: 0.5);
     return InkWell(
-      onTap: (){
-        CommonMethods.getRequest(mUrl, context).then((value){
-          Get.to(PdfPage(label, 'https://teamwebdevelopers.com/sportsfood/api/show_pdf/9/5'));
-        });
+      onTap: ()async{
+        Response mResponse = await CommonMethods.commonGetApiData('https://teamwebdevelopers.com/sportsfood/api/show_pdf/9/5');
+        String urlData = mResponse.data;
+        Get.to(PdfPage(label, urlData));
       },
       child: Container(
         height: 70.0,

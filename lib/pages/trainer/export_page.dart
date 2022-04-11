@@ -48,17 +48,17 @@ class ExportPageState extends State<ExportPage>{
       var newPath = fileNameFromPath.substring(0, lastSeparator + 1) + widget.athleteId+context.extension(file.path);
       File fileToUpload = File(newPath);
       String fileType = context.extension(newPath);
-      setState(() {
-        getFileSize(file.path, 1).then((value)async{
-          if(fileType=='.xls'||fileType == '.xlsx'){
+      getFileSize(file.path, 1).then((value)async{
+        if(fileType=='.xls'||fileType == '.xlsx'){
+          setState(() {
             nameFile = file;
-          }
-          else{
-            CommonMethods.getDialoge('You can upload only .xls file type',intTitle: 1,voidCallback: (){
-              Navigator.pop(this.context);
-            });
-          }
-        });
+          });
+        }
+        else{
+          CommonMethods.getDialoge('You can upload only .xls file type',intTitle: 1,voidCallback: (){
+            Navigator.pop(this.context);
+          });
+        }
       });
     } else {
       // User canceled the picker
@@ -96,15 +96,20 @@ class ExportPageState extends State<ExportPage>{
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
           child: ListView(
             children: [
-              CommonWidgets.commonHeader(context, 'Import'),
+              CommonWidgets.commonHeader(context, 'Export'),
               const SizedBox(height: 20.0,),
               Container(
                 height: MediaQuery.of(context).size.height*0.8,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const SizedBox(
-                      height: 100.0,
+                    Text(
+                        nameFile==null?'':nameFile!.path.split('/').last,
+                      style: GoogleFonts.roboto(
+                        color: Colors.white,
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.w600
+                      ),
                     ),
                     InkWell(
                       onTap: (){
@@ -134,14 +139,6 @@ class ExportPageState extends State<ExportPage>{
                                     fontSize: 25.0
                                   ),
                                 ),
-                                const SizedBox(height: 10.0,),
-                                Text(
-                                  'Max two files',
-                                  style: GoogleFonts.roboto(
-                                      color: Colors.white,
-                                      fontSize: 20.0
-                                  ),
-                                )
                               ],
                             ),
                           ),
