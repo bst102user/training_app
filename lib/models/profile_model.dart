@@ -43,6 +43,8 @@ class ProfileDatum {
     required this.status,
     required this.dob,
     required this.userType,
+    required this.userId,
+    required this.profileImage,
   });
 
   String id;
@@ -52,8 +54,10 @@ class ProfileDatum {
   String phone;
   String parents;
   String status;
-  String dob;
+  DateTime dob;
   String userType;
+  String userId;
+  String profileImage;
 
   factory ProfileDatum.fromJson(Map<String, dynamic> json) => ProfileDatum(
     id: json["id"],
@@ -63,8 +67,10 @@ class ProfileDatum {
     phone: json["phone"],
     parents: json["parents"],
     status: json["status"],
-    dob: json["dob"],
+    dob: DateTime.parse(json["dob"]),
     userType: json["user_type"],
+    userId: json["user_id"],
+    profileImage: json["profile_image"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -75,7 +81,9 @@ class ProfileDatum {
     "phone": phone,
     "parents": parents,
     "status": status,
-    "dob": dob,
+    "dob": "${dob.year.toString().padLeft(4, '0')}-${dob.month.toString().padLeft(2, '0')}-${dob.day.toString().padLeft(2, '0')}",
     "user_type": userType,
+    "user_id": userId,
+    "profile_image": profileImage,
   };
 }

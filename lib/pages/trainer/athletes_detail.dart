@@ -92,13 +92,13 @@ class AthletesDetail extends StatelessWidget{
               CommonWidgets.commonButton('Import', () {
                 Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ImportPage())
+                    MaterialPageRoute(builder: (context) => ImportPage(athlDetail.id))
                 );
               }),
-              commonView('Racing Calender'),
-              commonView('Documents'),
-              commonView('Adipicing'),
-              commonView('Pretium'),
+              // commonView('Racing Calender'),
+              // commonView('Documents'),
+              // commonView('Adipicing'),
+              // commonView('Pretium'),
             ],
           ),
         ),

@@ -1,28 +1,198 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:training_app/common/api_interface.dart';
+import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_var.dart';
+import 'package:training_app/firebase/firebase_api.dart';
+import 'package:training_app/firebase/keys.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
+import 'package:flutter/cupertino.dart';
 
-class ChatRoom extends StatelessWidget {
+class ChatRoom extends StatefulWidget {
+  ChatRoomState createState() => ChatRoomState();
   final Map<String, dynamic> userMap;
   final String chatRoomId;
-  final ScrollController _controller = ScrollController();
 
   ChatRoom({required this.chatRoomId, required this.userMap});
+}
 
+class ChatRoomState extends State<ChatRoom>{
   final TextEditingController _message = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final ScrollController _controller = ScrollController();
+  final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   File? imageFile;
+  File? file;
+  UploadTask? task;
+  bool load = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // registerNotification();
+    // configLocalNotification();
+  }
+
+  void configLocalNotification() {
+    var initializationSettingsAndroid = const AndroidInitializationSettings('app_icon');
+    var initializationSettingsIOS = const IOSInitializationSettings();
+    var initializationSettings = InitializationSettings(android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+  void registerNotification() {
+    firebaseMessaging.requestPermission();
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print('onMessage: $message');
+      if (message.notification != null) {
+        showNotification(message.notification!);
+      }
+      return;
+    });
+
+    firebaseMessaging.getToken().then((token) {
+      print('push token: $token');
+      if (token != null) {
+        // homeProvider.updateDataFirestore(FirestoreConstants.pathUserCollection, currentUserId, {'pushToken': token});
+      }
+    }).catchError((err) {
+      Fluttertoast.showToast(msg: err.message.toString());
+    });
+  }
+  void showNotification(message) async {
+    // var message = {'title':'ii','body':'yyyy'};
+    // var message = json.encode(mJson);
+    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+      Platform.isAndroid ? 'com.dfa.flutterchatdemo' : 'com.duytq.flutterchatdemo',
+      'Flutter chat demo',
+      playSound: true,
+      enableVibration: true,
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+    var iOSPlatformChannelSpecifics = const IOSNotificationDetails();
+    var platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics,
+        iOS: iOSPlatformChannelSpecifics /*androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics*/);
+    await flutterLocalNotificationsPlugin.show(
+        0, message['title'].toString(), message['body'].toString(), platformChannelSpecifics,
+        payload: json.encode(message));
+  }
+
+
+  Future selectFile() async {
+    load = true;
+    final result = await FilePicker.platform.pickFiles(allowMultiple: false);
+
+    if (result == null) return;
+    final path = result.files.single.path!;
+
+    setState(() => file = File(path));
+
+    final fileName = basename(file!.path);
+    final destination = 'files/$fileName';
+
+    task = FirebaseApi.uploadFile(destination, file!);
+    setState(() {});
+
+    if (task == null) return;
+
+    final snapshot = await task!.whenComplete(() {});
+    final urlDownload = await snapshot.ref.getDownloadURL();
+
+    print('Download-Link: $urlDownload');
+    setState(() {
+      load = false;
+    });
+    _message.text = urlDownload;
+    onSendMessage();
+  }
+
+  void _launchURL(String _url) async {
+    if (!await launch(_url)) throw 'Could not launch $_url';
+  }
+
+  uploadFiles(File files)async{
+    CommonMethods.showAlertDialog(this.context);
+    var postUri = Uri.parse(ApiInterface.UPLOAD_XLS_FILE);
+    http.MultipartRequest request = http.MultipartRequest("POST", postUri);
+    http.MultipartFile multipartFile = await http.MultipartFile.fromPath(
+        'sendfile', files.path);
+    request.files.add(multipartFile);
+    http.StreamedResponse response = await request.send();
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      Navigator.pop(this.context);
+      CommonMethods.showToast(this.context, 'Files uploaded');
+      Navigator.pop(this.context);
+    }
+  }
+
+
+  void showDialogWithFields() {
+    showDialog(
+      context: this.context,
+      builder: (_) {
+        return AlertDialog(
+          title: Text('Choose file type'),
+          content: Container(
+            height: 100.0,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                InkWell(
+                  onTap: (){
+                    getImage();
+                    Navigator.pop(this.context);
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: Text('Select image'),
+                  ),
+                ),
+                InkWell(
+                  onTap: (){
+                    selectFile();
+                    Navigator.pop(this.context);
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: Text('Select File'),
+                  ),
+                )
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(this.context),
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
 
   Future getImage() async {
     ImagePicker _picker = ImagePicker();
@@ -42,7 +212,7 @@ class ChatRoom extends StatelessWidget {
 
     await _firestore
         .collection('chatroom')
-        .doc(chatRoomId)
+        .doc(widget.chatRoomId)
         .collection('chats')
         .doc(fileName)
         .set({
@@ -53,11 +223,12 @@ class ChatRoom extends StatelessWidget {
     });
 
     var ref = FirebaseStorage.instance.ref().child('images').child("$fileName.jpg");
+    var ref2 = FirebaseStorage.instance.ref().child('files').child("$fileName.pdf");
 
     var uploadTask = await ref.putFile(imageFile!).catchError((error) async {
       await _firestore
           .collection('chatroom')
-          .doc(chatRoomId)
+          .doc(widget.chatRoomId)
           .collection('chats')
           .doc(fileName)
           .delete();
@@ -70,7 +241,7 @@ class ChatRoom extends StatelessWidget {
 
       await _firestore
           .collection('chatroom')
-          .doc(chatRoomId)
+          .doc(widget.chatRoomId)
           .collection('chats')
           .doc(fileName)
           .update({"message": imageUrl});
@@ -91,11 +262,11 @@ class ChatRoom extends StatelessWidget {
         "type": "text",
         "time": FieldValue.serverTimestamp(),
       };
-
+      sendAndRetrieveMessage(widget.userMap['auth_token']);
       _message.clear();
       await _firestore
           .collection('chatroom')
-          .doc(chatRoomId)
+          .doc(widget.chatRoomId)
           .collection('chats')
           .add(messages);
     } else {
@@ -103,8 +274,54 @@ class ChatRoom extends StatelessWidget {
     }
   }
 
+  Future<Map<String, dynamic>> sendAndRetrieveMessage(String token) async {
+    var url = 'https://fcm.googleapis.com/fcm/send';
+    Uri mUri = Uri.parse(url);
+    var res = await http.post(
+      mUri,
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization': 'key=$MY_SERVER_KEY',
+      },
+      body: jsonEncode(
+        <String, dynamic>{
+          'notification': <String, dynamic>{
+            'body': _message.text,
+            'title': _auth.currentUser!.displayName
+          },
+          'priority': 'high',
+          'data': <String, dynamic>{
+            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+            'id': '1',
+            'status': 'done'
+          },
+          'to': token,
+        },
+      ),
+    );
+
+    print(res);
+    final Completer<Map<String, dynamic>> completer = Completer<Map<String, dynamic>>();
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage? message) {
+      if (message != null) {
+        print(message);
+      }
+    });
+
+    return completer.future;
+  }
+
+
   @override
   Widget build(BuildContext context) {
+    Widget loadingIndicator =load? Container(
+      color: Colors.grey[300],
+      width: 70.0,
+      height: 70.0,
+      child: const Padding(padding: EdgeInsets.all(5.0),child: Center(child: CircularProgressIndicator())),
+    ):Container();
     Timer(
       const Duration(seconds: 1),
           () => _controller.jumpTo(_controller.position.maxScrollExtent),
@@ -138,14 +355,14 @@ class ChatRoom extends StatelessWidget {
                     ),
                     StreamBuilder<DocumentSnapshot>(
                       stream:
-                      _firestore.collection("users").doc(userMap['uid']).snapshots(),
+                      _firestore.collection("users").doc(widget.userMap['uid']).snapshots(),
                       builder: (context, snapshot) {
                         if (snapshot.data != null) {
                           return Container(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(userMap['name'],
+                                Text(widget.userMap['name'],
                                   style: GoogleFonts.roboto(
                                       fontSize: 20.0,
                                       fontWeight: FontWeight.w600,
@@ -174,7 +391,7 @@ class ChatRoom extends StatelessWidget {
               child: StreamBuilder<QuerySnapshot>(
                 stream: _firestore
                     .collection('chatroom')
-                    .doc(chatRoomId)
+                    .doc(widget.chatRoomId)
                     .collection('chats')
                     .orderBy("time", descending: false)
                     .snapshots(),
@@ -222,7 +439,7 @@ class ChatRoom extends StatelessWidget {
                             hintText: 'Type a message..',
                             hintStyle: const TextStyle(fontSize: 16),
                             suffixIcon: IconButton(
-                              onPressed: () => getImage(),
+                              onPressed: () => showDialogWithFields(),
                               icon: const Icon(
                                 Icons.attach_file,
                                 color: CommonVar.RED_BUTTON_COLOR,),
@@ -251,6 +468,7 @@ class ChatRoom extends StatelessWidget {
                 ),
               ),
             ),
+            Center(child: loadingIndicator)
           ],
         ),
       ),
@@ -271,10 +489,18 @@ class ChatRoom extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           color: map['sendby'] == _auth.currentUser!.displayName?const Color(0xffcea332):const Color(0xff41bdd5),
         ),
-        child: Text(
-          map['message'],
-          style: GoogleFonts.roboto(
-            color: Colors.white,
+        child: InkWell(
+          onTap: (){
+            if(Uri.parse(map['message']).host != ''){
+              _launchURL(map['message']);
+            }
+          },
+          child: Text(
+            map['message'],
+            style: GoogleFonts.roboto(
+              color: Colors.white,
+              decoration: Uri.parse(map['message']).host == '' ? TextDecoration.none:TextDecoration.underline,
+            ),
           ),
         ),
       ),

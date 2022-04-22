@@ -15,9 +15,11 @@ import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ImportPage extends StatefulWidget{
+  final String athleteId;
+  ImportPage(this.athleteId);
   ImportPageState createState() => ImportPageState();
 }
 
@@ -56,7 +58,7 @@ class ImportPageState extends State<ImportPage>{
 
   void getImage(String startDate, String endDate) async{
     String userId = await CommonMethods.getUserId();
-    var uri = Uri.parse(ApiInterface.IMPORT_FILE);
+    var uri = Uri.parse(ApiInterface.GET_LINK_XLS+'/'+widget.athleteId);
 
     Map body = {
       "fdate" : startDate,
@@ -66,34 +68,21 @@ class ImportPageState extends State<ImportPage>{
       final response = await http.post(uri,
           body: json.encode(body)
       );
-
-      if (response.contentLength == 0){
-        return;
+      if(response.statusCode == 200){
+        _launchURL(response.body);
+      }
+      else{
+        CommonMethods.showToast(this.context, 'Something went wrong');
       }
       // Directory tempDir = Directory((await getExternalStorageDirectory())!.path + '/xlssss');
-      String tempPath = await createFolder('test');
-      File file = File('$tempPath/$userId.xls');
-      File mFile = await file.writeAsBytes(response.bodyBytes);
-      print(mFile);
-      CommonMethods.showToast(context, 'File downloaded...');
     }
     catch (value) {
       print(value);
     }
   }
 
-  Future<String> createFolder(String cow) async {
-    final dir = Directory((await getExternalStorageDirectory())!.path + '/$cow');
-    var status = await Permission.storage.status;
-    if (!status.isGranted) {
-      await Permission.storage.request();
-    }
-    if ((await dir.exists())) {
-      return dir.path;
-    } else {
-      dir.create();
-      return dir.path;
-    }
+  void _launchURL(String _url) async {
+    if (!await launch(_url)) throw 'Could not launch $_url';
   }
 
   @override
@@ -157,6 +146,7 @@ class ImportPageState extends State<ImportPage>{
                 else {
                   getImage(startDateStr, endDateStr);
                 }
+                // _launchURL();
               })
             ],
           ),

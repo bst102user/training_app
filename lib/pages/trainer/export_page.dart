@@ -24,7 +24,7 @@ class ExportPageState extends State<ExportPage>{
 
   uploadFiles(File files)async{
     CommonMethods.showAlertDialog(this.context);
-    var postUri = Uri.parse(ApiInterface.UPLOAD_XLS_FILE);
+    var postUri = Uri.parse(ApiInterface.UPLOAD_XLS_FILE+'/'+widget.athleteId);
     http.MultipartRequest request = http.MultipartRequest("POST", postUri);
     http.MultipartFile multipartFile = await http.MultipartFile.fromPath(
         'sendfile', files.path);
@@ -64,7 +64,6 @@ class ExportPageState extends State<ExportPage>{
       // User canceled the picker
     }
   }
-
 
   Future getFileSize(String filepath, int decimals) async {
     var file = XFile(filepath);

@@ -43,32 +43,56 @@ class DailyTrainDatum {
     required this.pulse,
     required this.cadence,
     required this.rainingstime,
+    required this.aPowerWatt,
+    required this.aMaxPlus,
+    required this.aAveragePower,
+    required this.aCandence,
+    required this.aRating,
+    required this.aTrainingstime,
+    required this.aWeight,
+    required this.aComment,
     required this.createdAt,
     required this.updatedAt,
   });
 
   String id;
   String userId;
-  String dates;
+  DateTime dates;
   String headline;
   String trainingstimeMin;
   String powerWatt;
   String pulse;
   String cadence;
-  String rainingstime;
+  dynamic rainingstime;
+  String aPowerWatt;
+  String aMaxPlus;
+  String aAveragePower;
+  String aCandence;
+  String aRating;
+  String aTrainingstime;
+  String aWeight;
+  String aComment;
   DateTime createdAt;
   DateTime updatedAt;
 
   factory DailyTrainDatum.fromJson(Map<String, dynamic> json) => DailyTrainDatum(
     id: json["id"],
     userId: json["user_id"],
-    dates: json["dates"],
-    headline: json["headline"] == null ? null : json["headline"],
-    trainingstimeMin: json["trainingstime_min"] == null ? null : json["trainingstime_min"],
-    powerWatt: json["power_watt"] == null ? null : json["power_watt"],
-    pulse: json["pulse"] == null ? null : json["pulse"],
-    cadence: json["cadence"] == null ? null : json["cadence"],
-    rainingstime: json["rainingstime"] == null ? null : json["rainingstime"],
+    dates: DateTime.parse(json["dates"]),
+    headline: json["headline"],
+    trainingstimeMin: json["trainingstime_min"],
+    powerWatt: json["power_watt"],
+    pulse: json["pulse"],
+    cadence: json["cadence"],
+    rainingstime: json["rainingstime"],
+    aPowerWatt: json["a_power_watt"],
+    aMaxPlus: json["a_max_plus"],
+    aAveragePower: json["a_average_power"],
+    aCandence: json["a_candence"],
+    aRating: json["a_rating"],
+    aTrainingstime: json["a_trainingstime"],
+    aWeight: json["a_weight"],
+    aComment: json["a_comment"],
     createdAt: DateTime.parse(json["created_at"]),
     updatedAt: DateTime.parse(json["updated_at"]),
   );
@@ -76,13 +100,21 @@ class DailyTrainDatum {
   Map<String, dynamic> toJson() => {
     "id": id,
     "user_id": userId,
-    "dates": dates,
-    "headline": headline == null ? null : headline,
-    "trainingstime_min": trainingstimeMin == null ? null : trainingstimeMin,
-    "power_watt": powerWatt == null ? null : powerWatt,
-    "pulse": pulse == null ? null : pulse,
-    "cadence": cadence == null ? null : cadence,
-    "rainingstime": rainingstime == null ? null : rainingstime,
+    "dates": "${dates.year.toString().padLeft(4, '0')}-${dates.month.toString().padLeft(2, '0')}-${dates.day.toString().padLeft(2, '0')}",
+    "headline": headline,
+    "trainingstime_min": trainingstimeMin,
+    "power_watt": powerWatt,
+    "pulse": pulse,
+    "cadence": cadence,
+    "rainingstime": rainingstime,
+    "a_power_watt": aPowerWatt,
+    "a_max_plus": aMaxPlus,
+    "a_average_power": aAveragePower,
+    "a_candence": aCandence,
+    "a_rating": aRating,
+    "a_trainingstime": aTrainingstime,
+    "a_weight": aWeight,
+    "a_comment": aComment,
     "created_at": createdAt.toIso8601String(),
     "updated_at": updatedAt.toIso8601String(),
   };

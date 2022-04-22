@@ -1,13 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:loader_animated/loader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_var.dart';
-import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/firebase/screens/chat_room.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -40,6 +36,23 @@ class MyAthleteChatState extends State<MyAthleteChat> with WidgetsBindingObserve
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
     setStatus("Online");
+    hideNavigator();
+  }
+
+  hideNavigator()async {
+    List usersList = await getData();
+    List<String> prefVal = await getCurrentUser();
+    for(int index=0;index<usersList.length;index++){
+      if(usersList[index]['user_type'] == 'trainer' && usersList[index]['trainer_id'] == prefVal[2]){
+        String roomId = chatRoomId(
+            _auth.currentUser!.email!,
+            usersList[index]['email']);
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => ChatRoom(chatRoomId: roomId, userMap: usersList[index])),
+                (Route<dynamic> route) => false);
+      }
+    }
+
   }
 
   void setStatus(String status) async {
@@ -108,120 +121,13 @@ class MyAthleteChatState extends State<MyAthleteChat> with WidgetsBindingObserve
       child: Scaffold(
         backgroundColor: CommonVar.BLACK_BG_COLOR,
 
-        body: isLoading
-            ? Center(
-          child: Container(
-            height: size.height / 20,
-            width: size.height / 20,
-            child: CircularProgressIndicator(),
-          ),
+        body: Center(
+          child: Text('Chat opening...',
+              style: GoogleFonts.roboto(
+                color: Colors.white,
+                fontSize: 20.0
+              ),),
         )
-            : Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
-              child: CommonWidgets.commonHeader(context, 'Messanger',isShowBack: false),
-            ),
-            FutureBuilder(
-              future: getData(),
-              builder: (context, snapshot){
-                if(snapshot.data == null){
-                  return Center(child: LoadingBouncingLine(size: 20,));
-                }
-                else{
-                  List usersList = snapshot.data as List;
-                  return Container(
-                    height: MediaQuery.of(context).size.height*0.8,
-                    child: ListView.builder(
-                      itemCount: usersList.length,
-                      itemBuilder: (context, index){
-                        return FutureBuilder(
-                          future: getCurrentUser(),
-                          builder: (context, snapshot){
-                            if(snapshot.data == null){
-                              return const Text('Loading');
-                            }
-                            else{
-                              List<String> prefVal = snapshot.data as List<String>;
-                              // String emailStr = snapshot.data as String;
-                              return (usersList[index]['user_type'] == 'trainer' && usersList[index]['trainer_id'] == prefVal[2])?Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                                child: Column(
-                                  children: [
-                                    InkWell(
-                                      onTap:() async {
-                                        String userId = await CommonMethods.getUserId();
-                                        String roomId = chatRoomId(
-                                            _auth.currentUser!.email!,
-                                            usersList[index]['email']);
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (_) => ChatRoom(
-                                              chatRoomId: roomId,
-                                              userMap: usersList[index],
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 10.0),
-                                        child: Row(
-                                          children: [
-                                            Container(
-                                              width: 45,
-                                              height: 45,
-                                              decoration: const BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: CommonVar.RED_BUTTON_COLOR),
-                                              child: Center(
-                                                child: Text(usersList[index]['name'][0].toString().toUpperCase(),
-                                                  style: GoogleFonts.roboto(
-                                                      fontSize: 18.0,
-                                                      color: Colors.white,
-                                                      fontWeight: FontWeight.w800
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 15.0,),
-                                            Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  usersList[index]['name'],
-                                                  style: GoogleFonts.roboto(
-                                                      color: Colors.white,
-                                                      fontSize: 18.0,
-                                                      fontWeight: FontWeight.w600
-                                                  ),
-                                                ),
-                                                Text(
-                                                  usersList[index]['email'],
-                                                  style: GoogleFonts.roboto(
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    const Divider(color: Colors.white,)
-                                  ],
-                                ),
-                              ):Container();
-                            }
-                          },
-                        );
-                      },
-                    ),
-                  );
-                }
-              },
-            )
-          ],
-        ),
       ),
     );
   }

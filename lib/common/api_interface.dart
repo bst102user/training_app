@@ -17,11 +17,18 @@ class ApiInterface{
   static const String ALL_TRAINER            = BASE_URL+'sportsfood/api/alltrainer';
   static const String MOVE_RACE              = BASE_URL+'sportsfood/api/move_date';
   static const String NOTIFICATIONS          = BASE_URL+'sportsfood/api/notification_user/7';
+  static const String NOTIF_TO_TRAINER       = BASE_URL+'sportsfood/api/get_single_trainer/';
+  static const String SEND_NOTIFICATIONS     = BASE_URL+'sportsfood/api/get_single_athletics/8/';
+  static const String ATHLETE_NOTIFICATIONS  = BASE_URL+'sportsfood/api/notification_trainer/';
+  static const String PROFILE_IMAGE_PATH     = BASE_URL+'sportsfood/admin/../uploads/profileimg/';
+  static const String UPLOAD_PROFILE_PICTURE = BASE_URL+'sportsfood/api/profile_file/';
 
 //  =======================================  ATHLETES API'S =======================================
 
   static const String LIST_ATHLETES             = BASE_URL+'sportsfood/api/trainer_athletics/';
   static const String UPLOAD_XLS_FILE           = BASE_URL+'sportsfood/api/upload_file';
-  static const String IMPORT_FILE               = BASE_URL+'sportsfood/api/export_file/101';
+  static const String IMPORT_FILE               = BASE_URL+'sportsfood/api/export_file/105';
+  static const String GET_LINK_XLS              = BASE_URL+'sportsfood/api/link_excel';
+  static const String TRAINER_NOTIFICATIONS     = BASE_URL+'sportsfood/api/notification_trainer/8';
 
 }

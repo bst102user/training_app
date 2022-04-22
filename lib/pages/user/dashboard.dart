@@ -1,10 +1,18 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Response;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:training_app/common/api_interface.dart';
+import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
+import 'package:training_app/models/athlete_notif_model.dart';
 import 'package:training_app/models/profile_model.dart';
 import 'account_page.dart';
 import 'monthly_overview.dart';
@@ -14,6 +22,7 @@ class Dashboard extends StatefulWidget{
 }
 
 class DashboardState extends State<Dashboard>{
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
   Future<List<String>> getDataList()async{
     SharedPreferences mPref = await SharedPreferences.getInstance();
@@ -27,10 +36,79 @@ class DashboardState extends State<Dashboard>{
     return dataList;
   }
 
+  String getDateTime(DateTime dateTime, bool isDateReturn){
+    String formattedDate = DateFormat('yyyy-MM-dd').format(dateTime);
+    String formattedTime = DateFormat('HH:mm').format(dateTime);
+    if(isDateReturn){
+      return formattedDate;
+    }
+    else{
+      return formattedTime;
+    }
+  }
+
+  Future<dynamic> getLastNotification() async {
+    String userId = await CommonMethods.getUserId();
+    Response myRes = await CommonMethods.getRequest(ApiInterface.ATHLETE_NOTIFICATIONS+userId, context);
+    Map mMap = json.decode(myRes.data);
+    dynamic isData = mMap['data'];
+    if(isData is bool) {
+      return 'no_data';
+    }
+    else{
+      AthleteNotifModel notifModel = athleteNotifModelFromJson(myRes.data);
+      List<AthlNotifDatum> listData = notifModel.data;
+      return listData[listData.length - 1];
+    }
+  }
+
+
+
+
+  getProfileData()async{
+    // CommonMethods.showAlertDialog(context);
+    Dio dio = Dio();
+    dio.options.connectTimeout = 50000;
+    dio.options.receiveTimeout = 30000;
+    dio.options.sendTimeout = 30000;
+    // String userId = CommonMethods.getStrPref('user_id').toString();
+    SharedPreferences mPref = await SharedPreferences.getInstance();
+    String str = mPref.getString('user_id').toString();
+    try {
+      var response = await Dio().get(ApiInterface.GET_PROFILE+str);
+      print(response);
+      // Get.back();
+      setState(() {
+        ProfileModel profileModel = profileModelFromJson(response.toString());
+        List<ProfileDatum> listData = profileModel.data;
+        String profilePictureName = listData[0].profileImage;
+        mPref.setString("profile_fullpath",profilePictureName);
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    getProfileData();
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage? message) {
+      if (message != null) {
+        // Navigator.pushNamed(
+        //   context,
+        //   '/message',
+        //   arguments: MessageArguments(message, true),
+        // );
+      }
+    });
+  }
+
+  getToken()async{
+    String? token = await FirebaseMessaging.instance.getToken();
+    print(token);
   }
 
   Widget commonTile(String date, String time, IconData iconData){
@@ -172,7 +250,7 @@ class DashboardState extends State<Dashboard>{
                     onTap: (){
                       Get.to(AccountPage());
                     },
-                    child: Icon(
+                    child: const Icon(
                         Icons.settings,
                         color: Colors.white,
                       size: 30.0,
@@ -183,71 +261,108 @@ class DashboardState extends State<Dashboard>{
               CommonWidgets.mHeightSizeBox(height: 30.0),
               Column(
                 children: [
-                  Row(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Date',
-                            style: GoogleFonts.roboto(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white
+                  FutureBuilder(
+                    future: getLastNotification(),
+                    builder: (context, snapshot){
+                      if(snapshot.data == null){
+                        return CommonWidgets.loadinBounce();
+                      }
+                      else{
+                        var myResponse = snapshot.data;
+                        if(myResponse == 'no_data') {
+                          return Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Text(
+                              'No Recent Notification',
+                              style: GoogleFonts.roboto(
+                                  color: CupertinoColors.white,
+                                  fontWeight: FontWeight.w600
+                              ),
                             ),
-                          ),
-                          CommonWidgets.mHeightSizeBox(height: 10.0),
-                          Text(
-                            '20/01/2022',
-                            style: GoogleFonts.roboto(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.w800,
-                                color: CommonVar.RED_BUTTON_COLOR
-                            ),
-                          ),
-                        ],
-                      ),
-                      CommonWidgets.mWidthSizeBox(width: 30.0),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Time',
-                            style: GoogleFonts.roboto(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white
-                            ),
-                          ),
-                          CommonWidgets.mHeightSizeBox(height: 10.0),
-                          Text(
-                            '8:24 am',
-                            style: GoogleFonts.roboto(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.w800,
-                                color: CommonVar.RED_BUTTON_COLOR
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          );
+                        }
+                        else{
+                          AthlNotifDatum data = snapshot.data as AthlNotifDatum;
+                          return Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment
+                                        .start,
+                                    children: [
+                                      Text(
+                                        'Date',
+                                        style: GoogleFonts.roboto(
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.w800,
+                                            color: Colors.white
+                                        ),
+                                      ),
+                                      Text(
+                                        getDateTime(data.createdAt, true),
+                                        style: GoogleFonts.roboto(
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.w800,
+                                            color: CommonVar.RED_BUTTON_COLOR
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  CommonWidgets.mWidthSizeBox(width: 30.0),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment
+                                        .start,
+                                    children: [
+                                      Text(
+                                        'Time',
+                                        style: GoogleFonts.roboto(
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.w800,
+                                            color: Colors.white
+                                        ),
+                                      ),
+                                      Text(
+                                        getDateTime(data.createdAt, false),
+                                        style: GoogleFonts.roboto(
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.w800,
+                                            color: CommonVar.RED_BUTTON_COLOR
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 5.0,),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment
+                                    .spaceBetween,
+                                children: [
+                                  SizedBox(
+                                    width:MediaQuery.of(context).size.width*0.8,
+                                    child: Text(
+                                      data.msg,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: GoogleFonts.roboto(
+                                          fontSize: 16.0,
+                                          color: Colors.white
+                                      ),
+                                    ),
+                                  ),
+                                  const Icon(
+                                    Icons.notifications_rounded,
+                                    color: Colors.white,
+                                  )
+                                ],
+                              ),
+                            ],
+                          );
+                        }
+                      }
+                    },
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Notification text....',
-                        style: GoogleFonts.roboto(
-                            fontSize: 16.0,
-                            color: Colors.white
-                        ),
-                      ),
-                      const Icon(
-                          Icons.notifications_rounded,
-                        color: Colors.white,
-                      )
-                    ],
-                  ),
+
                   CommonWidgets.mHeightSizeBox(height: 30.0),
                   CommonWidgets.commonButton('Monthly Overview', () {
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>MonthlyOverview()));

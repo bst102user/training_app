@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loader_animated/loader.dart';
 import 'package:training_app/common/common_var.dart';
 
 class CommonWidgets{
@@ -18,6 +19,11 @@ class CommonWidgets{
       width: width,
     );
   }
+
+  static Widget loadinBounce(){
+    return Center(child: LoadingBouncingLine(size: 20,));
+  }
+
   static Widget commonButton(String label,VoidCallback mCallback,{iconData}){
     return InkWell(
       onTap: mCallback,
@@ -66,6 +72,7 @@ class CommonWidgets{
         mController,
         shouldPreIcon = true,
         contentPadding = const EdgeInsets.all(15.0),
+        hintColor = Colors.white
       }){
     return Container(
       height: 50.0,
@@ -89,7 +96,7 @@ class CommonWidgets{
               color: Colors.white,
             ):null,
             border: InputBorder.none,
-            hintStyle: GoogleFonts.roboto(color: Colors.white),
+            hintStyle: GoogleFonts.roboto(color: hintColor),
             hintText: mTitle,
             fillColor: mColor),
       ),

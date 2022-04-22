@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:country_picker/country_picker.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -70,10 +71,11 @@ class RegisterPageState extends State<RegisterPage>{
     else if(!CommonMethods.validateMobile(mobileController.text)){
       CommonMethods.showToast(context, 'Please enter valid mobile');
     }
-    else if(trainerName == 'Select Trainer'){
-      CommonMethods.showToast(context, 'Please select trainer');
-    }
+    // else if(trainerName == 'Select Trainer'){
+    //   CommonMethods.showToast(context, 'Please select trainer');
+    // }
     else {
+      String? token = await FirebaseMessaging.instance.getToken();
       CommonMethods.showAlertDialog(context);
       Map registerMap = {
         "fname" : nameController.text,
@@ -84,7 +86,8 @@ class RegisterPageState extends State<RegisterPage>{
         "phone" : phoneCode+mobileController.text,
         "dob" : birthDate,
         "allownotification" : "0",
-        "parents" : trainerId
+        // "parents" : trainerId,
+        "divece_token" :token
       };
       CommonMethods.commonPostApiData(ApiInterface.REGISTER_USER, registerMap).then((response){
         Get.back();
@@ -97,7 +100,7 @@ class RegisterPageState extends State<RegisterPage>{
           });
         }
         else if(status == 'success'){
-          createAccount(nameController.text, emailController.text, passController.text, trainerId!).then((user){
+          createAccount(nameController.text, emailController.text, passController.text, 'athlete',trainerId!).then((user){
             if (user != null) {
               print("Account Created Sucessfull");
               CommonMethods.saveStrPref('user_email', emailController.text);
@@ -234,13 +237,13 @@ class RegisterPageState extends State<RegisterPage>{
                       _selectDate(context);
                     }
                 ),
-                CommonWidgets.mHeightSizeBox(height: 20.0),
-                CommonWidgets.containerLikeTextField(
-                  mTitle: trainerName,
-                  callBack: (){
-                    getTrainer();
-                  }
-                ),
+                // CommonWidgets.mHeightSizeBox(height: 20.0),
+                // CommonWidgets.containerLikeTextField(
+                //   mTitle: trainerName,
+                //   callBack: (){
+                //     getTrainer();
+                //   }
+                // ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

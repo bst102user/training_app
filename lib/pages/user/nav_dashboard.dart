@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:custom_navigation_bar/custom_navigation_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:training_app/firebase/screens/home_screen.dart';
 import 'package:training_app/pages/trainer/my_athlete_chat.dart';
 import 'account_page.dart';
@@ -10,9 +13,13 @@ class NavDashboard extends StatefulWidget{
   NavDashboardState createState() => NavDashboardState();
 }
 
-class NavDashboardState extends State<NavDashboard>{
+class NavDashboardState extends State<NavDashboard> with WidgetsBindingObserver{
   int _currentIndex = 0;
   Widget pageWidget = Dashboard();
+
+
+
+
 
   Widget _buildOriginDesign() {
     return CustomNavigationBar(

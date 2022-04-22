@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -8,6 +9,7 @@ import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/firebase/methods.dart';
 import 'package:training_app/firebase/screens/home_screen.dart';
 import 'package:training_app/pages/trainer/export_page.dart';
+import 'package:training_app/pages/trainer/notification_trainer.dart';
 import 'package:training_app/pages/trainer/tr_assgn_athletes_page.dart';
 import 'package:training_app/pages/user/login_page.dart';
 
@@ -16,6 +18,13 @@ class TrDashboard extends StatefulWidget{
 }
 
 class TrDashboardState extends State<TrDashboard>{
+  initState(){
+    super.initState();
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+    });
+  }
   Widget commonView(IconData mIcon, String label, {mCallback}){
     const borderSide = BorderSide(color: Colors.white, width: 0.5);
     return InkWell(
@@ -84,13 +93,9 @@ class TrDashboardState extends State<TrDashboard>{
               commonView(Icons.person, 'List Athlets',mCallback: (){
                 Get.to(TrAssgnAthletesPage());
               }),
-              commonView(Icons.notifications_rounded, 'Notification'),
-              // commonView(Icons.document_scanner, 'Import',mCallback: (){
-              //   Navigator.push(
-              //       context,
-              //       MaterialPageRoute(builder: (context) => ExportPage())
-              //   );
-              // }),
+              commonView(Icons.notifications_rounded, 'Notification', mCallback: (){
+                Get.to(NotificationTrainer());
+              }),
               commonView(Icons.chat_bubble, 'Messenger',mCallback: (){
                 Navigator.push(
                     context,

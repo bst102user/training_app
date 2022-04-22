@@ -36,7 +36,7 @@ class AddRaceState extends State<AddRace>{
   addOrUpdateRace(String keyUrl){
     if(nameCtrl.text.isEmpty||distanceCtrl.text.isEmpty||verMetCtrl.text.isEmpty
         ||goalCtrl.text.isEmpty||priorityCtrl.text.isEmpty||(arrivalStr=='Arrival')||
-    firstDayStr=='First Day'||lastDayStr=='Last Day'||departureStr=='Last Day'){
+    firstDayStr=='First Day'||departureStr=='Last Day'){
       CommonMethods.getDialoge('All fields are mandatory',voidCallback: (){
         Get.back();
       });
@@ -84,7 +84,7 @@ class AddRaceState extends State<AddRace>{
       firstDate: DateTime(1900),
       lastDate: DateTime(2025),
     );
-    if (selected != null && selected != selectedDate) {
+    if (selected != null) {
       setState(() {
         selectedDate = selected;
         print(selectedDate);
@@ -123,7 +123,7 @@ class AddRaceState extends State<AddRace>{
       firstDate: DateTime(1900),
       lastDate: DateTime(2025),
     );
-    if (selected != null && selected != selectedDate) {
+    if (selected != null) {
       setState(() {
         selectedDate = selected;
         print(selectedDate);
@@ -139,7 +139,7 @@ class AddRaceState extends State<AddRace>{
       firstDate: DateTime(1900),
       lastDate: DateTime(2025),
     );
-    if (selected != null && selected != selectedDate) {
+    if (selected != null) {
       setState(() {
         selectedDate = selected;
         print(selectedDate);

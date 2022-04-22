@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -37,10 +38,12 @@ class LoginPageState extends State<LoginPage> {
       });
     }
     else {
+      String? token = await FirebaseMessaging.instance.getToken();
       CommonMethods.showAlertDialog(context);
       Map loginMap = {
         "email": emailController.text,
-        "password": passController.text
+        "password": passController.text,
+        "device_token" : token
       };
       CommonMethods.commonPostApiData(ApiInterface.LOGIN_USER, loginMap).then((response){
         Map mMap = json.decode(response.data);
@@ -58,7 +61,7 @@ class LoginPageState extends State<LoginPage> {
               String userType = mMap['data']['type'];
               createAccount(mMap['data']['fname'], mMap['data']['email'],
                   passController.text,
-                  userType == 'Trainer'?mMap['data']['id']:mMap['data']['parent']).then((registerUser){
+                  userType.toLowerCase(),userType == 'Trainer'?mMap['data']['id']:mMap['data']['parents']).then((registerUser){
                     if(registerUser!=null){
                       CommonMethods.showToast(context, 'Login success');
                       CommonMethods.saveBoolPref('is_login', true);
@@ -285,15 +288,15 @@ class LoginPageState extends State<LoginPage> {
                                 ),
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 20.0),
-                              child: InkWell(
-                                onTap: (){
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => RegisterPage())
-                                  );
-                                },
+                            InkWell(
+                              onTap: (){
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => RegisterPage())
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(20.0),
                                 child: Center(
                                   child: Text(
                                     'Create an Account',
