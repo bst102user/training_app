@@ -105,6 +105,15 @@ class TrDashboardState extends State<TrDashboard>{
               commonView(Icons.logout, 'Logout',mCallback: ()async{
                 CommonMethods.twoButtonDialoge(context, 'Logout', 'Would you like to logout from the Application?',(){
                   logOut(context).then((value){
+                    CommonMethods.saveStrPref('profile_fullpath', '');
+                    CommonMethods.saveStrPref('trainer_id', '0');
+                    CommonMethods.saveStrPref('user_id', '');
+                    CommonMethods.saveStrPref('user_email', '');
+                    CommonMethods.saveStrPref('user_fname', '');
+                    CommonMethods.saveStrPref('user_lname', '');
+                    CommonMethods.saveStrPref('trainer_id', '');
+                    CommonMethods.saveStrPref('user_type', '');
+                    CommonMethods.saveBoolPref('is_login', false);
                     CommonMethods.saveBoolPref('is_login', false);
                     Get.to(() => LoginPage());
                   });

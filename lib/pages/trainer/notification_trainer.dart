@@ -17,7 +17,6 @@ class NotificationTrainer extends StatefulWidget{
 }
 
 class NotificationTrainerState extends State<NotificationTrainer>{
-
   String getDateTime(DateTime dateTime, bool isDateReturn){
     String formattedDate = DateFormat('yyyy-MM-dd').format(dateTime);
     String formattedTime = DateFormat('HH:mm').format(dateTime);
@@ -38,7 +37,7 @@ class NotificationTrainerState extends State<NotificationTrainer>{
           key,
           style: GoogleFonts.roboto(
               color: Colors.white,
-              fontSize: 20.0,
+              fontSize: 16.0,
               fontWeight: FontWeight.w600
           ),
         ),
@@ -75,64 +74,86 @@ class NotificationTrainerState extends State<NotificationTrainer>{
               CommonWidgets.commonHeader(context, 'Notification'.toUpperCase()),
               CommonWidgets.mHeightSizeBox(height: 20.0),
               FutureBuilder(
-                future: CommonMethods.getRequest(ApiInterface.TRAINER_NOTIFICATIONS, context),
-                builder: (context, snapshot){
-                  if(snapshot.data == null){
-                    return Center(child: LoadingBouncingLine(size: 20,));;
+                future: CommonMethods.getUserId(),
+                builder: (context, userSnap){
+                  if(userSnap.data == null){
+                    return Center(child: LoadingBouncingLine(size: 20,));
                   }
                   else{
-                    Response myRes = snapshot.data as Response;
-                    TrainerNotifModel notifModel = trainerNotifModelFromJson(myRes.data);
-                    List<TrainNotifDatum> listData = notifModel.data;
-                    return SizedBox(
-                      height: MediaQuery.of(context).size.height*0.9,
-                      child: ListView.builder(
-                        itemCount: listData.length,
-                        itemBuilder: (context, index){
-                          return Container(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  listData[index].title,
-                                  style: GoogleFonts.roboto(
-                                      color: Colors.white,
-                                      fontSize: 20.0,
-                                      fontWeight: FontWeight.w600
+                    String userId = userSnap.data as String;
+                    return FutureBuilder(
+                      future: CommonMethods.getRequest(ApiInterface.TRAINER_NOTIFICATIONS+userId, context),
+                      builder: (context, snapshot){
+                        if(snapshot.data == null){
+                          return Center(child: LoadingBouncingLine(size: 20,));
+                        }
+                        else{
+                          Response myRes = snapshot.data as Response;
+                          TrainerNotifModel notifModel = trainerNotifModelFromJson(myRes.data);
+                          List<TrainNotifDatum> listData = notifModel.data;
+                          return SizedBox(
+                            height: MediaQuery.of(context).size.height*0.9,
+                            child: ListView.builder(
+                              itemCount: listData.length,
+                              itemBuilder: (context, index){
+                                return Container(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(bottom: 20.0),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          listData[index].userName,
+                                          style: GoogleFonts.roboto(
+                                              color: Colors.white,
+                                              fontSize: 20.0,
+                                              fontWeight: FontWeight.w600
+                                          ),
+                                        ),
+                                        const SizedBox(height: 5.0,),
+                                        Text(
+                                          listData[index].title,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style: GoogleFonts.roboto(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600
+                                          ),
+                                        ),
+                                        Text(
+                                          listData[index].msg,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style: GoogleFonts.roboto(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10.0,),
+                                        Row(
+                                          children: [
+                                            commonColumn('Date', getDateTime(listData[index].createdAt, true)),
+                                            const SizedBox(width: 100.0,),
+                                            commonColumn('Time', getDateTime(listData[index].createdAt, false)),
+                                          ],
+                                        ),
+                                        const Divider(color: Colors.white,)
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 5.0,),
-                                Text(
-                                  listData[index].msg,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                  style: GoogleFonts.roboto(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                const SizedBox(height: 10.0,),
-                                Row(
-                                  children: [
-                                    commonColumn('Date', getDateTime(listData[index].createdAt, true)),
-                                    const SizedBox(width: 100.0,),
-                                    commonColumn('Time', getDateTime(listData[index].createdAt, false)),
-                                  ],
-                                ),
-                                const Divider(color: Colors.white,)
-                              ],
+                                );
+                              },
                             ),
                           );
-                        },
-                      ),
+                        }
+                      },
                     );
                   }
                 },
-              )
+              ),
             ],
           ),
         ),
       ),
     );
   }
-
 }

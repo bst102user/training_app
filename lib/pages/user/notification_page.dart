@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -89,49 +91,66 @@ class NotificationPageState extends State<NotificationPage>{
                         }
                         else{
                           Response myRes = snapshot.data as Response;
-                          AthleteNotifModel notifModel = athleteNotifModelFromJson(myRes.data);
-                          List<AthlNotifDatum> listData = notifModel.data;
-                          return SizedBox(
-                            height: MediaQuery.of(context).size.height*0.9,
-                            child: ListView.builder(
-                              itemCount: listData.length,
-                              itemBuilder: (context, index){
-                                return Container(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        listData[index].title,
-                                        style: GoogleFonts.roboto(
+                          Map mMap = json.decode(myRes.data);
+                          var data = mMap['data'];
+                          if(data.runtimeType == bool){
+                            return SizedBox(
+                              height: MediaQuery.of(context).size.height*0.8,
+                              child: Center(
+                                child: Text('No Data found',
+                                style: GoogleFonts.roboto(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white
+                                ),),
+                              ),
+                            );
+                          }
+                          else{
+                            AthleteNotifModel notifModel = athleteNotifModelFromJson(myRes.data);
+                            List<AthlNotifDatum> listData = notifModel.data;
+                            return SizedBox(
+                              height: MediaQuery.of(context).size.height*0.9,
+                              child: ListView.builder(
+                                itemCount: listData.length,
+                                itemBuilder: (context, index){
+                                  return Container(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          listData[index].title,
+                                          style: GoogleFonts.roboto(
+                                              color: Colors.white,
+                                              fontSize: 20.0,
+                                              fontWeight: FontWeight.w600
+                                          ),
+                                        ),
+                                        const SizedBox(height: 5.0,),
+                                        Text(
+                                          listData[index].msg,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style: GoogleFonts.roboto(
                                             color: Colors.white,
-                                            fontSize: 20.0,
-                                            fontWeight: FontWeight.w600
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 5.0,),
-                                      Text(
-                                        listData[index].msg,
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                        style: GoogleFonts.roboto(
-                                          color: Colors.white,
+                                        const SizedBox(height: 10.0,),
+                                        Row(
+                                          children: [
+                                            commonColumn('Date', getDateTime(listData[index].createdAt, true)),
+                                            const SizedBox(width: 100.0,),
+                                            commonColumn('Time', getDateTime(listData[index].createdAt, false)),
+                                          ],
                                         ),
-                                      ),
-                                      const SizedBox(height: 10.0,),
-                                      Row(
-                                        children: [
-                                          commonColumn('Date', getDateTime(listData[index].createdAt, true)),
-                                          const SizedBox(width: 100.0,),
-                                          commonColumn('Time', getDateTime(listData[index].createdAt, false)),
-                                        ],
-                                      ),
-                                      const Divider(color: Colors.white,)
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                          );
+                                        const Divider(color: Colors.white,)
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
+                          }
                         }
                       },
                     );

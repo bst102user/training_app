@@ -13,8 +13,9 @@ import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/models/daily_training_model.dart';
 
 class DatlyTrainingEdit extends StatefulWidget{
-  final List<DailyTrainDatum> dailyTrainDatum;
-  DatlyTrainingEdit(this.dailyTrainDatum);
+  final List dailyTrainDatum;
+  final List otherTopData;
+  DatlyTrainingEdit(this.dailyTrainDatum, this.otherTopData);
   DatlyTrainingEditState createState() => DatlyTrainingEditState();
 }
 
@@ -24,10 +25,14 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
   List<TextEditingController> pulseCtrl = [];
   List<TextEditingController> avgPower = [];
   List<TextEditingController> codenceCtrl = [];
+  List<TextEditingController> breakCtrl = [];
+  List<TextEditingController> minTimeCtrl = [];
   List<TextEditingController> timeEstimateCtrl = [];
   TextEditingController commentCtrl = TextEditingController();
+  TextEditingController weightUpCtrl = TextEditingController();
+  TextEditingController trainingEstimateCtrl = TextEditingController();
   Widget mReturnWigdet = Container();
-  String rateStr = '0';
+  List<String> ratingList = [];
   @override
   void initState() {
     // TODO: implement initState
@@ -39,20 +44,41 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
       TextEditingController wc3 = TextEditingController();
       TextEditingController wc4 = TextEditingController();
       TextEditingController wc5 = TextEditingController();
+      TextEditingController wc6 = TextEditingController();
+      TextEditingController wc7 = TextEditingController();
       weightCtrl.add(wc);
       wattCtrl.add(wc1);
       pulseCtrl.add(wc2);
       avgPower.add(wc3);
       codenceCtrl.add(wc4);
       timeEstimateCtrl.add(wc5);
+      breakCtrl.add(wc6);
+      minTimeCtrl.add(wc7);
+      ratingList.add('0');
 
-      weightCtrl[i].text = widget.dailyTrainDatum[i].aWeight;
-      wattCtrl[i].text = widget.dailyTrainDatum[i].aPowerWatt;
-      pulseCtrl[i].text = widget.dailyTrainDatum[i].aMaxPlus;
-      avgPower[i].text = widget.dailyTrainDatum[i].aAveragePower;
-      codenceCtrl[i].text = widget.dailyTrainDatum[i].aCandence;
-      timeEstimateCtrl[i].text = widget.dailyTrainDatum[i].aTrainingstime;
+      // weightCtrl[i].text = widget.dailyTrainDatum[i]['a_power_watt'];
+      String aPowWatt = widget.dailyTrainDatum[i].aPowerWatt;
+      String aMaxPulse = widget.dailyTrainDatum[i].aMaxPlus;
+      String aAvgPow = widget.dailyTrainDatum[i].aAveragePower;
+      String aCodence = widget.dailyTrainDatum[i].aCandence;
+      String aEstimate = widget.dailyTrainDatum[i].aTrainingsTimeMin;
+      String aBreak = widget.dailyTrainDatum[i].aBreaks;
+      // String aMinTime = widget.dailyTrainDatum[i]['a_trainings_time_min'];
+
+
+      wattCtrl[i].text = (aPowWatt==null||aPowWatt.isEmpty)?widget.dailyTrainDatum[i].powerWatt:aPowWatt;
+      pulseCtrl[i].text = (aMaxPulse==null||aMaxPulse.isEmpty)?widget.dailyTrainDatum[i].pulse:aMaxPulse;
+      avgPower[i].text = (aAvgPow==null||aAvgPow.isEmpty)?widget.dailyTrainDatum[i].aAveragePower:aAvgPow;
+      timeEstimateCtrl[i].text = (aEstimate==null||aEstimate.isEmpty)?widget.dailyTrainDatum[i].trainingstimeMin:aEstimate;
+      codenceCtrl[i].text = (aCodence==null||aCodence.isEmpty)?widget.dailyTrainDatum[i].cadence:aCodence;
+      breakCtrl[i].text = (aBreak==null||aBreak.isEmpty)?widget.dailyTrainDatum[i].breaks:aBreak;
+      // minTimeCtrl[i].text = (aMinTime==null||aMinTime.isEmpty)?'0':aMinTime;
+
+      ratingList[i] = widget.dailyTrainDatum[i].aRating;
     }
+    weightUpCtrl.text = widget.otherTopData[0].aWeight;
+    trainingEstimateCtrl.text = widget.otherTopData[0].totalTrainingstime;
+    commentCtrl.text = widget.otherTopData[0].aComment;
   }
 
   saveFullData()async{
@@ -64,15 +90,17 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
         'max_plus' : pulseCtrl[i].text,
         'average_power' : avgPower[i].text,
         'cadence' : codenceCtrl[i].text,
-        'Trainings_time_min' : timeEstimateCtrl[i].text,
-        'weight' : weightCtrl[i].text,
+        'rating' : ratingList[i],
+        'breaks' : breakCtrl[i].text,
+        'time_min' : timeEstimateCtrl[i].text,
         'row_id' : widget.dailyTrainDatum[i].id
       };
       allIntervalMap.add(innerMap);
     }
     Map outerMap = {
-      'rating' : '4',
+      'Weight' : weightUpCtrl.text,
       'comment' : commentCtrl.text,
+      'Trainings_time_min' : trainingEstimateCtrl.text,
       'data' : allIntervalMap
     };
     String userId = await CommonMethods.getUserId();
@@ -110,49 +138,7 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                RatingBar.builder(
-                  unratedColor: Colors.white,
-                  initialRating: rateStr==null?0.0:double.parse(rateStr),
-                  itemCount: 5,
-                  itemBuilder: (context, index) {
-
-                    if(index == 0){
-                      mReturnWigdet = const Icon(
-                        Icons.sentiment_very_dissatisfied,
-                        color: Colors.red,
-                      );
-                    }
-                    else if(index == 1){
-                      mReturnWigdet = const Icon(
-                        Icons.sentiment_dissatisfied,
-                        color: Colors.redAccent,
-                      );
-                    }
-                    else if(index == 2){
-                      mReturnWigdet = const Icon(
-                        Icons.sentiment_neutral,
-                        color: Colors.amber,
-                      );
-                    }
-                    else if(index == 3){
-                      mReturnWigdet = const Icon(
-                        Icons.sentiment_satisfied,
-                        color: Colors.lightGreen,
-                      );
-                    }
-                    else if(index == 4){
-                      mReturnWigdet = const Icon(
-                        Icons.sentiment_very_satisfied,
-                        color: Colors.green,
-                      );
-                    }
-                    return mReturnWigdet;
-                  },
-                  onRatingUpdate: (rating) {
-                    print(rating);
-                    rateStr = (rating).toString();
-                  },
-                ),
+                Container(),
                 InkWell(
                   onTap: (){
                     saveFullData();
@@ -175,15 +161,49 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                 )
               ],
             ),
-            CommonWidgets.commonTextField(
-                mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
-                mIcon: Icons.comment,
-                mTitle: 'Comment',
-                keybordType: TextInputType.text,
-                mController: commentCtrl
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Weight',
+                style: GoogleFonts.roboto(
+                  color: Colors.white
+                ),),
+                CommonWidgets.commonTextField(
+                    mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
+                    mIcon: Icons.line_weight,
+                    mTitle: 'Weight',
+                    keybordType: TextInputType.text,
+                    mController: weightUpCtrl
+                ),
+                const SizedBox(height: 10.0,),
+                Text('Total training time',
+                  style: GoogleFonts.roboto(
+                      color: Colors.white
+                  ),),
+                CommonWidgets.commonTextField(
+                    mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
+                    mIcon: Icons.watch_later,
+                    mTitle: 'Training Estimate Time',
+                    keybordType: TextInputType.text,
+                    mController: trainingEstimateCtrl
+                ),
+                const SizedBox(height: 10.0,),
+                Text('Comment',
+                  style: GoogleFonts.roboto(
+                      color: Colors.white
+                  ),),
+                CommonWidgets.commonTextField(
+                    mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
+                    mIcon: Icons.comment,
+                    mTitle: 'Comment',
+                    keybordType: TextInputType.text,
+                    mController: commentCtrl
+                ),
+              ],
             ),
+            const SizedBox(height: 10.0,),
             SizedBox(
-              height: MediaQuery.of(context).size.height*0.7,
+              height: MediaQuery.of(context).size.height*0.52,
               child: ListView.builder(
                 itemCount: widget.dailyTrainDatum.length,
                 itemBuilder: (context, index){
@@ -197,20 +217,6 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                         color: CupertinoColors.white
                       ),)),
                       const Divider(color: Colors.white,),
-                      Text(
-                        'Weight',
-                        style: GoogleFonts.roboto(
-                            color: CommonVar.RED_BUTTON_COLOR
-                        ),
-                      ),
-                      CommonWidgets.commonTextField(
-                          mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
-                          mTitle: 'Weight',
-                          shouldPreIcon: false,
-                          contentPadding: const EdgeInsets.all(10.0),
-                          mController: weightCtrl[index],
-                          hintColor: Colors.grey
-                      ),
                       const SizedBox(height: 30.0,),
                       Text(
                         'Power Watt',
@@ -273,124 +279,96 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                       ),
                       const SizedBox(height: 10.0,),
                       Text(
-                        'Time estimate min',
+                        'Trainings Time',
                         style: GoogleFonts.roboto(
                             color: CommonVar.RED_BUTTON_COLOR
                         ),
                       ),
                       CommonWidgets.commonTextField(
                           mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
-                          mTitle: 'Time estimate min',
+                          mTitle: 'Trainings Time',
                           shouldPreIcon: false,
                           contentPadding: const EdgeInsets.all(10.0),
                           mController: timeEstimateCtrl[index],
                           hintColor: Colors.grey
                       ),
-                      const SizedBox(height: 10.0,),
+
+                      // const SizedBox(height: 10.0,),
                       // Text(
-                      //   'Comment',
+                      //   'Time Min',
                       //   style: GoogleFonts.roboto(
                       //       color: CommonVar.RED_BUTTON_COLOR
                       //   ),
                       // ),
                       // CommonWidgets.commonTextField(
                       //     mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
-                      //     mTitle: 'Comment',
+                      //     mTitle: 'Time Min',
                       //     shouldPreIcon: false,
                       //     contentPadding: const EdgeInsets.all(10.0),
-                      //     mController: commentCtrl,
+                      //     mController: minTimeCtrl[index],
                       //     hintColor: Colors.grey
                       // ),
-                      // const SizedBox(height: 10.0,),
-                      // Center(
-                      //   child: Column(
-                      //     children: [
-                      //       Text(
-                      //         'Rate',
-                      //         style: GoogleFonts.roboto(
-                      //             fontSize: 20.0,
-                      //             color: CommonVar.RED_BUTTON_COLOR,
-                      //             fontWeight: FontWeight.w600
-                      //         ),
-                      //       ),
-                      //       RatingBar.builder(
-                      //         unratedColor: Colors.white,
-                      //         initialRating: rateStr==null?0.0:double.parse(rateStr),
-                      //         itemCount: 5,
-                      //         itemBuilder: (context, index) {
-                      //
-                      //           if(index == 0){
-                      //             mReturnWigdet = const Icon(
-                      //               Icons.sentiment_very_dissatisfied,
-                      //               color: Colors.red,
-                      //             );
-                      //           }
-                      //           else if(index == 1){
-                      //             mReturnWigdet = const Icon(
-                      //               Icons.sentiment_dissatisfied,
-                      //               color: Colors.redAccent,
-                      //             );
-                      //           }
-                      //           else if(index == 2){
-                      //             mReturnWigdet = const Icon(
-                      //               Icons.sentiment_neutral,
-                      //               color: Colors.amber,
-                      //             );
-                      //           }
-                      //           else if(index == 3){
-                      //             mReturnWigdet = const Icon(
-                      //               Icons.sentiment_satisfied,
-                      //               color: Colors.lightGreen,
-                      //             );
-                      //           }
-                      //           else if(index == 4){
-                      //             mReturnWigdet = const Icon(
-                      //               Icons.sentiment_very_satisfied,
-                      //               color: Colors.green,
-                      //             );
-                      //           }
-                      //           return mReturnWigdet;
-                      //         },
-                      //         onRatingUpdate: (rating) {
-                      //           print(rating);
-                      //           rateStr = (rating).toString();
-                      //         },
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
-                      // const SizedBox(height: 20.0,),
-                      // CommonWidgets.commonButton('Save', ()async {
-                      //   String userId = await CommonMethods.getUserId();
-                      //   Map updateMap = {
-                      //     "power_watt" : wattCtrl.text,
-                      //     "max_plus" : pulseCtrl.text,
-                      //     "average_power" : avgPulse.text,
-                      //     "cadence" : codenceCtrl.text,
-                      //     // "rating" : rateStr,
-                      //     "Trainings_time_min" : timeEstimateCtrl.text,
-                      //     "weight" : weightCtrl.text,
-                      //     // "comment" : commentCtrl.text
-                      //   };
-                      //   // CommonMethods.commonPostApiData(ApiInterface.UPDATE_DAILY_TRAINING+widget.dailyTrainDatum.id+'/'+userId, updateMap).then((value){
-                      //   //   String mResponse = value.toString();
-                      //   //   Map responseMap = json.decode(mResponse);
-                      //   //   String mStatus = responseMap['status'];
-                      //   //   String message = responseMap['msg'];
-                      //   //   if(mStatus == 'success'){
-                      //   //     CommonMethods.getDialoge(message,intTitle: 2,voidCallback: (){
-                      //   //       Get.back();
-                      //   //       Get.back();
-                      //   //     });
-                      //   //   }
-                      //   //   else if(mStatus == 'error'){
-                      //   //     CommonMethods.getDialoge(message,intTitle: 1,voidCallback: (){
-                      //   //       Get.back();
-                      //   //     });
-                      //   //   }
-                      //   // });
-                      // }),
-                      // const SizedBox(height: 20.0,),
+                      const SizedBox(height: 10.0,),
+
+                      Text(
+                        'Break',
+                        style: GoogleFonts.roboto(
+                            color: CommonVar.RED_BUTTON_COLOR
+                        ),
+                      ),
+                      CommonWidgets.commonTextField(
+                          mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
+                          mTitle: 'Break',
+                          shouldPreIcon: false,
+                          contentPadding: const EdgeInsets.all(10.0),
+                          mController: breakCtrl[index],
+                          hintColor: Colors.grey
+                      ),
+                      const SizedBox(height: 10.0,),
+
+                      RatingBar.builder(
+                        unratedColor: Colors.white,
+                        initialRating: double.parse(widget.dailyTrainDatum[index].aRating==null?'0.0':widget.dailyTrainDatum[index].aRating),
+                        itemCount: 5,
+                        itemBuilder: (context, index) {
+
+                          if(index == 0){
+                            mReturnWigdet = const Icon(
+                              Icons.sentiment_very_dissatisfied,
+                              color: Colors.red,
+                            );
+                          }
+                          else if(index == 1){
+                            mReturnWigdet = const Icon(
+                              Icons.sentiment_dissatisfied,
+                              color: Colors.redAccent,
+                            );
+                          }
+                          else if(index == 2){
+                            mReturnWigdet = const Icon(
+                              Icons.sentiment_neutral,
+                              color: Colors.amber,
+                            );
+                          }
+                          else if(index == 3){
+                            mReturnWigdet = const Icon(
+                              Icons.sentiment_satisfied,
+                              color: Colors.lightGreen,
+                            );
+                          }
+                          else if(index == 4){
+                            mReturnWigdet = const Icon(
+                              Icons.sentiment_very_satisfied,
+                              color: Colors.green,
+                            );
+                          }
+                          return mReturnWigdet;
+                        },
+                        onRatingUpdate: (rating) {
+                          print(rating);
+                          ratingList[index] = rating.toString();
+                        },
+                      )
                     ],
                   );
                 },

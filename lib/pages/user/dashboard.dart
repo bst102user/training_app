@@ -83,6 +83,10 @@ class DashboardState extends State<Dashboard>{
         List<ProfileDatum> listData = profileModel.data;
         String profilePictureName = listData[0].profileImage;
         mPref.setString("profile_fullpath",profilePictureName);
+
+        mPref.setString('user_email',listData[0].email);
+        mPref.setString('user_fname',listData[0].fname);
+        mPref.setString('user_lname',listData[0].lname);
       });
     } catch (e) {
       print(e);
@@ -165,6 +169,13 @@ class DashboardState extends State<Dashboard>{
     );
   }
 
+  Future<String> getImageUrl() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String imgUrl = preferences.getString("profile_fullpath").toString();
+    print(imgUrl);
+    return imgUrl;
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -197,17 +208,53 @@ class DashboardState extends State<Dashboard>{
                 children: [
                   Row(
                     children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        child: const Icon(
-                          Icons.person,
-                          size: 45,
-                          color: Colors.white,
-                        ),
-                        decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: CommonVar.BLACK_TEXT_FIELD_COLOR),
+                      FutureBuilder(
+                        future: getImageUrl(),
+                        builder: (context, snapshot){
+                          if(snapshot.data == null){
+                            return const CircleAvatar(
+                              radius: 30.0,
+                              foregroundImage:
+                              NetworkImage(
+                                'https://via.placeholder.com/150',
+                              ),
+                              backgroundColor: Colors.transparent,
+                            );
+                          }
+                          else{
+                            String imagePath = snapshot.data as String;
+                            if(imagePath.length<5){
+                              return const CircleAvatar(
+                                radius: 30.0,
+                                foregroundImage:
+                                NetworkImage(
+                                  'https://via.placeholder.com/150',
+                                ),
+                                backgroundColor: Colors.transparent,
+                              );
+                            }
+                            else if(imagePath.substring(imagePath.length - 5) == '.jpeg'
+                                ||imagePath.substring(imagePath.length - 4) == '.png'
+                                ||imagePath.substring(imagePath.length - 4)=='.jpg') {
+                              return CircleAvatar(
+                                radius: 30.0,
+                                backgroundImage:
+                                NetworkImage(ApiInterface.PROFILE_IMAGE_PATH+(snapshot.data as String)),
+                                backgroundColor: Colors.transparent,
+                              );
+                            }
+                            else{
+                              return const CircleAvatar(
+                                radius: 30.0,
+                                foregroundImage:
+                                NetworkImage(
+                                  'https://via.placeholder.com/150',
+                                ),
+                                backgroundColor: Colors.transparent,
+                              );
+                            }
+                          }
+                        },
                       ),
                       CommonWidgets.mWidthSizeBox(width: 20.0),
                       FutureBuilder(
@@ -248,7 +295,11 @@ class DashboardState extends State<Dashboard>{
                   ),
                   InkWell(
                     onTap: (){
-                      Get.to(AccountPage());
+                      Get.to(AccountPage(true))!.then((value){
+                        setState(() {
+                          getProfileData();
+                        });
+                      });
                     },
                     child: const Icon(
                         Icons.settings,

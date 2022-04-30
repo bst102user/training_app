@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/firebase/methods.dart';
@@ -13,6 +14,8 @@ import 'racing_calender.dart';
 import 'upgrade_page.dart';
 
 class AccountPage extends StatefulWidget{
+  final bool isBackIcon;
+  AccountPage(this.isBackIcon);
   AccountPageState createState() => AccountPageState();
 }
 
@@ -75,14 +78,7 @@ class AccountPageState extends State<AccountPage>{
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
           child: ListView(
             children: [
-              Text(
-                'Account'.toUpperCase(),
-                style: GoogleFonts.roboto(
-                    color: Colors.white,
-                    fontSize: 25.0,
-                    fontWeight: FontWeight.w600
-                ),
-              ),
+              CommonWidgets.commonHeader(context, 'account',isShowBack: widget.isBackIcon),
               CommonWidgets.mHeightSizeBox(height: 20.0),
               commonView(Icons.person, 'Profile',mCallback: (){
                 Get.to(ProfilePage());
@@ -107,9 +103,17 @@ class AccountPageState extends State<AccountPage>{
                     MaterialPageRoute(builder: (context) => UpgradePage())
                 );
               }),
-              commonView(Icons.person, 'Logout',mCallback: (){
+              commonView(Icons.person, 'Logout',mCallback: ()async{
                 CommonMethods.twoButtonDialoge(context, 'Logout', 'Would you like to logout from the Application?',(){
-                  logOut(context).then((value){
+                  logOut(context).then((value)async{
+                    CommonMethods.saveStrPref('profile_fullpath', '');
+                    CommonMethods.saveStrPref('trainer_id', '0');
+                    CommonMethods.saveStrPref('user_id', '');
+                    CommonMethods.saveStrPref('user_email', '');
+                    CommonMethods.saveStrPref('user_fname', '');
+                    CommonMethods.saveStrPref('user_lname', '');
+                    CommonMethods.saveStrPref('trainer_id', '');
+                    CommonMethods.saveStrPref('user_type', '');
                     CommonMethods.saveBoolPref('is_login', false);
                     Get.to(() => LoginPage());
                   });

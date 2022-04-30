@@ -8,6 +8,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:training_app/firebase/screens/chat_room.dart';
 import 'package:training_app/pages/trainer/notification_trainer.dart';
 import 'package:training_app/pages/trainer/tr_dashboard.dart';
 import 'package:training_app/pages/user/login_page.dart';
@@ -74,7 +75,7 @@ class SplashScreenState extends State<SplashScreen>{
     });
 
     FirebaseMessaging.instance.getInitialMessage().then((message)async{
-      if (message != null) {
+      if (message != null) {//message.data['room_id']  message.data['user_map']
         SharedPreferences mPref = await SharedPreferences.getInstance();
         bool snapshot = mPref.getBool('is_login') as bool;
         String userType = mPref.getString('user_type') as String;
@@ -90,14 +91,23 @@ class SplashScreenState extends State<SplashScreen>{
                     (Route<dynamic> route) => false);
           }
           else {
-            if(userType == 'Trainer'){
-              Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => NotificationTrainer()),
-                      (Route<dynamic> route) => false);
+            if(message.data['navigate'] == 'notification') {
+              if(userType == 'Trainer'){
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => NotificationTrainer()),
+                        (Route<dynamic> route) => false);
+              }
+              else{
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => NotificationPage()),
+                        (Route<dynamic> route) => false);
+              }
             }
             else{
               Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => NotificationPage()),
+                  MaterialPageRoute(builder: (context) =>
+                      ChatRoom(chatRoomId: message.data['room_id'],
+                          userMap: json.decode(message.data['user_map']))),
                       (Route<dynamic> route) => false);
             }
           }

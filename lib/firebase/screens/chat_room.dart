@@ -245,7 +245,7 @@ class ChatRoomState extends State<ChatRoom>{
           .collection('chats')
           .doc(fileName)
           .update({"message": imageUrl});
-
+      sendAndRetrieveMessage(widget.userMap['auth_token']);
       print(imageUrl);
     }
   }
@@ -293,7 +293,10 @@ class ChatRoomState extends State<ChatRoom>{
           'data': <String, dynamic>{
             'click_action': 'FLUTTER_NOTIFICATION_CLICK',
             'id': '1',
-            'status': 'done'
+            'status': 'done',
+            'room_id' : widget.chatRoomId,
+            'user_map' : widget.userMap,
+            'navigate' : 'chat'
           },
           'to': token,
         },
@@ -330,146 +333,146 @@ class ChatRoomState extends State<ChatRoom>{
     final double screenHeight = MediaQuery.of(context).size.height;
     return SafeArea(
       child: Scaffold(
-        backgroundColor: CommonVar.BLACK_BG_COLOR,
-        body: Stack(
-          children: [
-            Align(
-              alignment: Alignment.topCenter,
-              child: Container(
-                color: Colors.red,
-                height: 50.0,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    InkWell(
-                      onTap: (){
-                        Get.back();
-                      },
-                      child: const Padding(
-                        padding: EdgeInsets.all(10.0),
-                        child: Icon(
-                          Icons.arrow_back_ios_rounded,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    StreamBuilder<DocumentSnapshot>(
-                      stream:
-                      _firestore.collection("users").doc(widget.userMap['uid']).snapshots(),
-                      builder: (context, snapshot) {
-                        if (snapshot.data != null) {
-                          return Container(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(widget.userMap['name'],
-                                  style: GoogleFonts.roboto(
-                                      fontSize: 20.0,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white
-                                  ),),
-                                Text(
-                                  snapshot.data!['status'],
-                                  style: GoogleFonts.roboto(
-                                      color: Colors.white
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        } else {
-                          return Container();
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
+        body: Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/images/cycle_blur.png"),
+              fit: BoxFit.cover,
             ),
-            Align(
-              alignment: Alignment.center,
-              child: StreamBuilder<QuerySnapshot>(
-                stream: _firestore
-                    .collection('chatroom')
-                    .doc(widget.chatRoomId)
-                    .collection('chats')
-                    .orderBy("time", descending: false)
-                    .snapshots(),
-                builder: (BuildContext context,
-                    AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.data != null) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 50, bottom: 70.0),
-                      child: Container(
-                        height: screenHeight*0.8,
-                        child: ListView.builder(
-                          controller: _controller,
-                          itemCount: snapshot.data!.docs.length,
-                          itemBuilder: (context, index) {
-                            Map<String, dynamic> map = snapshot.data!.docs[index]
-                                .data() as Map<String, dynamic>;
-                            return messages(size, map, context);
-                          },
-                        ),
-                      ),
-                    );
-                  } else {
-                    return Container();
-                  }
-                },
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 15.0),
+          ),
+          child: Stack(
+            children: [
+              Align(
+                alignment: Alignment.topCenter,
                 child: Container(
+                  // color: Colors.red,
                   height: 50.0,
-                  width: size.width / 1.1,
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        height: size.height / 17,
-                        width: size.width / 1.3,
-                        child: TextField(
-                          controller: _message,
-                          keyboardType: TextInputType.text,
-                          decoration: InputDecoration(
-                            hintText: 'Type a message..',
-                            hintStyle: const TextStyle(fontSize: 16),
-                            suffixIcon: IconButton(
-                              onPressed: () => showDialogWithFields(),
-                              icon: const Icon(
-                                Icons.attach_file,
-                                color: CommonVar.RED_BUTTON_COLOR,),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
-                                width: 0,
-                                style: BorderStyle.none,
+                      StreamBuilder<DocumentSnapshot>(
+                        stream:
+                        _firestore.collection("users").doc(widget.userMap['uid']).snapshots(),
+                        builder: (context, snapshot) {
+                          if (snapshot.data != null) {
+                            return Container(
+                              child: Row(
+                                children: [
+                                  const SizedBox(width: 30.0,),
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(widget.userMap['name'],
+                                        style: GoogleFonts.roboto(
+                                            fontSize: 20.0,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white
+                                        ),),
+                                      Text(
+                                        snapshot.data!['status'],
+                                        style: GoogleFonts.roboto(
+                                            color: Colors.white
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                            ),
-                            filled: true,
-                            contentPadding: const EdgeInsets.all(16),
-                            fillColor: Colors.white,
-                          ),
-                        ),
+                            );
+                          } else {
+                            return Container();
+                          }
+                        },
                       ),
-                      IconButton(
-                          icon: const Icon(
-                            Icons.send,
-                            color: Colors.white,
-                            size: 30.0,
-                          ), onPressed: onSendMessage),
                     ],
                   ),
                 ),
               ),
-            ),
-            Center(child: loadingIndicator)
-          ],
+              Align(
+                alignment: Alignment.center,
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: _firestore
+                      .collection('chatroom')
+                      .doc(widget.chatRoomId)
+                      .collection('chats')
+                      .orderBy("time", descending: false)
+                      .snapshots(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (snapshot.data != null) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 50, bottom: 70.0),
+                        child: Container(
+                          height: screenHeight*0.8,
+                          child: ListView.builder(
+                            controller: _controller,
+                            itemCount: snapshot.data!.docs.length,
+                            itemBuilder: (context, index) {
+                              Map<String, dynamic> map = snapshot.data!.docs[index]
+                                  .data() as Map<String, dynamic>;
+                              return messages(size, map, context);
+                            },
+                          ),
+                        ),
+                      );
+                    } else {
+                      return Container();
+                    }
+                  },
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 15.0),
+                  child: Container(
+                    height: 50.0,
+                    width: size.width / 1.1,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          height: size.height / 17,
+                          width: size.width / 1.3,
+                          child: TextField(
+                            controller: _message,
+                            keyboardType: TextInputType.text,
+                            decoration: InputDecoration(
+                              hintText: 'Type a message..',
+                              hintStyle: const TextStyle(fontSize: 16),
+                              suffixIcon: IconButton(
+                                onPressed: () => showDialogWithFields(),
+                                icon: const Icon(
+                                  Icons.attach_file,
+                                  color: CommonVar.RED_BUTTON_COLOR,),
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: const BorderSide(
+                                  width: 0,
+                                  style: BorderStyle.none,
+                                ),
+                              ),
+                              filled: true,
+                              contentPadding: const EdgeInsets.all(16),
+                              fillColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                            icon: const Icon(
+                              Icons.send,
+                              color: Colors.white,
+                              size: 30.0,
+                            ), onPressed: onSendMessage),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Center(child: loadingIndicator)
+            ],
+          ),
         ),
       ),
     );

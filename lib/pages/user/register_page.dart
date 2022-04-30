@@ -100,7 +100,7 @@ class RegisterPageState extends State<RegisterPage>{
           });
         }
         else if(status == 'success'){
-          createAccount(nameController.text, emailController.text, passController.text, 'athlete',trainerId!).then((user){
+          createAccount(nameController.text, emailController.text, passController.text, 'athlete','0').then((user){
             if (user != null) {
               print("Account Created Sucessfull");
               CommonMethods.saveStrPref('user_email', emailController.text);

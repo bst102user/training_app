@@ -18,13 +18,24 @@ class MyAthleteChatState extends State<MyAthleteChat> with WidgetsBindingObserve
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   CollectionReference collectionRef = FirebaseFirestore.instance.collection('users');
+  String? roomId;
+  Map<String, dynamic>? userListMap;
 
   Future<dynamic> getData() async {
     // Get docs from collection reference
     QuerySnapshot querySnapshot = await collectionRef.get();
 
     // Get data from docs and convert map to List
-    final allData = querySnapshot.docs.map((doc) => doc.data()).toList();
+    List allData = querySnapshot.docs.map((doc) => doc.data()).toList();
+    SharedPreferences mPref = await SharedPreferences.getInstance();
+    String currentUserEmail = mPref.getString('user_email') as String;
+    for(var userData in allData){
+      if(currentUserEmail == userData['email']){
+        mPref.getString('trainer_id') as String;
+        mPref.setString('trainer_id', userData['trainer_id']);
+      }
+    }
+    // if(currentUserEmail == all)
 
     print(allData);
 
@@ -36,23 +47,30 @@ class MyAthleteChatState extends State<MyAthleteChat> with WidgetsBindingObserve
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
     setStatus("Online");
-    hideNavigator();
+    // hideNavigator();
   }
 
-  hideNavigator()async {
+  Future<bool> hideNavigator()async {
+    bool isEverythingOk = false;
     List usersList = await getData();
     List<String> prefVal = await getCurrentUser();
     for(int index=0;index<usersList.length;index++){
       if(usersList[index]['user_type'] == 'trainer' && usersList[index]['trainer_id'] == prefVal[2]){
-        String roomId = chatRoomId(
-            _auth.currentUser!.email!,
-            usersList[index]['email']);
-        Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => ChatRoom(chatRoomId: roomId, userMap: usersList[index])),
-                (Route<dynamic> route) => false);
+        roomId = chatRoomId(
+            _auth.currentUser!.uid,
+            usersList[index]['uid']);
+        userListMap = usersList[index];
+        isEverythingOk = true;
+        break;
+        // Navigator.of(context).pushAndRemoveUntil(
+        //     MaterialPageRoute(builder: (context) => ChatRoom(chatRoomId: roomId, userMap: usersList[index])),
+        //         (Route<dynamic> route) => false);
+      }
+      else{
+        isEverythingOk = false;
       }
     }
-
+    return isEverythingOk;
   }
 
   void setStatus(String status) async {
@@ -120,14 +138,69 @@ class MyAthleteChatState extends State<MyAthleteChat> with WidgetsBindingObserve
     return SafeArea(
       child: Scaffold(
         backgroundColor: CommonVar.BLACK_BG_COLOR,
-
-        body: Center(
-          child: Text('Chat opening...',
-              style: GoogleFonts.roboto(
-                color: Colors.white,
-                fontSize: 20.0
-              ),),
-        )
+        body: FutureBuilder(
+          future: hideNavigator(),
+          builder: (context, snapshot){
+            if(snapshot.data == null){
+              return Center(
+                child: Text('Chat opening...',
+                  style: GoogleFonts.roboto(
+                      color: Colors.white,
+                      fontSize: 20.0
+                  ),),
+              );
+            }
+            else{
+              bool isEvrthngOk = snapshot.data as bool;
+              if(isEvrthngOk){
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 30.0),
+                  child: ChatRoom(chatRoomId: roomId!, userMap: userListMap!),
+                );
+              }
+              else{
+                return Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.black,
+                    image: DecorationImage(
+                      image: AssetImage(
+                        "assets/images/cycle_blur.png",
+                      ),
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+                    child: ListView(
+                      children: [
+                        Text(
+                          'Chat'.toUpperCase(),
+                          style: GoogleFonts.roboto(
+                              color: Colors.white,
+                              fontSize: 25.0,
+                              fontWeight: FontWeight.w600
+                          ),
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height*0.8,
+                          child: Center(
+                            child: Text(
+                              'No trainer available for you we will revert back once the trainer is available',
+                              style: GoogleFonts.roboto(
+                                  color: Colors.white,
+                                  fontSize: 18.0
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                );
+              }
+            }
+          },
+        ),
       ),
     );
   }

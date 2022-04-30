@@ -117,111 +117,124 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             child: CircularProgressIndicator(),
           ),
         )
-            : Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
-              child: CommonWidgets.commonHeader(context, 'Messanger',isShowBack: false),
-            ),
-            FutureBuilder(
-              future: getData(),
-              builder: (context, snapshot){
-                if(snapshot.data == null){
-                  return Center(child: LoadingBouncingLine(size: 20,));
-                }
-                else{
-                  List usersList = snapshot.data as List;
-                  return Container(
-                    height: MediaQuery.of(context).size.height*0.8,
-                    child: ListView.builder(
-                      itemCount: usersList.length,
-                      itemBuilder: (context, index){
-                        return FutureBuilder(
-                          future: getCurrentUser(),
-                          builder: (context, snapshot){
-                            if(snapshot.data == null){
-                              return Center(child: LoadingBouncingLine(size: 20,));
-                            }
-                            else{
-                              List<String> prefVal = snapshot.data as List<String>;
-                              // String emailStr = snapshot.data as String;
-                              return (prefVal[0] == usersList[index]['email']||prefVal[1]!=usersList[index]['trainer_id'])?Container():Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                                child: Column(
-                                  children: [
-                                    InkWell(
-                                      onTap:(){
-                                        String roomId = chatRoomId(
-                                            _auth.currentUser!.email!,
-                                            usersList[index]['email']);
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (_) => ChatRoom(
-                                              chatRoomId: roomId,
-                                              userMap: usersList[index],
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 10.0),
-                                        child: Row(
-                                          children: [
-                                            Container(
-                                              width: 45,
-                                              height: 45,
-                                              decoration: const BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: CommonVar.RED_BUTTON_COLOR),
-                                              child: Center(
-                                                child: Text(usersList[index]['name'][0].toString().toUpperCase(),
-                                                  style: GoogleFonts.roboto(
-                                                      fontSize: 18.0,
-                                                      color: Colors.white,
-                                                      fontWeight: FontWeight.w800
+            : Container(
+                decoration: const BoxDecoration(
+                  color: Colors.black,
+                  image: DecorationImage(
+                    image: AssetImage(
+                      "assets/images/cycle_blur.png",
+                    ),
+                    fit: BoxFit.fill,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 15.0,horizontal: 15.0),
+                        child: CommonWidgets.commonHeader(context, 'Messanger',isShowBack: true),
+                      ),
+                      FutureBuilder(
+                        future: getData(),
+                        builder: (context, snapshot){
+                          if(snapshot.data == null){
+                            return Center(child: LoadingBouncingLine(size: 20,));
+                          }
+                          else{
+                            List usersList = snapshot.data as List;
+                            return Container(
+                              height: MediaQuery.of(context).size.height*0.8,
+                              child: ListView.builder(
+                                itemCount: usersList.length,
+                                itemBuilder: (context, index){
+                                  return FutureBuilder(
+                                    future: getCurrentUser(),
+                                    builder: (context, snapshot){
+                                      if(snapshot.data == null){
+                                        return Center(child: LoadingBouncingLine(size: 20,));
+                                      }
+                                      else{
+                                        List<String> prefVal = snapshot.data as List<String>;
+                                        // String emailStr = snapshot.data as String;
+                                        return (prefVal[0] == usersList[index]['email']||prefVal[1]!=usersList[index]['trainer_id'])?Container():Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                                          child: Column(
+                                            children: [
+                                              InkWell(
+                                                onTap:()async{
+                                                  String roomId = chatRoomId(
+                                                      _auth.currentUser!.uid,
+                                                      usersList[index]['uid']);
+                                                  Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                      builder: (_) => ChatRoom(
+                                                        chatRoomId: roomId,
+                                                        userMap: usersList[index],
+                                                      ),
+                                                    ),
+                                                  );
+                                                  SharedPreferences mpref = await SharedPreferences.getInstance();
+
+                                                },
+                                                child: Padding(
+                                                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                                  child: Row(
+                                                    children: [
+                                                      Container(
+                                                        width: 45,
+                                                        height: 45,
+                                                        decoration: const BoxDecoration(
+                                                            shape: BoxShape.circle,
+                                                            color: CommonVar.RED_BUTTON_COLOR),
+                                                        child: Center(
+                                                          child: Text(usersList[index]['name'][0].toString().toUpperCase(),
+                                                            style: GoogleFonts.roboto(
+                                                                fontSize: 18.0,
+                                                                color: Colors.white,
+                                                                fontWeight: FontWeight.w800
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 15.0,),
+                                                      Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Text(
+                                                            usersList[index]['name'],
+                                                            style: GoogleFonts.roboto(
+                                                                color: Colors.white,
+                                                                fontSize: 18.0,
+                                                                fontWeight: FontWeight.w600
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            usersList[index]['email'],
+                                                            style: GoogleFonts.roboto(
+                                                              color: Colors.white,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
                                               ),
-                                            ),
-                                            const SizedBox(width: 15.0,),
-                                            Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  usersList[index]['name'],
-                                                  style: GoogleFonts.roboto(
-                                                      color: Colors.white,
-                                                      fontSize: 18.0,
-                                                      fontWeight: FontWeight.w600
-                                                  ),
-                                                ),
-                                                Text(
-                                                  usersList[index]['email'],
-                                                  style: GoogleFonts.roboto(
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    const Divider(color: Colors.white,)
-                                  ],
-                                ),
-                              );
-                            }
-                          },
-                        );
-                      },
-                    ),
-                  );
-                }
-              },
-            )
-          ],
+                                              const Divider(color: Colors.white,)
+                                            ],
+                                          ),
+                                        );
+                                      }
+                                    },
+                                  );
+                                },
+                              ),
+                            );
+                          }
+                        },
+                      )
+                  ],
         ),
+            ),
       ),
     );
   }

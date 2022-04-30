@@ -1,5 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response;
@@ -11,6 +14,7 @@ import 'package:training_app/common/api_interface.dart';
 import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
+import 'package:training_app/firebase/keys.dart';
 import 'package:training_app/models/daily_training_model.dart';
 import 'daily_training_edit.dart';
 import 'package:http/http.dart' as http;
@@ -24,6 +28,8 @@ class DailyTraining extends StatefulWidget{
 class DailyTrainingState extends State<DailyTraining>{
   String moveDateStr = 'Choose date for move';
 
+  CollectionReference collectionRef = FirebaseFirestore.instance.collection('users');
+  Map? trainerMap;
 
   Future<List<String>> getUserAndTrainerId()async{
     List<String> savedData = [];
@@ -65,9 +71,92 @@ class DailyTrainingState extends State<DailyTraining>{
             'message' : 'I move my training on '+moveDateStr
           };
           Response myRes = await CommonMethods.commonPostApiData(ApiInterface.NOTIF_TO_TRAINER+userId+'/'+myTrainerId, notifSendMap);
+          sendAndRetrieveMessage(trainerMap!['auth_token'], "Move date", 'I move my training on '+moveDateStr);
         });
       });
     }
+  }
+
+  @override
+  initState(){
+    super.initState();
+    getTrainerToken();
+  }
+
+  Future<dynamic> getData() async {
+    // Get docs from collection reference
+    QuerySnapshot querySnapshot = await collectionRef.get();
+
+    // Get data from docs and convert map to List
+    final allData = querySnapshot.docs.map((doc) => doc.data()).toList();
+
+    print(allData);
+
+    return allData;
+  }
+
+  Future<dynamic> getCurrentUser()async{
+    List<String> sharePrefValue = [];
+    SharedPreferences mPref = await SharedPreferences.getInstance();
+    String emailStr = mPref.getString('user_email') as String;
+    String userId = mPref.getString('user_id') as String;
+    String trainerId = mPref.getString('trainer_id') as String;
+    sharePrefValue.add(emailStr);
+    sharePrefValue.add(userId);
+    sharePrefValue.add(trainerId);
+    return sharePrefValue;
+  }
+
+  getTrainerToken()async {
+    List usersList = await getData();
+    List<String> prefVal = await getCurrentUser();
+    for(int index=0;index<usersList.length;index++){
+      if(usersList[index]['user_type'] == 'trainer' && usersList[index]['trainer_id'] == prefVal[2]){
+        trainerMap = usersList[index];
+        print(trainerMap);
+      }
+    }
+  }
+
+
+  Future<Map<String, dynamic>> sendAndRetrieveMessage(String token,String title,String body) async {
+    var url = 'https://fcm.googleapis.com/fcm/send';
+    Uri mUri = Uri.parse(url);
+    var res = await http.post(
+      mUri,
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization': 'key=$MY_SERVER_KEY',
+      },
+      body: jsonEncode(
+        <String, dynamic>{
+          'notification': <String, dynamic>{
+            'body': body,
+            'title': title
+          },
+          'priority': 'high',
+          'data': <String, dynamic>{
+            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+            'id': '1',
+            'status': 'done',
+            'navigate' : 'notification'
+          },
+          'to': token,
+        },
+      ),
+    );
+
+    print(res);
+    final Completer<Map<String, dynamic>> completer = Completer<Map<String, dynamic>>();
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage? message) {
+      if (message != null) {
+        print(message);
+      }
+    });
+
+    return completer.future;
   }
 
 
@@ -140,6 +229,7 @@ class DailyTrainingState extends State<DailyTraining>{
                             };
                             Response myRes = await CommonMethods.commonPostApiData(ApiInterface.NOTIF_TO_TRAINER+savedData[0]+'/'+savedData[1], notifSendMap);
                             print(ApiInterface.NOTIF_TO_TRAINER+savedData[0]+'/'+savedData[1]);
+                            sendAndRetrieveMessage(trainerMap!['auth_token'], "Miss Training", 'Today i am missing my training');
                           });
                         }),
                         CommonWidgets.textBelowIcon(Icons.sick_rounded, 'Sick', () {
@@ -157,6 +247,7 @@ class DailyTrainingState extends State<DailyTraining>{
                               "message" : "Today i am not feeling well"
                             };;
                             Response myRes = await CommonMethods.commonPostApiData(ApiInterface.NOTIF_TO_TRAINER+savedData[0]+'/'+savedData[1], notifSendMap);
+                            sendAndRetrieveMessage(trainerMap!['auth_token'], "Sick message", 'Today i am not feeling well');
                           });
                         })
                       ],
@@ -190,12 +281,13 @@ class DailyTrainingState extends State<DailyTraining>{
                             );
                           }
                           else{
-                            DailyTrainingModel dtm = dailyTrainingModelFromJson(snapshot.data.toString());
+                            String response = snapshot.data.toString();
+                            DailyTrainingModel dtm = dailyTrainingModelFromJson(response);
                             if(dtm.status == 'success'){
                               return Column(
                                 children: [
                                   CommonWidgets.commonButton('Edit', () {
-                                    Get.to(DatlyTrainingEdit(dtm.data))!.then((value){
+                                    Get.to(DatlyTrainingEdit(dtm.data,dtm.msg))!.then((value){
                                       setState(() {
 
                                       });
@@ -225,34 +317,18 @@ class DailyTrainingState extends State<DailyTraining>{
                                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                         children: [
                                                           Text(
-                                                            dtm.data[index].headline==null?'No data':dtm.data[index].headline,
+                                                            dtm.data[0].headline,
                                                             style: GoogleFonts.roboto(
                                                                 color: Colors.white,
                                                                 fontSize: 17.0,
                                                                 fontWeight: FontWeight.w600
                                                             ),
                                                           ),
-                                                          // InkWell(
-                                                          //   onTap: (){
-                                                          //     Get.to(DatlyTrainingEdit(dtm.data[index]))!.then((value){
-                                                          //       setState(() {
-                                                          //
-                                                          //       });
-                                                          //     });
-                                                          //   },
-                                                          //   child: const Padding(
-                                                          //     padding: EdgeInsets.all(8.0),
-                                                          //     child: Icon(
-                                                          //       Icons.edit,
-                                                          //       color: Colors.white,
-                                                          //     ),
-                                                          //   ),
-                                                          // )
                                                         ],
                                                       ),
                                                     ),
                                                     Text(
-                                                      dtm.data[index].trainingstimeMin==null?'No data':dtm.data[index].trainingstimeMin,
+                                                      dtm.data[0].trainingstimeMin,
                                                       style: GoogleFonts.roboto(
                                                           color: Colors.white,
                                                           fontSize: 17.0,
@@ -261,7 +337,7 @@ class DailyTrainingState extends State<DailyTraining>{
                                                     ),
                                                     CommonWidgets.mHeightSizeBox(height: 10.0),
                                                     Text(
-                                                      dtm.data[index].pulse==null?'No data':dtm.data[index].pulse+' pulse',
+                                                      dtm.data[0].pulse,
                                                       style: GoogleFonts.roboto(
                                                           color: Colors.white,
                                                           fontSize: 17.0,
@@ -270,7 +346,7 @@ class DailyTrainingState extends State<DailyTraining>{
                                                     ),
                                                     CommonWidgets.mHeightSizeBox(height: 10.0),
                                                     Text(
-                                                      dtm.data[index].cadence==null?'No data':dtm.data[index].cadence,
+                                                      dtm.data[0].cadence,
                                                       style: GoogleFonts.roboto(
                                                           color: Colors.white,
                                                           fontSize: 17.0,

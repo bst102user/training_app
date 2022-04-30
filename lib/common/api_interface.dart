@@ -29,6 +29,6 @@ class ApiInterface{
   static const String UPLOAD_XLS_FILE           = BASE_URL+'sportsfood/api/upload_file';
   static const String IMPORT_FILE               = BASE_URL+'sportsfood/api/export_file/105';
   static const String GET_LINK_XLS              = BASE_URL+'sportsfood/api/link_excel';
-  static const String TRAINER_NOTIFICATIONS     = BASE_URL+'sportsfood/api/notification_trainer/8';
+  static const String TRAINER_NOTIFICATIONS     = BASE_URL+'sportsfood/api/notification_trainer/';
 
 }

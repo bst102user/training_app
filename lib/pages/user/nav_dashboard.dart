@@ -67,7 +67,7 @@ class NavDashboardState extends State<NavDashboard> with WidgetsBindingObserver{
         mmWidget = MyAthleteChat();
         break;
       case 2:
-        mmWidget = AccountPage();
+        mmWidget = AccountPage(false);
         break;
     }
     return mmWidget;

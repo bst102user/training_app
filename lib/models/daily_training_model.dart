@@ -16,41 +16,40 @@ class DailyTrainingModel {
   });
 
   String status;
-  Msg msg;
-  List<DailyTrainDatum> data;
+  List<Msg> msg;
+  List<Datum> data;
 
   factory DailyTrainingModel.fromJson(Map<String, dynamic> json) => DailyTrainingModel(
     status: json["status"],
-    msg: Msg.fromJson(json["msg"]),
-    data: List<DailyTrainDatum>.from(json["data"].map((x) => DailyTrainDatum.fromJson(x))),
+    msg: List<Msg>.from(json["msg"].map((x) => Msg.fromJson(x))),
+    data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
     "status": status,
-    "msg": msg.toJson(),
+    "msg": List<dynamic>.from(msg.map((x) => x.toJson())),
     "data": List<dynamic>.from(data.map((x) => x.toJson())),
   };
 }
 
-class DailyTrainDatum {
-  DailyTrainDatum({
+class Datum {
+  Datum({
     required this.id,
     required this.userId,
     required this.dates,
     required this.headline,
     required this.trainingstimeMin,
+    required this.breaks,
     required this.powerWatt,
     required this.pulse,
     required this.cadence,
-    required this.rainingstime,
+    required this.aTrainingsTimeMin,
     required this.aPowerWatt,
+    required this.aBreaks,
     required this.aMaxPlus,
     required this.aAveragePower,
     required this.aCandence,
     required this.aRating,
-    required this.aTrainingstime,
-    required this.aWeight,
-    required this.aComment,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -60,39 +59,37 @@ class DailyTrainDatum {
   DateTime dates;
   String headline;
   String trainingstimeMin;
+  dynamic breaks;
   String powerWatt;
   String pulse;
   String cadence;
-  dynamic rainingstime;
+  String aTrainingsTimeMin;
   String aPowerWatt;
+  String aBreaks;
   String aMaxPlus;
   String aAveragePower;
   String aCandence;
   String aRating;
-  String aTrainingstime;
-  String aWeight;
-  String aComment;
   DateTime createdAt;
   DateTime updatedAt;
 
-  factory DailyTrainDatum.fromJson(Map<String, dynamic> json) => DailyTrainDatum(
+  factory Datum.fromJson(Map<String, dynamic> json) => Datum(
     id: json["id"],
     userId: json["user_id"],
     dates: DateTime.parse(json["dates"]),
     headline: json["headline"],
     trainingstimeMin: json["trainingstime_min"],
+    breaks: json["breaks"],
     powerWatt: json["power_watt"],
     pulse: json["pulse"],
     cadence: json["cadence"],
-    rainingstime: json["rainingstime"],
+    aTrainingsTimeMin: json["a_trainings_time_min"],
     aPowerWatt: json["a_power_watt"],
+    aBreaks: json["a_breaks"],
     aMaxPlus: json["a_max_plus"],
     aAveragePower: json["a_average_power"],
     aCandence: json["a_candence"],
     aRating: json["a_rating"],
-    aTrainingstime: json["a_trainingstime"],
-    aWeight: json["a_weight"],
-    aComment: json["a_comment"],
     createdAt: DateTime.parse(json["created_at"]),
     updatedAt: DateTime.parse(json["updated_at"]),
   );
@@ -103,18 +100,17 @@ class DailyTrainDatum {
     "dates": "${dates.year.toString().padLeft(4, '0')}-${dates.month.toString().padLeft(2, '0')}-${dates.day.toString().padLeft(2, '0')}",
     "headline": headline,
     "trainingstime_min": trainingstimeMin,
+    "breaks": breaks,
     "power_watt": powerWatt,
     "pulse": pulse,
     "cadence": cadence,
-    "rainingstime": rainingstime,
+    "a_trainings_time_min": aTrainingsTimeMin,
     "a_power_watt": aPowerWatt,
+    "a_breaks": aBreaks,
     "a_max_plus": aMaxPlus,
     "a_average_power": aAveragePower,
     "a_candence": aCandence,
     "a_rating": aRating,
-    "a_trainingstime": aTrainingstime,
-    "a_weight": aWeight,
-    "a_comment": aComment,
     "created_at": createdAt.toIso8601String(),
     "updated_at": updatedAt.toIso8601String(),
   };
@@ -122,16 +118,24 @@ class DailyTrainDatum {
 
 class Msg {
   Msg({
-    required this.message,
+    required this.totalTrainingstime,
+    required this.aWeight,
+    required this.aComment,
   });
 
-  String message;
+  String totalTrainingstime;
+  String aWeight;
+  String aComment;
 
   factory Msg.fromJson(Map<String, dynamic> json) => Msg(
-    message: json["message"],
+    totalTrainingstime: json["total_trainingstime"],
+    aWeight: json["a_weight"],
+    aComment: json["a_comment"],
   );
 
   Map<String, dynamic> toJson() => {
-    "message": message,
+    "total_trainingstime": totalTrainingstime,
+    "a_weight": aWeight,
+    "a_comment": aComment,
   };
 }
