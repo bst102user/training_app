@@ -59,7 +59,7 @@ class LoginPageState extends State<LoginPage> {
           logIn(emailController.text, passController.text).then((user){
             if(user==null){
               String userType = mMap['data']['type'];
-              createAccount(mMap['data']['fname'], mMap['data']['email'],
+              createAccount(mMap['data']['fname'], mMap['data']['lname'], mMap['data']['email'],
                   passController.text,
                   userType.toLowerCase(),userType == 'Trainer'?mMap['data']['id']:mMap['data']['parents']).then((registerUser){
                     if(registerUser!=null){
@@ -106,38 +106,6 @@ class LoginPageState extends State<LoginPage> {
                         (Route<dynamic> route) => false);
               }
             }
-            // if(user!=null){
-            //   CommonMethods.showToast(context, 'Login success');
-            //   CommonMethods.saveBoolPref('is_login', true);
-            //   CommonMethods.saveStrPref('user_id', mMap['data']['id']);
-            //   CommonMethods.saveStrPref('user_email', mMap['data']['email']);
-            //   CommonMethods.saveStrPref('user_fname', mMap['data']['fname']);
-            //   CommonMethods.saveStrPref('user_lname', mMap['data']['lname']);
-            //   CommonMethods.saveStrPref('user_lname', mMap['data']['type']);
-            //   Navigator.of(context).pushAndRemoveUntil(
-            //       MaterialPageRoute(builder: (context) => NavDashboard()),
-            //           (Route<dynamic> route) => false);
-            // }else{
-            //   // createAccount(name, email, password, trainerId)
-            //   CommonMethods.showToast(context, 'Login success');
-            //   CommonMethods.saveBoolPref('is_login', true);
-            //   CommonMethods.saveStrPref('user_id', mMap['data']['id']);
-            //   CommonMethods.saveStrPref('user_email', mMap['data']['email']);
-            //   CommonMethods.saveStrPref('user_fname', mMap['data']['fname']);
-            //   CommonMethods.saveStrPref('user_lname', mMap['data']['lname']);
-            //   CommonMethods.saveStrPref('user_type', mMap['data']['type']);
-            //   String userType = mMap['data']['type'];
-            //   if(userType == 'Trainer'){
-            //     Navigator.of(context).pushAndRemoveUntil(
-            //         MaterialPageRoute(builder: (context) => TrDashboard()),
-            //             (Route<dynamic> route) => false);
-            //   }
-            //   else {
-            //     Navigator.of(context).pushAndRemoveUntil(
-            //         MaterialPageRoute(builder: (context) => NavDashboard()),
-            //             (Route<dynamic> route) => false);
-            //   }
-            // }
           });
         }
       });

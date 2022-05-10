@@ -84,7 +84,7 @@ class NotificationPageState extends State<NotificationPage>{
                   else{
                     String userId = snapshot.data as String;
                     return FutureBuilder(
-                      future: CommonMethods.getRequest(ApiInterface.ATHLETE_NOTIFICATIONS+userId, context),
+                      future: CommonMethods.getRequest(ApiInterface.NOTIFICATIONS+userId, context),
                       builder: (context, snapshot){
                         if(snapshot.data == null){
                           return Center(child: LoadingBouncingLine(size: 20,));
@@ -128,7 +128,7 @@ class NotificationPageState extends State<NotificationPage>{
                                         ),
                                         const SizedBox(height: 5.0,),
                                         Text(
-                                          listData[index].msg,
+                                          listData[index].descr,
                                           overflow: TextOverflow.ellipsis,
                                           maxLines: 1,
                                           style: GoogleFonts.roboto(

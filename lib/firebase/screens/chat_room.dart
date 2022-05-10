@@ -11,6 +11,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:training_app/common/api_interface.dart';
 import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_var.dart';
@@ -216,7 +217,7 @@ class ChatRoomState extends State<ChatRoom>{
         .collection('chats')
         .doc(fileName)
         .set({
-      "sendby": _auth.currentUser!.displayName,
+      "sendby": _auth.currentUser!.uid,
       "message": "",
       "type": "img",
       "time": FieldValue.serverTimestamp(),
@@ -257,7 +258,7 @@ class ChatRoomState extends State<ChatRoom>{
             () => _controller.jumpTo(_controller.position.maxScrollExtent),
       );
       Map<String, dynamic> messages = {
-        "sendby": _auth.currentUser!.displayName,
+        "sendby": _auth.currentUser!.uid,
         "message": _message.text,
         "type": "text",
         "time": FieldValue.serverTimestamp(),
@@ -346,7 +347,7 @@ class ChatRoomState extends State<ChatRoom>{
                 alignment: Alignment.topCenter,
                 child: Container(
                   // color: Colors.red,
-                  height: 50.0,
+                  height: 55.0,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -360,9 +361,9 @@ class ChatRoomState extends State<ChatRoom>{
                                 children: [
                                   const SizedBox(width: 30.0,),
                                   Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(widget.userMap['name'],
+                                      Text(widget.userMap['name']+' '+widget.userMap['lname'],
                                         style: GoogleFonts.roboto(
                                             fontSize: 20.0,
                                             fontWeight: FontWeight.w600,
@@ -371,9 +372,13 @@ class ChatRoomState extends State<ChatRoom>{
                                       Text(
                                         snapshot.data!['status'],
                                         style: GoogleFonts.roboto(
-                                            color: Colors.white
+                                            color: Colors.white,
+                                          fontSize: 12.0
                                         ),
                                       ),
+                                      const Divider(
+                                        color: CommonVar.RED_BUTTON_COLOR,
+                                      )
                                     ],
                                   ),
                                 ],
@@ -401,7 +406,7 @@ class ChatRoomState extends State<ChatRoom>{
                       AsyncSnapshot<QuerySnapshot> snapshot) {
                     if (snapshot.data != null) {
                       return Padding(
-                        padding: const EdgeInsets.only(top: 50, bottom: 70.0),
+                        padding: const EdgeInsets.only(top: 50, bottom: 85.0),
                         child: Container(
                           height: screenHeight*0.8,
                           child: ListView.builder(
@@ -424,7 +429,7 @@ class ChatRoomState extends State<ChatRoom>{
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 15.0),
+                  padding: const EdgeInsets.only(bottom: 30.0),
                   child: Container(
                     height: 50.0,
                     width: size.width / 1.1,
@@ -478,41 +483,83 @@ class ChatRoomState extends State<ChatRoom>{
     );
   }
 
+  String readTimestamp(Timestamp mMon) {
+    var now = DateTime.now();
+    var format = DateFormat('HH:mm');
+    int timestamp = mMon.microsecondsSinceEpoch;
+    var date = DateTime.fromMicrosecondsSinceEpoch(timestamp);
+    var diff = date.difference(now);
+    var time = '';
+
+    if (diff.inSeconds <= 0 || diff.inSeconds > 0 && diff.inMinutes == 0 || diff.inMinutes > 0 && diff.inHours == 0 || diff.inHours > 0 && diff.inDays == 0) {
+      time = format.format(date);
+    } else {
+      if (diff.inDays == 1) {
+        time = diff.inDays.toString() + 'day ago';
+      } else {
+        time = diff.inDays.toString() + 'days ago';
+      }
+    }
+
+    return time;
+  }
+
   Widget messages(Size size, Map<String, dynamic> map, BuildContext context) {
     return map['type'] == "text"
         ? Container(
       width: size.width,
-      alignment: map['sendby'] == _auth.currentUser!.displayName
+      alignment: map['sendby'] == _auth.currentUser!.uid
           ? Alignment.centerRight
           : Alignment.centerLeft,
-      child: Container(
-        padding: const EdgeInsets.all(10.0),
-        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: map['sendby'] == _auth.currentUser!.displayName?const Color(0xffcea332):const Color(0xff41bdd5),
-        ),
-        child: InkWell(
-          onTap: (){
-            if(Uri.parse(map['message']).host != ''){
-              _launchURL(map['message']);
-            }
-          },
-          child: Text(
-            map['message'],
-            style: GoogleFonts.roboto(
-              color: Colors.white,
-              decoration: Uri.parse(map['message']).host == '' ? TextDecoration.none:TextDecoration.underline,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10.0),
+            margin: EdgeInsets.only(top: 5.0,bottom: 5.0,left: map['sendby'] == _auth.currentUser!.uid?20.0:10.0,right: map['sendby'] == _auth.currentUser!.uid?10.0:20.0),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                  topLeft: const Radius.circular(10.0),
+                topRight: const Radius.circular(10.0),
+                bottomRight: map['sendby'] == _auth.currentUser!.uid?const Radius.circular(0.0):const Radius.circular(10.0),
+                bottomLeft: map['sendby'] == _auth.currentUser!.uid?const Radius.circular(10.0):const Radius.circular(0.0),
+              )   ,
+              // borderRadius: BorderRadius.circular(20),
+              color: map['sendby'] == _auth.currentUser!.uid?const Color(0xffcea332):const Color(0xff41bdd5),
+            ),
+            child: InkWell(
+              onTap: (){
+                if(Uri.parse(map['message']).host != ''){
+                  _launchURL(map['message']);
+                }
+              },
+              child: Text(
+                map['message'],
+                style: GoogleFonts.roboto(
+                  color: Colors.white,
+                  decoration: Uri.parse(map['message']).host == '' ? TextDecoration.none:TextDecoration.underline,
+                ),
+              ),
             ),
           ),
-        ),
+          Padding(
+            padding: EdgeInsets.only(left: map['sendby'] == _auth.currentUser!.uid?20:10, right: 5.0, bottom: 10.0),
+            child: Text(//mList.docs[index].data()['time']
+                readTimestamp(map['time']),
+              style: GoogleFonts.roboto(
+                color: Colors.white,
+                fontSize: 10.0
+              ),
+            ),
+          )
+        ],
       ),
     )
         : Container(
       height: size.height / 2.5,
       width: size.width,
       padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-      alignment: map['sendby'] == _auth.currentUser!.displayName
+      alignment: map['sendby'] == _auth.currentUser!.uid
           ? Alignment.centerRight
           : Alignment.centerLeft,
       child: InkWell(

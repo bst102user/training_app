@@ -38,7 +38,7 @@ class AthlNotifDatum {
     required this.userId,
     required this.trainerId,
     required this.title,
-    required this.msg,
+    required this.descr,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -47,7 +47,7 @@ class AthlNotifDatum {
   String userId;
   String trainerId;
   String title;
-  String msg;
+  String descr;
   DateTime createdAt;
   DateTime updatedAt;
 
@@ -56,7 +56,7 @@ class AthlNotifDatum {
     userId: json["user_id"],
     trainerId: json["trainer_id"],
     title: json["title"],
-    msg: json["msg"],
+    descr: json["descr"],
     createdAt: DateTime.parse(json["created_at"]),
     updatedAt: DateTime.parse(json["updated_at"]),
   );
@@ -66,7 +66,7 @@ class AthlNotifDatum {
     "user_id": userId,
     "trainer_id": trainerId,
     "title": title,
-    "msg": msg,
+    "descr": descr,
     "created_at": createdAt.toIso8601String(),
     "updated_at": updatedAt.toIso8601String(),
   };

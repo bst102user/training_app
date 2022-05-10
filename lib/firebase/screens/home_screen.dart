@@ -11,8 +11,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../methods.dart';
-
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -63,8 +61,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   String chatRoomId(String user1, String user2) {
-    if (user1[0].toLowerCase().codeUnits[0] >
-        user2.toLowerCase().codeUnits[0]) {
+    int val1 = user1[0].toLowerCase().codeUnits[0];
+    int val2 = user2.toLowerCase().codeUnits[0];
+    if (val1 == val2) {
+      val1 = val1+1;
+    }
+    if (val1 > val2) {
       return "$user1$user2";
     } else {
       return "$user2$user1";
@@ -199,13 +201,25 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                                       Column(
                                                         crossAxisAlignment: CrossAxisAlignment.start,
                                                         children: [
-                                                          Text(
-                                                            usersList[index]['name'],
-                                                            style: GoogleFonts.roboto(
-                                                                color: Colors.white,
-                                                                fontSize: 18.0,
-                                                                fontWeight: FontWeight.w600
-                                                            ),
+                                                          Row(
+                                                            children: [
+                                                              Text(
+                                                                usersList[index]['name']+' ',
+                                                                style: GoogleFonts.roboto(
+                                                                    color: Colors.white,
+                                                                    fontSize: 18.0,
+                                                                    fontWeight: FontWeight.w600
+                                                                ),
+                                                              ),
+                                                              Text(
+                                                                usersList[index]['lname']==null?'':usersList[index]['lname'],
+                                                                style: GoogleFonts.roboto(
+                                                                    color: Colors.white,
+                                                                    fontSize: 18.0,
+                                                                    fontWeight: FontWeight.w600
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
                                                           Text(
                                                             usersList[index]['email'],

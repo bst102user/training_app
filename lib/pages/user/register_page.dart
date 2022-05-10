@@ -100,7 +100,7 @@ class RegisterPageState extends State<RegisterPage>{
           });
         }
         else if(status == 'success'){
-          createAccount(nameController.text, emailController.text, passController.text, 'athlete','0').then((user){
+          createAccount(nameController.text, lastnameController.text, emailController.text, passController.text, 'athlete','0').then((user){
             if (user != null) {
               print("Account Created Sucessfull");
               CommonMethods.saveStrPref('user_email', emailController.text);
@@ -109,8 +109,9 @@ class RegisterPageState extends State<RegisterPage>{
               CommonMethods.saveStrPref('user_id', mMap['data']['id']);
               CommonMethods.saveStrPref('trainer_id', mMap['data']['parents']);
               CommonMethods.saveBoolPref('is_login', true);
-              CommonMethods.getDialoge('Registered successfully');
-              Get.to(NavDashboard());
+              Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => NavDashboard()),
+                      (Route<dynamic> route) => false);
             } else {
               CommonMethods.showToast(context, 'Email already exist');
             }

@@ -195,15 +195,17 @@ class ProfilePageState extends State<ProfilePage>{
   }
 
   void _openGallery(BuildContext context) async{
+    Navigator.pop(context);
     final picker = ImagePicker();
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
     imageFile = File(pickedFile!.path);
     final dir = await path_provider.getTemporaryDirectory();
-    final targetPath = dir.absolute.path + "/temp.jpg";
+    final tempTargetPath = dir.absolute.path + "/temp.jpg";
+    File compressFile = await testCompressAndGetFile(imageFile!, tempTargetPath);
     String userId = await CommonMethods.getUserId();
     //create multipart request for POST or PATCH method
     var request = http.MultipartRequest("POST", Uri.parse(ApiInterface.UPLOAD_PROFILE_PICTURE+userId));
-    var pic = await http.MultipartFile.fromPath("sendimage", imageFile!.path);
+    var pic = await http.MultipartFile.fromPath("sendimage", compressFile.path);
     //add multipart to request
     request.files.add(pic);
     var response = await request.send();
@@ -216,27 +218,35 @@ class ProfilePageState extends State<ProfilePage>{
     setState(() {
 
     });
-
-    Navigator.pop(context);
   }
 
   void _openCamera(BuildContext context)  async{
     final pickedFile = await ImagePicker().getImage(
       source: ImageSource.camera ,
     );
+    Navigator.pop(context);
+    CommonMethods.showAlertDialog(context);
     imageFile = File(pickedFile!.path);
     final dir = await path_provider.getTemporaryDirectory();
+    final tempTargetPath = dir.absolute.path + "/temp.jpg";
+    File compressFile = await testCompressAndGetFile(imageFile!, tempTargetPath);
+    // final dir = await path_provider.getTemporaryDirectory();
     String userId = await CommonMethods.getUserId();
-    var postUri = Uri.parse("https://teamwebdevelopers.com/sportsfood/api/profile_file/"+userId);
-    var request = http.MultipartRequest("POST", postUri);
-    // request.fields['user'] = 'blah';
-    request.files.add(http.MultipartFile.fromBytes('sendimage', await File.fromUri(Uri.parse(imageFile!.path)).readAsBytes(),contentType: MediaType('image', 'jpeg')));
-    request.send().then((response){
-      response.stream.transform(utf8.decoder).listen((value) {
-        print(value);
-      });
+    //create multipart request for POST or PATCH method
+    var request = http.MultipartRequest("POST", Uri.parse(ApiInterface.UPLOAD_PROFILE_PICTURE+userId));
+    var pic = await http.MultipartFile.fromPath("sendimage", compressFile.path);
+    //add multipart to request
+    request.files.add(pic);
+    var response = await request.send();
+    Get.back();
+    //Get the response from the server
+    var responseData = await response.stream.toBytes();
+    var responseString = String.fromCharCodes(responseData);
+    print(responseString);
+    getProfileData();
+    setState(() {
+
     });
-    Navigator.pop(context);
   }
 
   @override
@@ -258,7 +268,7 @@ class ProfilePageState extends State<ProfilePage>{
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 20.0),
-            child: ListView(
+            child: Column(
               children: [
                 CommonWidgets.commonHeader(context, 'profile'),
                 InkWell(
@@ -402,7 +412,7 @@ class ProfilePageState extends State<ProfilePage>{
                         response) {
                       print(response.toString());
                       // updateUser(nameController.text,emailController.text);
-                      update(emailController.text, nameController.text);
+                      update(emailController.text, nameController.text, lastnameController.text);
                       Map mMap = json.decode(response.toString());
                       String status = mMap['status'];
                       String message = mMap['message'];

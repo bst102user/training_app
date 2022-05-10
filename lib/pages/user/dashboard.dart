@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,6 +13,8 @@ import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/models/athlete_notif_model.dart';
 import 'package:training_app/models/profile_model.dart';
+import 'package:training_app/models/training_date_model.dart';
+import 'package:training_app/pages/user/daily_training.dart';
 import 'account_page.dart';
 import 'monthly_overview.dart';
 
@@ -22,8 +23,9 @@ class Dashboard extends StatefulWidget{
 }
 
 class DashboardState extends State<Dashboard>{
-  FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-
+  Color scrollHintColor = Colors.black;
+  String totalMonthTime = '0';
+  int totalTimeInt = 0;
   Future<List<String>> getDataList()async{
     SharedPreferences mPref = await SharedPreferences.getInstance();
     String email = mPref.getString('user_email').toString();
@@ -49,7 +51,7 @@ class DashboardState extends State<Dashboard>{
 
   Future<dynamic> getLastNotification() async {
     String userId = await CommonMethods.getUserId();
-    Response myRes = await CommonMethods.getRequest(ApiInterface.ATHLETE_NOTIFICATIONS+userId, context);
+    Response myRes = await CommonMethods.getRequest(ApiInterface.NOTIFICATIONS+userId, context);
     Map mMap = json.decode(myRes.data);
     dynamic isData = mMap['data'];
     if(isData is bool) {
@@ -83,7 +85,6 @@ class DashboardState extends State<Dashboard>{
         List<ProfileDatum> listData = profileModel.data;
         String profilePictureName = listData[0].profileImage;
         mPref.setString("profile_fullpath",profilePictureName);
-
         mPref.setString('user_email',listData[0].email);
         mPref.setString('user_fname',listData[0].fname);
         mPref.setString('user_lname',listData[0].lname);
@@ -97,6 +98,7 @@ class DashboardState extends State<Dashboard>{
   void initState() {
     super.initState();
     getProfileData();
+    // testDistnict();
     FirebaseMessaging.instance
         .getInitialMessage()
         .then((RemoteMessage? message) {
@@ -115,57 +117,72 @@ class DashboardState extends State<Dashboard>{
     print(token);
   }
 
+  // bool isValidDate(String input) {
+  //   try {
+  //     final date = DateTime.parse(input);
+  //     final originalFormatString = toOriginalFormatString(date);
+  //     return input == originalFormatString;
+  //   } catch(e) {
+  //     return false;
+  //   }
+  // }
+
   Widget commonTile(String date, String time, IconData iconData){
-    return Container(
-        width: double.infinity,
-        height: 80.0,
-        decoration: BoxDecoration(
-            border: Border.all(
-                color: Colors.white,
-                width: 2.0
+    return Column(
+      children: [
+        Container(
+            width: double.infinity,
+            height: 80.0,
+            decoration: BoxDecoration(
+                border: Border.all(
+                    color: Colors.white,
+                    width: 2.0
+                ),
+                borderRadius: const BorderRadius.all(Radius.circular(20))
             ),
-            borderRadius: const BorderRadius.all(Radius.circular(20))
+            child: Row(
+              children: [
+                Expanded(
+                    child: Icon(
+                      iconData,
+                      size: 60.0,
+                      color: Colors.white,
+                )
+                ),
+                const Center(
+                  child: VerticalDivider(
+                    color: Colors.white,
+                    thickness: 1,
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        date,
+                        style: GoogleFonts.roboto(
+                            fontSize: 17.0,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white
+                        ),
+                      ),
+                      Text(
+                        time==''?'0 min':time+' min',
+                        style: GoogleFonts.roboto(
+                            fontSize: 17.0,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            )
         ),
-        child: Row(
-          children: [
-            Expanded(
-                child: Icon(
-                  iconData,
-                  size: 60.0,
-                  color: Colors.white,
-            )
-            ),
-            const Center(
-              child: VerticalDivider(
-                color: Colors.white,
-                thickness: 1,
-              ),
-            ),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    date,
-                    style: GoogleFonts.roboto(
-                        fontSize: 17.0,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white
-                    ),
-                  ),
-                  Text(
-                    time,
-                    style: GoogleFonts.roboto(
-                        fontSize: 17.0,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white
-                    ),
-                  ),
-                ],
-              ),
-            )
-          ],
-        )
+        const SizedBox(height: 5.0,),
+      ],
     );
   }
 
@@ -174,6 +191,17 @@ class DashboardState extends State<Dashboard>{
     String imgUrl = preferences.getString("profile_fullpath").toString();
     print(imgUrl);
     return imgUrl;
+  }
+
+  bool isDate(String input, String format) {
+    try {
+      final DateTime d = DateFormat(format).parseStrict(input);
+      //print(d);
+      return true;
+    } catch (e) {
+      //print(e);
+      return false;
+    }
   }
 
   @override
@@ -393,7 +421,7 @@ class DashboardState extends State<Dashboard>{
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width*0.8,
                                     child: Text(
-                                      data.msg,
+                                      data.title,
                                       overflow: TextOverflow.ellipsis,
                                       style: GoogleFonts.roboto(
                                           fontSize: 16.0,
@@ -416,25 +444,95 @@ class DashboardState extends State<Dashboard>{
 
                   CommonWidgets.mHeightSizeBox(height: 30.0),
                   CommonWidgets.commonButton('Monthly Overview', () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>MonthlyOverview()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>MonthlyOverview(totalMonthTime)));
                   },iconData: Icons.calendar_today),
                   CommonWidgets.mHeightSizeBox(height: 20.0),
-                  const Center(
-                    child: Icon(
-                        Icons.keyboard_arrow_up,
-                      color: Colors.white,
-                    ),
-                  ),
-                  commonTile('12/03/2022', '120 min', Icons.timelapse_outlined),
-                  const SizedBox(height: 15.0,),
-                  commonTile('13/03/2022', '140 min', Icons.motorcycle),
-                  const SizedBox(height: 15.0,),
-                  commonTile('14/03/2022', '200 min', Icons.local_restaurant_rounded),
-                  const Center(
-                    child: Icon(
-                      Icons.keyboard_arrow_down,
-                      color: Colors.white,
-                    ),
+                  FutureBuilder(
+                    future: CommonMethods.getUserId(),
+                    builder: (context, snapshot){
+                      if(snapshot.data == null){
+                        return const Text('Loading..');
+                      }
+                      else{
+                        String userId = snapshot.data as String;
+                        return FutureBuilder(
+                          future: CommonMethods.commonGetApiData(ApiInterface.TRAINING_DATES+userId),
+                          builder: (context, snapshot){
+                            if(snapshot.data == null){
+                              return Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: Column(
+                                  children: [
+                                    const CircularProgressIndicator(
+                                      value: 0.8,
+                                    ),
+                                    const SizedBox(height: 10.0,),
+                                    Text('Loading...',
+                                      style: GoogleFonts.roboto(
+                                          color: Colors.white
+                                      ),)
+                                  ],
+                                ),
+                              );
+                            }
+                            else{
+                              Response myRes = snapshot.data as Response;
+                              Map myMap = json.decode(myRes.data);
+                              if(myMap['data'].runtimeType == bool){
+                                return SizedBox(
+                                    child: Text(
+                                        'No training data found',
+                                      style: GoogleFonts.roboto(
+                                        color: Colors.white,
+                                        fontSize: 20.0
+                                      ),
+                                    )
+                                );
+                              }
+                              else{
+                                TrainingDateModel dates = trainingDateModelFromJson(myRes.data);
+                                List<TrainingDateDatum> listData = dates.data;
+
+                                for(int i=0;i<listData.length;i++){
+                                  totalTimeInt = totalTimeInt+int.parse(listData[i].totalRainingstime);
+                                }
+                                totalMonthTime = totalTimeInt.toString();
+                                return Column(
+                                  children: [
+                                    const Center(
+                                      child: Icon(
+                                        Icons.keyboard_arrow_up,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: MediaQuery.of(context).size.height*0.4,
+                                      child: ListView.builder(
+                                        itemCount: listData.length,
+                                        itemBuilder: (context, index){
+                                          return InkWell(
+                                              onTap: (){
+                                                Get.to(DailyTraining(listData[index].dates));
+                                              },
+                                              child: commonTile(listData[index].dates==null?'':DateFormat('dd-MM-yyyy').format(listData[index].dates), listData[index].totalRainingstime==null?'':listData[index].totalRainingstime, Icons.timelapse_outlined)
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                    const Center(
+                                      child: Icon(
+                                        Icons.keyboard_arrow_down,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }
+                            }
+                          },
+                        );
+                      }
+                    },
                   ),
                 ],
               )

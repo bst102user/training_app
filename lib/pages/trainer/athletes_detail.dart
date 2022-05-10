@@ -82,14 +82,14 @@ class AthletesDetail extends StatelessWidget{
             children: [
               CommonWidgets.commonHeader(context, athlDetail.fname),
               CommonWidgets.mHeightSizeBox(height: 20.0),
-              CommonWidgets.commonButton('Export', () {
+              CommonWidgets.commonButton('Import', () {
                 Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ExportPage(athlDetail.id))
+                    MaterialPageRoute(builder: (context) => ExportPage(athlDetail))
                 );
               }),
               const SizedBox(height: 20.0,),
-              CommonWidgets.commonButton('Import', () {
+              CommonWidgets.commonButton('Export', () {
                 Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => ImportPage(athlDetail.id))

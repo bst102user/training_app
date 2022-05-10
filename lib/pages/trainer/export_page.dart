@@ -1,30 +1,60 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:training_app/common/api_interface.dart';
 import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_widgets.dart';
+import 'package:training_app/firebase/keys.dart';
+import 'package:training_app/models/trainer/tr_assign_athletes_model.dart';
 
 class ExportPage extends StatefulWidget{
-  final String athleteId;
+  final AssignDatum athleteId;
   ExportPage(this.athleteId);
   ExportPageState createState() => ExportPageState();
 }
 
 class ExportPageState extends State<ExportPage>{
   File? nameFile;
-  int i =0;
+  int i = 0;
+  CollectionReference collectionRef = FirebaseFirestore.instance.collection('users');
+
+  Future<dynamic> getData() async {
+    String userToken = '';
+    QuerySnapshot querySnapshot = await collectionRef.get();
+    List allData = querySnapshot.docs.map((doc) => doc.data()).toList();
+    print(allData);
+    for(int i=0;i<allData.length;i++){
+      if(widget.athleteId.email == allData[i]['email']){
+        userToken = allData[i]['auth_token'];
+      }
+    }
+    return userToken;
+  }
+
+
+  // @override
+  // initState(){
+  //   super.initState();
+  //   getData();
+  // }
 
   uploadFiles(File files)async{
     CommonMethods.showAlertDialog(this.context);
-    var postUri = Uri.parse(ApiInterface.UPLOAD_XLS_FILE+'/'+widget.athleteId);
+    String userId = await CommonMethods.getUserId();
+    var postUri = Uri.parse(ApiInterface.UPLOAD_XLS_FILE+'/'+widget.athleteId.id);
     http.MultipartRequest request = http.MultipartRequest("POST", postUri);
     http.MultipartFile multipartFile = await http.MultipartFile.fromPath(
         'sendfile', files.path);
@@ -33,9 +63,60 @@ class ExportPageState extends State<ExportPage>{
     print(response.statusCode);
     if (response.statusCode == 200) {
       Navigator.pop(this.context);
+      getData().then((value){
+        sendAndRetrieveMessage(value,'Data assigned','You have assigned new training data');
+      });
+      Map notifSendMap = {
+        "title": "Data assigned",
+        "message": "You have assigned new training data"
+      };
+      Response myRes = await CommonMethods
+          .commonPostApiData(
+          ApiInterface.SEND_NOTIFICATIONS + widget.athleteId.id +
+              '/' + userId, notifSendMap);
+      print(myRes);
       CommonMethods.showToast(this.context, 'Files uploaded');
       Navigator.pop(this.context);
     }
+  }
+
+  Future<Map<String, dynamic>> sendAndRetrieveMessage(String token,String title,String body) async {
+    var url = 'https://fcm.googleapis.com/fcm/send';
+    Uri mUri = Uri.parse(url);
+    var res = await http.post(
+      mUri,
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization': 'key=$MY_SERVER_KEY',
+      },
+      body: jsonEncode(
+        <String, dynamic>{
+          'notification': <String, dynamic>{
+            'body': body,
+            'title': title
+          },
+          'priority': 'high',
+          'data': <String, dynamic>{
+            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+            'id': '1',
+            'status': 'done',
+            'navigate' : 'notification'
+          },
+          'to': token,
+        },
+      ),
+    );
+    print(res);
+    final Completer<Map<String, dynamic>> completer = Completer<Map<String, dynamic>>();
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage? message) {
+      if (message != null) {
+        print(message);
+      }
+    });
+
+    return completer.future;
   }
 
   checkFileTypeAndSize()async{
@@ -45,7 +126,7 @@ class ExportPageState extends State<ExportPage>{
       File file = File(result.files.single.path!);
       String fileNameFromPath = file.path;
       var lastSeparator = fileNameFromPath.lastIndexOf(Platform.pathSeparator);
-      var newPath = fileNameFromPath.substring(0, lastSeparator + 1) + widget.athleteId+context.extension(file.path);
+      var newPath = fileNameFromPath.substring(0, lastSeparator + 1) + widget.athleteId.id+context.extension(file.path);
       File fileToUpload = File(newPath);
       String fileType = context.extension(newPath);
       getFileSize(file.path, 1).then((value)async{
@@ -95,7 +176,7 @@ class ExportPageState extends State<ExportPage>{
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
           child: ListView(
             children: [
-              CommonWidgets.commonHeader(context, 'Export'),
+              CommonWidgets.commonHeader(context, 'Import'),
               const SizedBox(height: 20.0,),
               Container(
                 height: MediaQuery.of(context).size.height*0.8,

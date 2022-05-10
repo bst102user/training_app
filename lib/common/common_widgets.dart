@@ -72,7 +72,9 @@ class CommonWidgets{
         mController,
         shouldPreIcon = true,
         contentPadding = const EdgeInsets.all(15.0),
-        hintColor = Colors.white
+        hintColor = Colors.white,
+        isNextCon = true,
+        isTextCenter = false,
       }){
     return Container(
       height: 50.0,
@@ -84,8 +86,11 @@ class CommonWidgets{
         ),
       ),
       child: TextField(
+        textInputAction: isNextCon?TextInputAction.next:TextInputAction.done,
+        // autofocus: true,
         controller: mController,
         keyboardType: keybordType,
+        textAlign: isTextCenter?TextAlign.center:TextAlign.left,
         style: GoogleFonts.roboto(
           color: enterTextColor
         ),
@@ -255,26 +260,56 @@ class CommonWidgets{
     );
   }
 
-  static Widget commonHeader(BuildContext context,String title,{isShowBack = true}){
+  static Widget commonHeader(BuildContext context,String title,
+      {
+        isShowBack = true,
+        isRightView = false,
+        callback = VoidCallback,
+      }){
     return InkWell(
       onTap: (){
         Navigator.pop(context);
       },
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          isShowBack?const Icon(
-            Icons.arrow_back_ios_rounded,
-            color: Colors.white,
-          ):Container(),
-          const SizedBox(width: 10.0,),
-          Text(
-            title.toUpperCase(),
-            style: GoogleFonts.roboto(
-                fontSize: 25.0,
-                fontWeight: FontWeight.w800,
-                color: Colors.white
-            ),
+          Row(
+            children: [
+              isShowBack?const Icon(
+                Icons.arrow_back_ios_rounded,
+                color: Colors.white,
+              ):Container(),
+              const SizedBox(width: 10.0,),
+              Text(
+                title.toUpperCase(),
+                style: GoogleFonts.roboto(
+                    fontSize: 25.0,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white
+                ),
+              ),
+            ],
           ),
+          isRightView?InkWell(
+            onTap: (){
+              callback;
+            },
+            child: Column(
+              children: [
+                const Icon(
+                  Icons.done,
+                  color: Colors.white,
+                  size: 30.0,
+                ),
+                Text(
+                  'Save'.toUpperCase(),
+                  style: GoogleFonts.roboto(
+                      color: Colors.white
+                  ),
+                )
+              ],
+            ),
+          ):Container()
         ],
       ),
     );

@@ -1,14 +1,23 @@
+import 'dart:convert';
+
+import 'package:d_chart/d_chart.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Response;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:table_calendar/table_calendar.dart';
+import 'package:training_app/common/api_interface.dart';
+import 'package:training_app/common/common_methods.dart';
+import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/common/utils.dart';
+import 'package:training_app/models/training_date_model.dart';
 import 'daily_training.dart';
-import 'test.dart';
 
 class MonthlyOverview extends StatefulWidget {
+  final String totalMonthTime;
+  MonthlyOverview(this.totalMonthTime);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -25,6 +34,7 @@ class MonthlyOverview extends StatefulWidget {
 }
 
 class MonthlyOverviewState extends State<MonthlyOverview> {
+  int trainingTime = 0;
   final List<ChartData> chartData = [
     ChartData(2010, 35),
     ChartData(2011, 13),
@@ -35,7 +45,7 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-
+  List<String> myList = ['q','w'];
 
 
   DateTime _currentDate = DateTime.now();
@@ -134,7 +144,19 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
                       });
                       print(_selectedDay);
                       // String dateStr = DateFormat('yyyy-MM-dd').format(_selectedDay!);
-                      Get.to(DailyTraining(_selectedDay!));
+                      Get.to(DailyTraining(_selectedDay!))!.then((value){
+                        setState(() {
+
+                        });
+                      });
+                    }
+                    else{
+                      _selectedDay = selectedDay;
+                      Get.to(DailyTraining(_selectedDay!))!.then((value){
+                        setState(() {
+
+                        });
+                      });
                     }
                   },
                   onFormatChanged: (format) {
@@ -151,14 +173,146 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
                   },
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0,vertical: 20.0),
-                child: CommonWidgets.commonButton('Training time in this month\n120 hours', () { },iconData: Icons.motorcycle),
+              FutureBuilder(
+                future: CommonMethods.getUserId(),
+                builder: (context, snapshot){
+                  if(snapshot.data == null){
+                    return const Text('Loading..');
+                  }
+                  else{
+                    String userId = snapshot.data as String;
+                    return FutureBuilder(
+                      future: CommonMethods.commonGetApiData(ApiInterface.TRAINING_DATES+userId),
+                      builder: (context, snapshot){
+                        if(snapshot.data == null){
+                          return Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              children: [
+                                const CircularProgressIndicator(
+                                  value: 0.8,
+                                ),
+                                const SizedBox(height: 10.0,),
+                                Text('Loading...',
+                                  style: GoogleFonts.roboto(
+                                      color: Colors.white
+                                  ),)
+                              ],
+                            ),
+                          );
+                        }
+                        else{
+                          Response myRes = snapshot.data as Response;
+                          Map myMap = json.decode(myRes.data);
+                          if(myMap['data'].runtimeType == bool){
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20.0,vertical: 20.0),
+                              child: CommonWidgets.commonButton('Training time in this month\n0 minutes', () { },iconData: Icons.motorcycle),
+                            );
+                          }
+                          else{
+                            int timeInt = 0;
+                            TrainingDateModel dates = trainingDateModelFromJson(myRes.data);
+                            List<TrainingDateDatum> listData = dates.data;
+                            List<Map<String, dynamic>> showVal = [];
+                            for(int i=0;i<listData.length;i++){
+                              timeInt = timeInt+int.parse(listData[i].totalRainingstime);
+                              Map<String, dynamic> myMap = {'domain' : DateFormat('dd MMM').format(listData[i].dates), 'measure' : int.parse(listData[i].totalRainingstime)};
+                              showVal.add(myMap);
+                            }
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20.0,vertical: 20.0),
+                              child: CommonWidgets.commonButton('Training time in this month\n'+timeInt.toString()+ ' minutes', () { },iconData: Icons.motorcycle),
+                            );
+                          }
+                        }
+                      },
+                    );
+                  }
+                },
               ),
               Container(
                   height: 200.0,
                   width: 200.0,
-                  child: LLineChart(isShowingMainData: true)
+                  child: FutureBuilder(
+                    future: CommonMethods.getUserId(),
+                    builder: (context, snapshot){
+                      if(snapshot.data == null){
+                        return const Text('Loading..');
+                      }
+                      else{
+                        String userId = snapshot.data as String;
+                        return FutureBuilder(
+                          future: CommonMethods.commonGetApiData(ApiInterface.TRAINING_DATES+userId),
+                          builder: (context, snapshot){
+                            if(snapshot.data == null){
+                              return Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: Column(
+                                  children: [
+                                    const CircularProgressIndicator(
+                                      value: 0.8,
+                                    ),
+                                    const SizedBox(height: 10.0,),
+                                    Text('Loading...',
+                                      style: GoogleFonts.roboto(
+                                          color: Colors.white
+                                      ),)
+                                  ],
+                                ),
+                              );
+                            }
+                            else{
+                              Response myRes = snapshot.data as Response;
+                              Map myMap = json.decode(myRes.data);
+                              if(myMap['data'].runtimeType == bool){
+                                return SizedBox(
+                                    child: Text(
+                                      'No training data found',
+                                      style: GoogleFonts.roboto(
+                                          color: Colors.white,
+                                          fontSize: 20.0
+                                      ),
+                                    )
+                                );
+                              }
+                              else{
+                                TrainingDateModel dates = trainingDateModelFromJson(myRes.data);
+                                List<TrainingDateDatum> listData = dates.data;
+                                List<Map<String, dynamic>> showVal = [];
+                                for(int i=0;i<listData.length;i++){
+                                  Map<String, dynamic> myMap = {'domain' : DateFormat('dd MMM').format(listData[i].dates), 'measure' : int.parse(listData[i].totalRainingstime)};
+                                  showVal.add(myMap);
+                                }
+                                return DChartBar(
+                                  data: [
+                                    {
+                                      'id': 'Bar',
+                                      'data': showVal,
+                                    },
+                                  ],
+                                  domainLabelPaddingToAxisLine: 16,
+                                  axisLineTick: 2,
+                                  axisLinePointTick: 2,
+                                  axisLinePointWidth: 8,
+                                  axisLineColor: CommonVar.RED_BUTTON_COLOR,
+                                  measureLabelPaddingToAxisLine: 16,
+                                  barColor: (barData, index, id) => CommonVar.RED_BUTTON_COLOR,
+                                  barValue: (barData, index) => '${barData['measure']}',
+                                  barValueColor: Colors.white,
+                                  showBarValue: true,
+                                  barValuePosition: BarValuePosition.auto,
+                                  measureLabelColor: Colors.white,
+                                  domainLabelColor: Colors.white,
+                                );
+                              }
+                            }
+                          },
+                        );
+                      }
+                    },
+                  ),
+                  // child: LLineChart(myList)
               )//
             ],
           ),

@@ -103,7 +103,7 @@ class ImportPageState extends State<ImportPage>{
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
           child: ListView(
             children: [
-              CommonWidgets.commonHeader(context, 'Import'),
+              CommonWidgets.commonHeader(context, 'Export'),
               const SizedBox(height: 20.0,),
               Text(
                   'Start date',

@@ -27,6 +27,7 @@ class DailyTraining extends StatefulWidget{
 
 class DailyTrainingState extends State<DailyTraining>{
   String moveDateStr = 'Choose date for move';
+  bool mIsDataThere = false;
 
   CollectionReference collectionRef = FirebaseFirestore.instance.collection('users');
   Map? trainerMap;
@@ -211,44 +212,82 @@ class DailyTrainingState extends State<DailyTraining>{
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         CommonWidgets.textBelowIcon(Icons.outbox, 'Move', () {
-                          _selectDate(context);
+                          if(mIsDataThere) {
+                            _selectDate(context);
+                          }
+                          else{
+                            CommonMethods.getDialoge('You can not move data',intTitle: 1,voidCallback: (){
+                              Navigator.pop(context);
+                            });
+                          }
                         }),
                         CommonWidgets.textBelowIcon(Icons.cancel_outlined, 'Miss', () {
-                          CommonMethods.showAlertDialog(context);
-                          Map mMap = {"null_date" : workingDate};
-                          CommonMethods.commonPostApiData(ApiInterface.NOT_ATTEND+'/'+savedData[0], mMap).then((value)async{
-                            Get.back();
-                            String mResponse = value.data;
-                            Map resMap = json.decode(mResponse);
-                            String status = resMap['status'];
-                            String message = resMap['msg'];
-                            CommonMethods.showToast(context, message);//7/8
-                            Map notifSendMap = {
-                              "title" : "Miss Training",
-                              "message" : "Today i am missing my training"
-                            };
-                            Response myRes = await CommonMethods.commonPostApiData(ApiInterface.NOTIF_TO_TRAINER+savedData[0]+'/'+savedData[1], notifSendMap);
-                            print(ApiInterface.NOTIF_TO_TRAINER+savedData[0]+'/'+savedData[1]);
-                            sendAndRetrieveMessage(trainerMap!['auth_token'], "Miss Training", 'Today i am missing my training');
-                          });
+                          if(mIsDataThere) {
+                            CommonMethods.showAlertDialog(context);
+                            Map mMap = {"null_date": workingDate};
+                            CommonMethods.commonPostApiData(
+                                ApiInterface.NOT_ATTEND + '/' + savedData[0],
+                                mMap).then((value) async {
+                              Get.back();
+                              String mResponse = value.data;
+                              Map resMap = json.decode(mResponse);
+                              String status = resMap['status'];
+                              String message = resMap['msg'];
+                              CommonMethods.showToast(context, message);
+                              Map notifSendMap = {
+                                "title": "Miss Training",
+                                "message": "Today i am missing my training"
+                              };
+                              Response myRes = await CommonMethods
+                                  .commonPostApiData(
+                                  ApiInterface.NOTIF_TO_TRAINER + savedData[0] +
+                                      '/' + savedData[1], notifSendMap);
+                              print(
+                                  ApiInterface.NOTIF_TO_TRAINER + savedData[0] +
+                                      '/' + savedData[1]);
+                              sendAndRetrieveMessage(
+                                  trainerMap!['auth_token'], "Miss Training",
+                                  'Today i am missing my training');
+                            });
+                          }
+                          else{
+                            CommonMethods.getDialoge('You do not have any training data',intTitle: 1,voidCallback: (){
+                              Navigator.pop(context);
+                            });
+                          }
                         }),
                         CommonWidgets.textBelowIcon(Icons.sick_rounded, 'Sick', () {
-                          CommonMethods.showAlertDialog(context);
-                          Map mMap = {"ill_date" : workingDate};
-                          CommonMethods.commonPostApiData(ApiInterface.UPDATE_ILLNESS+'/'+savedData[0], mMap).then((value)async{
-                            Get.back();
-                            String mResponse = value.data;
-                            Map resMap = json.decode(mResponse);
-                            String status = resMap['status'];
-                            String message = resMap['msg'];
-                            CommonMethods.showToast(context, message);
-                            Map notifSendMap = {
-                              "title" : "Sick message",
-                              "message" : "Today i am not feeling well"
-                            };;
-                            Response myRes = await CommonMethods.commonPostApiData(ApiInterface.NOTIF_TO_TRAINER+savedData[0]+'/'+savedData[1], notifSendMap);
-                            sendAndRetrieveMessage(trainerMap!['auth_token'], "Sick message", 'Today i am not feeling well');
-                          });
+                          if(mIsDataThere) {
+                            CommonMethods.showAlertDialog(context);
+                            Map mMap = {"ill_date": workingDate};
+                            CommonMethods.commonPostApiData(
+                                ApiInterface.UPDATE_ILLNESS + '/' +
+                                    savedData[0], mMap).then((value) async {
+                              Get.back();
+                              String mResponse = value.data;
+                              Map resMap = json.decode(mResponse);
+                              String status = resMap['status'];
+                              String message = resMap['msg'];
+                              CommonMethods.showToast(context, message);
+                              Map notifSendMap = {
+                                "title": "Sick message",
+                                "message": "Today i am not feeling well"
+                              };
+                              ;
+                              Response myRes = await CommonMethods
+                                  .commonPostApiData(
+                                  ApiInterface.NOTIF_TO_TRAINER + savedData[0] +
+                                      '/' + savedData[1], notifSendMap);
+                              sendAndRetrieveMessage(
+                                  trainerMap!['auth_token'], "Sick message",
+                                  'Today i am not feeling well');
+                            });
+                          }
+                          else{
+                            CommonMethods.getDialoge('You do not have any training data',intTitle: 1,voidCallback: (){
+                              Navigator.pop(context);
+                            });
+                          }
                         })
                       ],
                     ),
@@ -265,6 +304,7 @@ class DailyTrainingState extends State<DailyTraining>{
                           Map mMap = json.decode(result);
                           String isDataThere = mMap['status'];
                           if(isDataThere == 'error'){
+                            mIsDataThere = false;
                             return Center(child: Column(
                               children: [
                                 const SizedBox(height: 50.0,),
@@ -281,6 +321,7 @@ class DailyTrainingState extends State<DailyTraining>{
                             );
                           }
                           else{
+                            mIsDataThere = true;
                             String response = snapshot.data.toString();
                             DailyTrainingModel dtm = dailyTrainingModelFromJson(response);
                             if(dtm.status == 'success'){
@@ -317,7 +358,7 @@ class DailyTrainingState extends State<DailyTraining>{
                                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                         children: [
                                                           Text(
-                                                            dtm.data[0].headline,
+                                                            dtm.data[index].headline,
                                                             style: GoogleFonts.roboto(
                                                                 color: Colors.white,
                                                                 fontSize: 17.0,
@@ -328,7 +369,7 @@ class DailyTrainingState extends State<DailyTraining>{
                                                       ),
                                                     ),
                                                     Text(
-                                                      dtm.data[0].trainingstimeMin,
+                                                      dtm.data[index].trainingstimeMin,
                                                       style: GoogleFonts.roboto(
                                                           color: Colors.white,
                                                           fontSize: 17.0,
@@ -337,7 +378,7 @@ class DailyTrainingState extends State<DailyTraining>{
                                                     ),
                                                     CommonWidgets.mHeightSizeBox(height: 10.0),
                                                     Text(
-                                                      dtm.data[0].pulse,
+                                                      dtm.data[index].pulse==null?'N/A':dtm.data[index].pulse,
                                                       style: GoogleFonts.roboto(
                                                           color: Colors.white,
                                                           fontSize: 17.0,
@@ -346,7 +387,16 @@ class DailyTrainingState extends State<DailyTraining>{
                                                     ),
                                                     CommonWidgets.mHeightSizeBox(height: 10.0),
                                                     Text(
-                                                      dtm.data[0].cadence,
+                                                     dtm.data[index].cadence==null?'N/A':dtm.data[index].cadence,
+                                                      style: GoogleFonts.roboto(
+                                                          color: Colors.white,
+                                                          fontSize: 17.0,
+                                                          fontWeight: FontWeight.w600
+                                                      ),
+                                                    ),
+                                                    CommonWidgets.mHeightSizeBox(height: 10.0),
+                                                    Text(
+                                                      dtm.data[index].powerWatt,
                                                       style: GoogleFonts.roboto(
                                                           color: Colors.white,
                                                           fontSize: 17.0,
@@ -373,7 +423,7 @@ class DailyTrainingState extends State<DailyTraining>{
                                                             ),
                                                           ),
                                                           Text(
-                                                            '5 Mins',
+                                                              dtm.data[index].breaks==null?'N/A':dtm.data[index].breaks,
                                                             style: GoogleFonts.roboto(
                                                                 color: Colors.white,
                                                                 fontSize: 17.0,
@@ -384,6 +434,10 @@ class DailyTrainingState extends State<DailyTraining>{
                                                       ),
                                                     ),
                                                     CommonWidgets.mHeightSizeBox(height: 10.0),
+                                                    const Divider(
+                                                      color: Colors.white,
+                                                      thickness: 0.5,
+                                                    ),
                                                   ],
                                                 ),
                                               ),

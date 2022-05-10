@@ -4,7 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:training_app/pages/user/login_page.dart';
 
-Future<User?> createAccount(String name, String email, String password, String userType, String trainerId) async {
+Future<User?> createAccount(String name, String lname, String email, String password, String userType, String trainerId) async {
   FirebaseAuth _auth = FirebaseAuth.instance;
 
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -29,6 +29,7 @@ Future<User?> createAccount(String name, String email, String password, String u
 
     await _firestore.collection('users').doc(_auth.currentUser!.uid).set({
       "name": name,
+      "lname": lname,
       "email": email,
       "status": "Unavalible",
       "auth_token" : deviceToken,
@@ -45,12 +46,12 @@ Future<User?> createAccount(String name, String email, String password, String u
 }
 
 
-update(String chEmail, String chName){
+update(String chEmail, String chName, String chlName){
   FirebaseAuth _auth = FirebaseAuth.instance;
   var collection = FirebaseFirestore.instance.collection('users');
   collection
       .doc(_auth.currentUser!.uid) 
-      .update({'email' : chEmail,'name' : chName}) // <-- Updated data
+      .update({'email' : chEmail,'name' : chName,'lname' : chlName}) // <-- Updated data
       .then((_) => print('Updated'))
       .catchError((error) => print('Update failed: $error'));
 }

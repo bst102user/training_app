@@ -40,7 +40,7 @@ class ChatRoom extends StatelessWidget {
         .collection('chats')
         .doc(fileName)
         .set({
-      "sendby": _auth.currentUser!.displayName,
+      "sendby": _auth.currentUser!.uid,
       "message": "",
       "type": "img",
       "time": FieldValue.serverTimestamp(),
@@ -77,7 +77,7 @@ class ChatRoom extends StatelessWidget {
   void onSendMessage() async {
     if (_message.text.isNotEmpty) {
       Map<String, dynamic> messages = {
-        "sendby": _auth.currentUser!.displayName,
+        "sendby": _auth.currentUser!.uid,
         "message": _message.text,
         "type": "text",
         "time": FieldValue.serverTimestamp(),
@@ -194,7 +194,7 @@ class ChatRoom extends StatelessWidget {
     return map['type'] == "text"
         ? Container(
       width: size.width,
-      alignment: map['sendby'] == _auth.currentUser!.displayName
+      alignment: map['sendby'] == _auth.currentUser!.uid
           ? Alignment.centerRight
           : Alignment.centerLeft,
       child: Container(
@@ -218,7 +218,7 @@ class ChatRoom extends StatelessWidget {
       height: size.height / 2.5,
       width: size.width,
       padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-      alignment: map['sendby'] == _auth.currentUser!.displayName
+      alignment: map['sendby'] == _auth.currentUser!.uid
           ? Alignment.centerRight
           : Alignment.centerLeft,
       child: InkWell(

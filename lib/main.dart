@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/pages/user/login_page.dart';
 import 'package:training_app/pages/user/profile_page.dart';
+import 'package:training_app/pages/user/test2.dart';
 import 'package:training_app/provider_ex/CreateAccount.dart';
 import 'package:training_app/provider_ex/LoginScreen.dart';
 import 'package:training_app/splash_screen.dart';
@@ -105,7 +106,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: SplashScreen()
-      // home: LoginScreen()
+      // home: Test2()
       // home: openView==null?SplashScreen():openView,
     );
   }
