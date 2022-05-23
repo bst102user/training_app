@@ -191,10 +191,61 @@ class DailyTrainingState extends State<DailyTraining>{
                   children: [
                     CommonWidgets.commonHeader(context, 'daily training'),
                     CommonWidgets.mHeightSizeBox(height: 30.0),
-                    CommonWidgets.containerLikeTextField(
-                        mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
-                        mIcon: Icons.calendar_today_outlined,
-                        mTitle: workingDate
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          workingDate,
+                          style: GoogleFonts.roboto(
+                            color: Colors.white,
+                            fontSize: 18.0,
+                          ),
+                        ),
+                        FutureBuilder(
+                          future: CommonMethods.commonPostApiData(ApiInterface.DAILY_TRAINING+savedData[0], {'first_date' : workingDate}),
+                          builder: (context, snapshot){
+                            if(snapshot.data == null){
+                              return Center(child: LoadingBouncingLine(size: 50,));
+                            }
+                            else{
+                              String result = snapshot.data.toString();
+                              Map mMap = json.decode(result);
+                              String isDataThere = mMap['status'];
+                              if(isDataThere == 'error'){
+                                return const Text(
+                                  '0',
+                                );
+                              }
+                              else{
+                                mIsDataThere = true;
+                                String response = snapshot.data.toString();
+                                DailyTrainingModel dtm = dailyTrainingModelFromJson(response);
+                                if(dtm.status == 'success'){
+                                  return Column(
+                                    children: [
+                                      Text(
+                                        'Total Training Time',
+                                        style: GoogleFonts.roboto(
+                                            color: Colors.white
+                                        ),
+                                      ),
+                                      Text(
+                                        dtm.msg[0].totalTrainingstime,
+                                        style: GoogleFonts.roboto(
+                                            color: Colors.white
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }
+                                else{
+                                  return const Text('');
+                                }
+                              }
+                            }
+                          },
+                        )
+                      ],
                     ),
                     CommonWidgets.mHeightSizeBox(height: 10.0),
                     Center(
@@ -334,8 +385,9 @@ class DailyTrainingState extends State<DailyTraining>{
                                       });
                                     });
                                   }),
+                                  const SizedBox(height: 15.0,),
                                   SizedBox(
-                                    height: CommonMethods.deviceHeight(context)*0.6,
+                                    height: CommonMethods.deviceHeight(context)*0.55,
                                     child: ListView.builder(
                                         itemCount: dtm.data.length,
                                         itemBuilder: (context, index){
@@ -350,58 +402,119 @@ class DailyTrainingState extends State<DailyTraining>{
                                                   ),
                                                 ),
                                                 child: Column(
-                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
-                                                    Padding(
-                                                      padding: const EdgeInsets.all(10.0),
-                                                      child: Row(
-                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                        children: [
-                                                          Text(
-                                                            dtm.data[index].headline,
+                                                    Text(
+                                                      dtm.data[index].headline,
+                                                      style: GoogleFonts.roboto(
+                                                          color: Colors.white,
+                                                          fontSize: 17.0,
+                                                          fontWeight: FontWeight.w600
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 15.0,),
+                                                    Row(
+                                                      children: [
+                                                        SizedBox(
+                                                          width:MediaQuery.of(context).size.width*0.4,
+                                                          child: Text(
+                                                            'Training Time',
                                                             style: GoogleFonts.roboto(
                                                                 color: Colors.white,
                                                                 fontSize: 17.0,
                                                                 fontWeight: FontWeight.w600
                                                             ),
                                                           ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      dtm.data[index].trainingstimeMin,
-                                                      style: GoogleFonts.roboto(
-                                                          color: Colors.white,
-                                                          fontSize: 17.0,
-                                                          fontWeight: FontWeight.w600
-                                                      ),
-                                                    ),
-                                                    CommonWidgets.mHeightSizeBox(height: 10.0),
-                                                    Text(
-                                                      dtm.data[index].pulse==null?'N/A':dtm.data[index].pulse,
-                                                      style: GoogleFonts.roboto(
-                                                          color: Colors.white,
-                                                          fontSize: 17.0,
-                                                          fontWeight: FontWeight.w600
-                                                      ),
+                                                        ),
+                                                        const SizedBox(width: 30.0,),
+                                                        Text(
+                                                          dtm.data[index].trainingstimeMin,
+                                                          style: GoogleFonts.roboto(
+                                                              color: Colors.white,
+                                                              fontSize: 17.0,
+                                                              fontWeight: FontWeight.w600,
+                                                          ),
+                                                          textAlign: TextAlign.start,
+                                                        ),
+                                                      ],
                                                     ),
                                                     CommonWidgets.mHeightSizeBox(height: 10.0),
-                                                    Text(
-                                                     dtm.data[index].cadence==null?'N/A':dtm.data[index].cadence,
-                                                      style: GoogleFonts.roboto(
-                                                          color: Colors.white,
-                                                          fontSize: 17.0,
-                                                          fontWeight: FontWeight.w600
-                                                      ),
+                                                    Row(
+                                                      children: [
+                                                        SizedBox(
+                                                          width:MediaQuery.of(context).size.width*0.4,
+                                                          child: Text(
+                                                            'Power Watt ',
+                                                            style: GoogleFonts.roboto(
+                                                                color: Colors.white,
+                                                                fontSize: 17.0,
+                                                                fontWeight: FontWeight.w600
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        const SizedBox(width: 30.0,),
+                                                        Text(
+                                                          dtm.data[index].powerWatt,
+                                                          style: GoogleFonts.roboto(
+                                                              color: Colors.white,
+                                                              fontSize: 17.0,
+                                                              fontWeight: FontWeight.w600
+                                                          ),
+                                                          textAlign: TextAlign.start,
+                                                        ),
+                                                      ],
                                                     ),
                                                     CommonWidgets.mHeightSizeBox(height: 10.0),
-                                                    Text(
-                                                      dtm.data[index].powerWatt,
-                                                      style: GoogleFonts.roboto(
-                                                          color: Colors.white,
-                                                          fontSize: 17.0,
-                                                          fontWeight: FontWeight.w600
-                                                      ),
+                                                    Row(
+                                                      children: [
+                                                        SizedBox(
+                                                          width:MediaQuery.of(context).size.width*0.4,
+                                                          child: Text(
+                                                            'Pulse ',
+                                                            style: GoogleFonts.roboto(
+                                                                color: Colors.white,
+                                                                fontSize: 17.0,
+                                                                fontWeight: FontWeight.w600
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        const SizedBox(width: 30.0,),
+                                                        Text(
+                                                          dtm.data[index].pulse==null?'N/A':dtm.data[index].pulse,
+                                                          style: GoogleFonts.roboto(
+                                                              color: Colors.white,
+                                                              fontSize: 17.0,
+                                                              fontWeight: FontWeight.w600
+                                                          ),
+                                                          textAlign: TextAlign.start,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    CommonWidgets.mHeightSizeBox(height: 10.0),
+                                                    Row(
+                                                      children: [
+                                                        SizedBox(
+                                                          width:MediaQuery.of(context).size.width*0.4,
+                                                          child: Text(
+                                                            'Codence ',
+                                                            style: GoogleFonts.roboto(
+                                                                color: Colors.white,
+                                                                fontSize: 17.0,
+                                                                fontWeight: FontWeight.w600
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        const SizedBox(width: 30.0,),
+                                                        Text(
+                                                          dtm.data[index].cadence==null?'N/A':dtm.data[index].cadence,
+                                                          style: GoogleFonts.roboto(
+                                                              color: Colors.white,
+                                                              fontSize: 17.0,
+                                                              fontWeight: FontWeight.w600
+                                                          ),
+                                                          textAlign: TextAlign.start,
+                                                        ),
+                                                      ],
                                                     ),
                                                     CommonWidgets.mHeightSizeBox(height: 15.0),
                                                     const Divider(
@@ -410,7 +523,7 @@ class DailyTrainingState extends State<DailyTraining>{
                                                     ),
                                                     CommonWidgets.mHeightSizeBox(height: 10.0),
                                                     Padding(
-                                                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                                                      padding: const EdgeInsets.symmetric(horizontal: 0.0),
                                                       child: Row(
                                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                         children: [

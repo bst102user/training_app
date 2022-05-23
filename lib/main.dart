@@ -1,19 +1,10 @@
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:training_app/common/common_methods.dart';
-import 'package:training_app/pages/user/login_page.dart';
-import 'package:training_app/pages/user/profile_page.dart';
 import 'package:training_app/pages/user/test2.dart';
-import 'package:training_app/provider_ex/CreateAccount.dart';
-import 'package:training_app/provider_ex/LoginScreen.dart';
 import 'package:training_app/splash_screen.dart';
-import 'pages/user/nav_dashboard.dart';
 
 // FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 // final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;

@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:d_chart/d_chart.dart';
@@ -16,8 +17,8 @@ import 'package:training_app/models/training_date_model.dart';
 import 'daily_training.dart';
 
 class MonthlyOverview extends StatefulWidget {
-  final String totalMonthTime;
-  MonthlyOverview(this.totalMonthTime);
+  List<DateTime> toHighlight;
+  MonthlyOverview(this.toHighlight);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -44,14 +45,25 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
   ];
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
-  List<String> myList = ['q','w'];
+  DateTime? _selectedDay;//"2022-04-11"
+  String dateForGraph = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
 
-  DateTime _currentDate = DateTime.now();
-  DateTime _currentDate2 = DateTime.now();
-  String _currentMonth = DateFormat.yMMM().format(DateTime(2022, 1, 31));
-  DateTime _targetDateTime = DateTime(2055, 1, 31);
+  getCircledDate()async{
+    String userId = await CommonMethods.getUserId();
+    Response myRes = await CommonMethods.commonGetApiData(ApiInterface.TRAINING_DATES+userId);
+    TrainingDateModel dates = trainingDateModelFromJson(myRes.data);
+    List<TrainingDateDatum> listData = dates.data;
+    widget.toHighlight.clear();
+    for(int i=0;i<listData.length;i++){
+      widget.toHighlight.add(listData[i].dates);
+    }
+    setState(() {
+
+    });
+  }
+
+
 //  List<DateTime> _markedDate = [DateTime(2018, 9, 20), DateTime(2018, 10, 11)];
   static Widget _eventIcon = new Container(
     decoration: new BoxDecoration(
@@ -63,10 +75,10 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
       color: Colors.amber,
     ),
   );
-
-
+  
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
   }
 
@@ -91,6 +103,31 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 16.0),
                 child: TableCalendar(
+                  calendarBuilders: CalendarBuilders(
+                    defaultBuilder: (context, day, focusedDay) {
+                      for (DateTime d in widget.toHighlight) {
+                        if (day.day == d.day &&
+                            day.month == d.month &&
+                            day.year == d.year) {
+                          return Container(
+                            decoration: const BoxDecoration(
+                              color: CommonVar.RED_BUTTON_COLOR,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(50.0),
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                '${day.day}',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          );
+                        }
+                      }
+                      return null;
+                    },
+                  ),
                   headerStyle: HeaderStyle(
                     titleTextStyle: GoogleFonts.roboto(
                       color: Colors.white,
@@ -146,7 +183,7 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
                       // String dateStr = DateFormat('yyyy-MM-dd').format(_selectedDay!);
                       Get.to(DailyTraining(_selectedDay!))!.then((value){
                         setState(() {
-
+                          getCircledDate();
                         });
                       });
                     }
@@ -154,7 +191,7 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
                       _selectedDay = selectedDay;
                       Get.to(DailyTraining(_selectedDay!))!.then((value){
                         setState(() {
-
+                          getCircledDate();
                         });
                       });
                     }
@@ -170,7 +207,12 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
                   onPageChanged: (focusedDay) {
                     // No need to call `setState()` here
                     _focusedDay = focusedDay;
+                    dateForGraph = DateFormat('yyyy-MM-dd').format(_focusedDay);
+                    setState(() {
+
+                    });
                   },
+
                 ),
               ),
               FutureBuilder(
@@ -181,8 +223,9 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
                   }
                   else{
                     String userId = snapshot.data as String;
+                    Map sendMap = {"user_date" : dateForGraph};
                     return FutureBuilder(
-                      future: CommonMethods.commonGetApiData(ApiInterface.TRAINING_DATES+userId),
+                      future: CommonMethods.commonPostApiData(ApiInterface.GRAPH_DATES+userId, sendMap),
                       builder: (context, snapshot){
                         if(snapshot.data == null){
                           return Padding(
@@ -242,8 +285,9 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
                       }
                       else{
                         String userId = snapshot.data as String;
+                        Map sendMap = {"user_date" : dateForGraph};
                         return FutureBuilder(
-                          future: CommonMethods.commonGetApiData(ApiInterface.TRAINING_DATES+userId),
+                          future: CommonMethods.commonPostApiData(ApiInterface.GRAPH_DATES+userId, sendMap),
                           builder: (context, snapshot){
                             if(snapshot.data == null){
                               return Padding(
@@ -267,11 +311,13 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
                               Map myMap = json.decode(myRes.data);
                               if(myMap['data'].runtimeType == bool){
                                 return SizedBox(
-                                    child: Text(
-                                      'No training data found',
-                                      style: GoogleFonts.roboto(
-                                          color: Colors.white,
-                                          fontSize: 20.0
+                                    child: Center(
+                                      child: Text(
+                                        'No training data found',
+                                        style: GoogleFonts.roboto(
+                                            color: Colors.white,
+                                            fontSize: 20.0
+                                        ),
                                       ),
                                     )
                                 );

@@ -105,6 +105,7 @@ class AccountPageState extends State<AccountPage>{
               }),
               commonView(Icons.person, 'Logout',mCallback: ()async{
                 CommonMethods.twoButtonDialoge(context, 'Logout', 'Would you like to logout from the Application?',(){
+                  updateToken();
                   logOut(context).then((value)async{
                     CommonMethods.saveStrPref('profile_fullpath', '');
                     CommonMethods.saveStrPref('trainer_id', '0');

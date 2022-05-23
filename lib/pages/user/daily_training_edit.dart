@@ -10,7 +10,6 @@ import 'package:training_app/common/api_interface.dart';
 import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
-import 'package:training_app/models/daily_training_model.dart';
 
 class DatlyTrainingEdit extends StatefulWidget{
   final List dailyTrainDatum;
@@ -33,6 +32,17 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
   TextEditingController trainingEstimateCtrl = TextEditingController();
   Widget mReturnWigdet = Container();
   List<String> ratingList = [];
+
+  List<String> wattList = [];
+  List<String> pulseList = [];
+  List<String> ahrList = [];
+  List<String> codenceList = [];
+  List<String> trainTimeList = [];
+  List<String> breakList = [];
+
+  String weightTop = '';
+  String tttTop = '';
+  String commentTop = '';
   @override
   void initState() {
     // TODO: implement initState
@@ -66,19 +76,19 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
       // String aMinTime = widget.dailyTrainDatum[i]['a_trainings_time_min'];
 
 
-      wattCtrl[i].text = (aPowWatt.isEmpty)?widget.dailyTrainDatum[i].powerWatt:aPowWatt;
-      pulseCtrl[i].text = (aMaxPulse.isEmpty)?widget.dailyTrainDatum[i].pulse:aMaxPulse;
-      avgPower[i].text = (aAvgPow.isEmpty)?widget.dailyTrainDatum[i].aAveragePower:aAvgPow;
-      timeEstimateCtrl[i].text = (aEstimate.isEmpty)?widget.dailyTrainDatum[i].trainingstimeMin:aEstimate;
-      codenceCtrl[i].text = (aCodence.isEmpty)?widget.dailyTrainDatum[i].cadence:aCodence;
-      breakCtrl[i].text = (aBreak.isEmpty)?widget.dailyTrainDatum[i].breaks:aBreak;
+      wattList.add((aPowWatt.isEmpty)?widget.dailyTrainDatum[i].powerWatt:aPowWatt);
+      pulseList.add((aMaxPulse.isEmpty)?widget.dailyTrainDatum[i].pulse:aMaxPulse);
+      ahrList.add((aAvgPow.isEmpty)?widget.dailyTrainDatum[i].aAveragePower:aAvgPow);
+      trainTimeList.add((aEstimate.isEmpty)?widget.dailyTrainDatum[i].trainingstimeMin:aEstimate);
+      codenceList.add((aCodence.isEmpty)?widget.dailyTrainDatum[i].cadence:aCodence);
+      breakList.add((aBreak.isEmpty)?widget.dailyTrainDatum[i].breaks:aBreak);
       // minTimeCtrl[i].text = (aMinTime==null||aMinTime.isEmpty)?'0':aMinTime;
 
       ratingList[i] = widget.dailyTrainDatum[i].aRating;
     }
-    weightUpCtrl.text = widget.otherTopData[0].aWeight;
-    trainingEstimateCtrl.text = widget.otherTopData[0].totalTrainingstime;
-    commentCtrl.text = widget.otherTopData[0].aComment;
+    weightTop = widget.otherTopData[0].aWeight;
+    tttTop = widget.otherTopData[0].totalTrainingstime;
+    commentTop = widget.otherTopData[0].aComment;
   }
 
   saveFullData()async{
@@ -86,8 +96,8 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
     List<Map> allIntervalMap = [];
     for(int i=0;i<widget.dailyTrainDatum.length;i++){
       Map innerMap = {
-        'power_watt' : wattCtrl[i].text,
-        'max_plus' : pulseCtrl[i].text,
+        'power_watt' : wattList[i],
+        'max_plus' : pulseList[i],
         'average_power' : avgPower[i].text,
         'cadence' : codenceCtrl[i].text,
         'rating' : ratingList[i],
@@ -98,16 +108,16 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
       allIntervalMap.add(innerMap);
     }
     Map outerMap = {
-      'Weight' : weightUpCtrl.text,
-      'comment' : commentCtrl.text,
-      'Trainings_time_min' : trainingEstimateCtrl.text,
+      'Weight' : weightTop,
+      'comment' : commentTop,
+      'Trainings_time_min' : tttTop,
       'data' : allIntervalMap
     };
     String userId = await CommonMethods.getUserId();
     Response myResponse = await CommonMethods.commonPostApiData(ApiInterface.UPDATE_DAILY_TRAINING+userId, outerMap);
     Map resMap = json.decode(myResponse.data);
     Navigator.pop(context);
-    CommonMethods.getDialoge(resMap['msg'],intTitle: 2,voidCallback: (){
+    CommonMethods.getDialoge('Your changes has been saved',intTitle: 2,voidCallback: (){
       Navigator.pop(context);
       Navigator.pop(context);
     });
@@ -202,23 +212,31 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                                 color: Colors.white
                             ),),
                           CommonWidgets.commonTextField(
+                              mOnchangedStr: (str){
+                                weightTop = str;
+                              },
                               mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
                               mIcon: Icons.line_weight,
-                              mTitle: 'Weight',
+                              mTitle: widget.otherTopData[0].aWeight.isEmpty?'Weight':widget.otherTopData[0].aWeight,
                               keybordType: TextInputType.text,
-                              mController: weightUpCtrl
+                              mController: weightUpCtrl,
+                              hintColor: Colors.grey
                           ),
                           const SizedBox(height: 10.0,),
-                          Text('Total training time',
+                          Text('Total Training Time',
                             style: GoogleFonts.roboto(
                                 color: Colors.white
                             ),),
                           CommonWidgets.commonTextField(
+                              mOnchangedStr: (str){
+                                tttTop = str;
+                              },
                               mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
                               mIcon: Icons.watch_later,
-                              mTitle: 'Training Estimate Time',
+                              mTitle: (widget.otherTopData[0].totalTrainingstime).isEmpty?'Total Training Time':widget.otherTopData[0].totalTrainingstime,
                               keybordType: TextInputType.text,
-                              mController: trainingEstimateCtrl
+                              mController: trainingEstimateCtrl,
+                              hintColor: Colors.grey
                           ),
                           const SizedBox(height: 10.0,),
                           Text('Comment',
@@ -226,11 +244,15 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                                 color: Colors.white
                             ),),
                           CommonWidgets.commonTextField(
+                              mOnchangedStr: (str){
+                                commentTop = str;
+                              },
                               mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
                               mIcon: Icons.comment,
-                              mTitle: 'Comment',
+                              mTitle: widget.otherTopData[0].aComment.isEmpty?'Comment':widget.otherTopData[0].aComment,
                               keybordType: TextInputType.text,
-                              mController: commentCtrl
+                              mController: commentCtrl,
+                              hintColor: Colors.grey
                           ),
                         ],
                       ),
@@ -242,6 +264,7 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                           shrinkWrap: true,
                           itemCount: widget.dailyTrainDatum.length,
                           itemBuilder: (context, index){
+                            var initValue = widget.dailyTrainDatum[index];
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -260,8 +283,13 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                                   ),
                                 ),
                                 CommonWidgets.commonTextField(
+                                    mOnchangedStr: (str){
+                                      String editValue = str;
+                                      wattList.removeAt(index);
+                                      wattList.insert(index, editValue);
+                                    },
                                     mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
-                                    mTitle: 'Power Watt',
+                                    mTitle: (initValue.aPowerWatt.isEmpty)?initValue.powerWatt:initValue.aPowerWatt,
                                     shouldPreIcon: false,
                                     contentPadding: const EdgeInsets.all(10.0),
                                     mController: wattCtrl[index],
@@ -275,8 +303,13 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                                   ),
                                 ),
                                 CommonWidgets.commonTextField(
+                                    mOnchangedStr: (str){
+                                      String editValue = str;
+                                      pulseList.removeAt(index);
+                                      pulseList.insert(index, editValue);
+                                    },
                                     mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
-                                    mTitle: 'Pulse',
+                                    mTitle: (initValue.aMaxPlus.isEmpty)?initValue.pulse:initValue.aMaxPlus,
                                     shouldPreIcon: false,
                                     contentPadding: const EdgeInsets.all(10.0),
                                     mController: pulseCtrl[index],
@@ -284,14 +317,19 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                                 ),
                                 const SizedBox(height: 10.0,),
                                 Text(
-                                  'Avg Power',
+                                  'Avg Heart Rate',
                                   style: GoogleFonts.roboto(
                                       color: CommonVar.RED_BUTTON_COLOR
                                   ),
                                 ),
                                 CommonWidgets.commonTextField(
+                                    mOnchangedStr: (str){
+                                      String editValue = str;
+                                      ahrList.removeAt(index);
+                                      ahrList.insert(index, editValue);
+                                    },
                                     mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
-                                    mTitle: 'Avg Power',
+                                    mTitle: (initValue.aAveragePower.isEmpty)?initValue.aAveragePower:initValue.aAveragePower,
                                     shouldPreIcon: false,
                                     contentPadding: const EdgeInsets.all(10.0),
                                     mController: avgPower[index],
@@ -305,8 +343,13 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                                   ),
                                 ),
                                 CommonWidgets.commonTextField(
+                                    mOnchangedStr: (str){
+                                      String editValue = str;
+                                      codenceList.removeAt(index);
+                                      codenceList.insert(index, editValue);
+                                    },
                                     mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
-                                    mTitle: 'Codence',
+                                    mTitle: (initValue.aCandence.isEmpty)?initValue.cadence:initValue.aCandence,
                                     shouldPreIcon: false,
                                     contentPadding: const EdgeInsets.all(10.0),
                                     mController: codenceCtrl[index],
@@ -320,8 +363,13 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                                   ),
                                 ),
                                 CommonWidgets.commonTextField(
+                                    mOnchangedStr: (str){
+                                      String editValue = str;
+                                      trainTimeList.removeAt(index);
+                                      trainTimeList.insert(index, editValue);
+                                    },
                                     mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
-                                    mTitle: 'Trainings Time',
+                                    mTitle: (initValue.aTrainingsTimeMin.isEmpty)?initValue.trainingstimeMin:initValue.aTrainingsTimeMin,
                                     shouldPreIcon: false,
                                     contentPadding: const EdgeInsets.all(10.0),
                                     mController: timeEstimateCtrl[index],
@@ -329,48 +377,51 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                                 ),
                                 const SizedBox(height: 10.0,),
 
-                                RatingBar.builder(
-                                  unratedColor: Colors.white,
-                                  initialRating: isNumeric(widget.dailyTrainDatum[index].aRating)?double.parse(widget.dailyTrainDatum[index].aRating==null?'0.0':widget.dailyTrainDatum[index].aRating):0.0,
-                                  itemCount: 5,
-                                  itemBuilder: (context, index) {
+                                Directionality(
+                                  textDirection: TextDirection.rtl,
+                                  child: RatingBar.builder(
+                                    unratedColor: Colors.white,
+                                    initialRating: isNumeric(widget.dailyTrainDatum[index].aRating)?double.parse(widget.dailyTrainDatum[index].aRating==null?'0.0':widget.dailyTrainDatum[index].aRating):0.0,
+                                    itemCount: 5,
+                                    itemBuilder: (context, index) {
 
-                                    if(index == 0){
-                                      mReturnWigdet = const Icon(
-                                        Icons.sentiment_very_dissatisfied,
-                                        color: Colors.red,
-                                      );
-                                    }
-                                    else if(index == 1){
-                                      mReturnWigdet = const Icon(
-                                        Icons.sentiment_dissatisfied,
-                                        color: Colors.redAccent,
-                                      );
-                                    }
-                                    else if(index == 2){
-                                      mReturnWigdet = const Icon(
-                                        Icons.sentiment_neutral,
-                                        color: Colors.amber,
-                                      );
-                                    }
-                                    else if(index == 3){
-                                      mReturnWigdet = const Icon(
-                                        Icons.sentiment_satisfied,
-                                        color: Colors.lightGreen,
-                                      );
-                                    }
-                                    else if(index == 4){
-                                      mReturnWigdet = const Icon(
-                                        Icons.sentiment_very_satisfied,
-                                        color: Colors.green,
-                                      );
-                                    }
-                                    return mReturnWigdet;
-                                  },
-                                  onRatingUpdate: (rating) {
-                                    print(rating);
-                                    ratingList[index] = rating.toString();
-                                  },
+                                      if(index == 0){
+                                        mReturnWigdet = const Icon(
+                                          Icons.sentiment_very_dissatisfied,
+                                          color: Colors.red,
+                                        );
+                                      }
+                                      else if(index == 1){
+                                        mReturnWigdet = const Icon(
+                                          Icons.sentiment_dissatisfied,
+                                          color: Colors.redAccent,
+                                        );
+                                      }
+                                      else if(index == 2){
+                                        mReturnWigdet = const Icon(
+                                          Icons.sentiment_neutral,
+                                          color: Colors.amber,
+                                        );
+                                      }
+                                      else if(index == 3){
+                                        mReturnWigdet = const Icon(
+                                          Icons.sentiment_satisfied,
+                                          color: Colors.lightGreen,
+                                        );
+                                      }
+                                      else if(index == 4){
+                                        mReturnWigdet = const Icon(
+                                          Icons.sentiment_very_satisfied,
+                                          color: Colors.green,
+                                        );
+                                      }
+                                      return mReturnWigdet;
+                                    },
+                                    onRatingUpdate: (rating) {
+                                      print(rating);
+                                      ratingList[index] = rating.toString();
+                                    },
+                                  ),
                                 ),
                                 const SizedBox(height: 10.0,),
                                 Container(
@@ -390,7 +441,7 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                                         ),
                                         CommonWidgets.commonTextField(
                                             mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
-                                            mTitle: 'Break',
+                                            mTitle: (initValue.aBreaks.isEmpty)?initValue.breaks:initValue.aBreaks,
                                             shouldPreIcon: false,
                                             contentPadding: const EdgeInsets.all(10.0),
                                             mController: breakCtrl[index],

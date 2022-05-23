@@ -22,7 +22,8 @@ class ApiInterface{
   static const String ATHLETE_NOTIFICATIONS  = BASE_URL+'sportsfood/api/notification_trainer/';
   static const String PROFILE_IMAGE_PATH     = BASE_URL+'sportsfood/admin/../uploads/profileimg/';
   static const String UPLOAD_PROFILE_PICTURE = BASE_URL+'sportsfood/api/profile_file/';
-  static const String TRAINING_DATES         = BASE_URL+'sportsfood/api/getalldate/';
+  static const String TRAINING_DATES         = BASE_URL+'sportsfood/api/getdatetime/';
+  static const String GRAPH_DATES            = BASE_URL+'sportsfood/api/getalldate/';
 
 //  =======================================  ATHLETES API'S =======================================
 

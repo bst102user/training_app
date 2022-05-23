@@ -75,6 +75,7 @@ class CommonWidgets{
         hintColor = Colors.white,
         isNextCon = true,
         isTextCenter = false,
+        mOnchangedStr,
       }){
     return Container(
       height: 50.0,
@@ -85,7 +86,7 @@ class CommonWidgets{
             Radius.circular(10)
         ),
       ),
-      child: TextField(
+      child: TextFormField(
         textInputAction: isNextCon?TextInputAction.next:TextInputAction.done,
         // autofocus: true,
         controller: mController,
@@ -94,6 +95,7 @@ class CommonWidgets{
         style: GoogleFonts.roboto(
           color: enterTextColor
         ),
+        onChanged: mOnchangedStr,
         decoration: InputDecoration(
           contentPadding: contentPadding,
             prefixIcon: shouldPreIcon?Icon(
@@ -329,7 +331,8 @@ class CommonWidgets{
           Text(
               text,
             style: GoogleFonts.roboto(
-              color: Colors.white
+              color: Colors.white,
+              fontSize: 17.0
             ),
           )
         ],

@@ -430,16 +430,15 @@ class ChatRoomState extends State<ChatRoom>{
                 alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 30.0),
-                  child: Container(
+                  child: SizedBox(
                     height: 50.0,
-                    width: size.width / 1.1,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          height: size.height / 17,
+                        SizedBox(
+                          height: 40.0,
                           width: size.width / 1.3,
-                          child: TextField(
+                          child: TextFormField(
                             controller: _message,
                             keyboardType: TextInputType.text,
                             decoration: InputDecoration(
@@ -486,7 +485,7 @@ class ChatRoomState extends State<ChatRoom>{
   String readTimestamp(Timestamp mMon) {
     var now = DateTime.now();
     var format = DateFormat('HH:mm');
-    int timestamp = mMon.microsecondsSinceEpoch;
+    int timestamp = mMon.microsecondsSinceEpoch==null?0:mMon.microsecondsSinceEpoch;
     var date = DateTime.fromMicrosecondsSinceEpoch(timestamp);
     var diff = date.difference(now);
     var time = '';

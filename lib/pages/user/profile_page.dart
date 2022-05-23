@@ -252,33 +252,44 @@ class ProfilePageState extends State<ProfilePage>{
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return SafeArea(
-      child: Scaffold(
-        body: Container(
-          height: CommonMethods.deviceHeight(context),
-          width: CommonMethods.deviceWidth(context),
-          decoration: const BoxDecoration(
-            color: Colors.black,
-            image: DecorationImage(
-              image: AssetImage(
-                "assets/images/profile.png",
-              ),
-              fit: BoxFit.fill,
+    return Scaffold(
+      body: Container(
+        height: CommonMethods.deviceHeight(context),
+        width: CommonMethods.deviceWidth(context),
+        decoration: const BoxDecoration(
+          color: Colors.black,
+          image: DecorationImage(
+            image: AssetImage(
+              "assets/images/profile.png",
             ),
+            fit: BoxFit.fill,
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 20.0),
-            child: Column(
-              children: [
-                CommonWidgets.commonHeader(context, 'profile'),
-                InkWell(
-                  onTap: (){
-                    _showChoiceDialog(context);
-                  },
-                  child: imageFile==null?FutureBuilder(
-                    future: getImageUrl(),
-                    builder: (context, snapshot){
-                      if(snapshot.data == null){
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 20.0),
+          child: Column(
+            children: [
+              CommonWidgets.commonHeader(context, 'profile'),
+              InkWell(
+                onTap: (){
+                  _showChoiceDialog(context);
+                },
+                child: imageFile==null?FutureBuilder(
+                  future: getImageUrl(),
+                  builder: (context, snapshot){
+                    if(snapshot.data == null){
+                      return const CircleAvatar(
+                        radius: 50.0,
+                        foregroundImage:
+                        NetworkImage(
+                          'https://via.placeholder.com/150',
+                        ),
+                        backgroundColor: Colors.transparent,
+                      );
+                    }
+                    else{
+                      String imagePath = snapshot.data as String;
+                      if(imagePath.length<5){
                         return const CircleAvatar(
                           radius: 50.0,
                           foregroundImage:
@@ -288,150 +299,132 @@ class ProfilePageState extends State<ProfilePage>{
                           backgroundColor: Colors.transparent,
                         );
                       }
-                      else{
-                        String imagePath = snapshot.data as String;
-                        if(imagePath.length<5){
-                          return const CircleAvatar(
-                            radius: 50.0,
-                            foregroundImage:
-                            NetworkImage(
-                              'https://via.placeholder.com/150',
-                            ),
-                            backgroundColor: Colors.transparent,
-                          );
-                        }
-                        else if(imagePath.substring(imagePath.length - 5) == '.jpeg'
-                            ||imagePath.substring(imagePath.length - 4) == '.png'
-                            ||imagePath.substring(imagePath.length - 4)=='.jpg') {
-                          return CircleAvatar(
-                            radius: 50.0,
-                            backgroundImage:
-                            NetworkImage(ApiInterface.PROFILE_IMAGE_PATH+(snapshot.data as String)),
-                            backgroundColor: Colors.transparent,
-                          );
-                        }
-                        else{
-                          return const CircleAvatar(
-                            radius: 30.0,
-                            foregroundImage:
-                            NetworkImage(
-                              'https://via.placeholder.com/150',
-                            ),
-                            backgroundColor: Colors.transparent,
-                          );
-                        }
+                      else if(imagePath.substring(imagePath.length - 5) == '.jpeg'
+                          ||imagePath.substring(imagePath.length - 4) == '.png'
+                          ||imagePath.substring(imagePath.length - 4)=='.jpg') {
+                        return CircleAvatar(
+                          radius: 50.0,
+                          backgroundImage:
+                          NetworkImage(ApiInterface.PROFILE_IMAGE_PATH+(snapshot.data as String)),
+                          backgroundColor: Colors.transparent,
+                        );
                       }
-                    },
-                  ):CircleAvatar(
-                    radius: 50.0,
-                    backgroundImage: FileImage(imageFile!),
-                    backgroundColor: Colors.transparent,
-                  ),
-                ),
-                CommonWidgets.mHeightSizeBox(height: 25.0),
-                CommonWidgets.commonTextField(
-                    mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
-                    mIcon: Icons.person,
-                    mTitle: 'Name',
-                    keybordType: TextInputType.text,
-                    mController: nameController
-                ),
-                CommonWidgets.mHeightSizeBox(),
-                CommonWidgets.commonTextField(
-                    mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
-                    mIcon: Icons.person,
-                    mTitle: 'Last Name',
-                    keybordType: TextInputType.text,
-                    mController: lastnameController
-                ),
-                CommonWidgets.mHeightSizeBox(),
-                CommonWidgets.commonTextField(
-                    mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
-                    mIcon: Icons.email,
-                    mTitle: 'Email',
-                    keybordType: TextInputType.emailAddress,
-                    mController: emailController
-                ),
-                // CommonWidgets.mHeightSizeBox(),
-                // CommonWidgets.countryCodeContainer(
-                //     mController: mobileController,
-                //     mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
-                //     mIcon: Icons.phone,
-                //     mTitle: '',
-                //     mTitleText: phoneCode,
-                //     callBack: (){
-                //       FocusScope.of(context).unfocus();
-                //       showCountryCode();
-                //     }
-                // ),
-                CommonWidgets.mHeightSizeBox(),
-                CommonWidgets.commonTextField(
-                    mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
-                    mIcon: Icons.phone,
-                    mTitle: 'Mobile Number',
-                    keybordType: TextInputType.number,
-                    mController: mobileController
-                ),
-                CommonWidgets.mHeightSizeBox(),
-                CommonWidgets.containerLikeTextField(
-                    mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
-                    mIcon: Icons.date_range,
-                    mTitle: birthDate,
-                    callBack: (){
-                      _selectDate(context);
+                      else{
+                        return const CircleAvatar(
+                          radius: 30.0,
+                          foregroundImage:
+                          NetworkImage(
+                            'https://via.placeholder.com/150',
+                          ),
+                          backgroundColor: Colors.transparent,
+                        );
+                      }
                     }
+                  },
+                ):CircleAvatar(
+                  radius: 50.0,
+                  backgroundImage: FileImage(imageFile!),
+                  backgroundColor: Colors.transparent,
                 ),
-                CommonWidgets.mHeightSizeBox(height: 20.0),
-                CommonWidgets.mHeightSizeBox(height: 20.0),
-                CommonWidgets.commonButton('SAVE',()async{
-                  if(emailController.text.isEmpty
-                      ||nameController.text.isEmpty
-                      ||mobileController.text.isEmpty||birthDate=='Birthday'){
-                    CommonMethods.showToast(context, 'All Fields Mandatory');
-                  }
-                  else if(!CommonMethods.isEmailValid(emailController.text)){
-                    CommonMethods.showToast(context, 'Pleas enter valid email');
-                  }
-                  // else if(!CommonMethods.validateMobile(mobileController.text)){
-                  //   CommonMethods.showToast(context, 'Pleas enter valid mobile');
-                  // }
-                  else {
-                    CommonMethods.showAlertDialog(context);
-                    SharedPreferences mPref = await SharedPreferences
-                        .getInstance();
-                    String userId = mPref.getString('user_id').toString();
-                    Map mMap = {
-                      "fname": nameController.text,
-                      "lname": lastnameController.text,
-                      "email": emailController.text,
-                      "phone": mobileController.text,
-                      "dob": birthDate
-                    };
-                    CommonMethods.commonPutApiData(
-                        ApiInterface.UPDATE_PROFILE + userId, mMap).then((
-                        response) {
-                      print(response.toString());
-                      // updateUser(nameController.text,emailController.text);
-                      update(emailController.text, nameController.text, lastnameController.text);
-                      Map mMap = json.decode(response.toString());
-                      String status = mMap['status'];
-                      String message = mMap['message'];
-                      if (status == 'success') {
-                        Get.back();
-                        CommonMethods.getDialoge(
-                            'Profile updated', intTitle: 2, voidCallback: () {
-                          Get.back();
-                          Get.back();
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height*0.7,
+                child: ListView(
+                  children: [
+                    CommonWidgets.mHeightSizeBox(height: 25.0),
+                    CommonWidgets.commonTextField(
+                        mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
+                        mIcon: Icons.person,
+                        mTitle: 'Name',
+                        keybordType: TextInputType.text,
+                        mController: nameController
+                    ),
+                    CommonWidgets.mHeightSizeBox(),
+                    CommonWidgets.commonTextField(
+                        mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
+                        mIcon: Icons.person,
+                        mTitle: 'Last Name',
+                        keybordType: TextInputType.text,
+                        mController: lastnameController
+                    ),
+                    CommonWidgets.mHeightSizeBox(),
+                    CommonWidgets.commonTextField(
+                        mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
+                        mIcon: Icons.email,
+                        mTitle: 'Email',
+                        keybordType: TextInputType.emailAddress,
+                        mController: emailController
+                    ),
+                    CommonWidgets.mHeightSizeBox(),
+                    CommonWidgets.commonTextField(
+                        mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
+                        mIcon: Icons.phone,
+                        mTitle: 'Mobile Number',
+                        keybordType: TextInputType.number,
+                        mController: mobileController
+                    ),
+                    CommonWidgets.mHeightSizeBox(),
+                    CommonWidgets.containerLikeTextField(
+                        mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
+                        mIcon: Icons.date_range,
+                        mTitle: birthDate,
+                        callBack: (){
+                          _selectDate(context);
+                        }
+                    ),
+                    CommonWidgets.mHeightSizeBox(height: 20.0),
+                    CommonWidgets.mHeightSizeBox(height: 20.0),
+                    CommonWidgets.commonButton('SAVE',()async{
+                      if(emailController.text.isEmpty
+                          ||nameController.text.isEmpty
+                          ||mobileController.text.isEmpty||birthDate=='Birthday'){
+                        CommonMethods.showToast(context, 'All Fields Mandatory');
+                      }
+                      else if(!CommonMethods.isEmailValid(emailController.text)){
+                        CommonMethods.showToast(context, 'Pleas enter valid email');
+                      }
+                      // else if(!CommonMethods.validateMobile(mobileController.text)){
+                      //   CommonMethods.showToast(context, 'Pleas enter valid mobile');
+                      // }
+                      else {
+                        CommonMethods.showAlertDialog(context);
+                        SharedPreferences mPref = await SharedPreferences
+                            .getInstance();
+                        String userId = mPref.getString('user_id').toString();
+                        Map mMap = {
+                          "fname": nameController.text,
+                          "lname": lastnameController.text,
+                          "email": emailController.text,
+                          "phone": mobileController.text,
+                          "dob": birthDate
+                        };
+                        CommonMethods.commonPutApiData(
+                            ApiInterface.UPDATE_PROFILE + userId, mMap).then((
+                            response) {
+                          print(response.toString());
+                          // updateUser(nameController.text,emailController.text);
+                          update(emailController.text, nameController.text, lastnameController.text);
+                          Map mMap = json.decode(response.toString());
+                          String status = mMap['status'];
+                          String message = mMap['message'];
+                          if (status == 'success') {
+                            Get.back();
+                            CommonMethods.getDialoge(
+                                'Profile updated', intTitle: 2, voidCallback: () {
+                              Get.back();
+                              Get.back();
+                            });
+                          }
+                          else {
+                            CommonMethods.getDialoge(message, intTitle: 1);
+                          }
                         });
                       }
-                      else {
-                        CommonMethods.getDialoge(message, intTitle: 1);
-                      }
-                    });
-                  }
-                })
-              ],
-            ),
+                    }),
+                  ],
+                ),
+              )
+            ],
           ),
         ),
       ),

@@ -56,6 +56,16 @@ update(String chEmail, String chName, String chlName){
       .catchError((error) => print('Update failed: $error'));
 }
 
+updateToken(){
+  FirebaseAuth _auth = FirebaseAuth.instance;
+  var collection = FirebaseFirestore.instance.collection('users');
+  collection
+      .doc(_auth.currentUser!.uid)
+      .update({'auth_token' : ''}) // <-- Updated data
+      .then((_) => print('Updated'))
+      .catchError((error) => print('Update failed: $error'));
+}
+
 Future<User?> logIn(String email, String password) async {
   FirebaseAuth _auth = FirebaseAuth.instance;
   FirebaseFirestore _firestore = FirebaseFirestore.instance;

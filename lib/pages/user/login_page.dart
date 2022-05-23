@@ -149,7 +149,7 @@ class LoginPageState extends State<LoginPage> {
             Padding(
               padding: const EdgeInsets.only(top: 30.0),
               child: Container(
-                height: CommonMethods.deviceHeight(context)*0.76,
+                height: CommonMethods.deviceHeight(context)*0.9,
                 decoration: const BoxDecoration(
                   color: CommonVar.BLACK_BG_COLOR,
                   borderRadius: BorderRadius.only(

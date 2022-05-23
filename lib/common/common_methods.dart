@@ -105,7 +105,7 @@ class CommonMethods{
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Container(width: 50,),
+                      Container(),
                       FlatButton(
                           child: const Text('Cancel'),
                           onPressed: () {

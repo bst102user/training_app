@@ -26,6 +26,7 @@ class DashboardState extends State<Dashboard>{
   Color scrollHintColor = Colors.black;
   String totalMonthTime = '0';
   int totalTimeInt = 0;
+  List<DateTime> toHighlight = [];
   Future<List<String>> getDataList()async{
     SharedPreferences mPref = await SharedPreferences.getInstance();
     String email = mPref.getString('user_email').toString();
@@ -116,16 +117,6 @@ class DashboardState extends State<Dashboard>{
     String? token = await FirebaseMessaging.instance.getToken();
     print(token);
   }
-
-  // bool isValidDate(String input) {
-  //   try {
-  //     final date = DateTime.parse(input);
-  //     final originalFormatString = toOriginalFormatString(date);
-  //     return input == originalFormatString;
-  //   } catch(e) {
-  //     return false;
-  //   }
-  // }
 
   Widget commonTile(String date, String time, IconData iconData){
     return Column(
@@ -444,7 +435,7 @@ class DashboardState extends State<Dashboard>{
 
                   CommonWidgets.mHeightSizeBox(height: 30.0),
                   CommonWidgets.commonButton('Monthly Overview', () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>MonthlyOverview(totalMonthTime)));
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>MonthlyOverview(toHighlight)));
                   },iconData: Icons.calendar_today),
                   CommonWidgets.mHeightSizeBox(height: 20.0),
                   FutureBuilder(
@@ -495,6 +486,7 @@ class DashboardState extends State<Dashboard>{
 
                                 for(int i=0;i<listData.length;i++){
                                   totalTimeInt = totalTimeInt+int.parse(listData[i].totalRainingstime);
+                                  toHighlight.add(listData[i].dates);
                                 }
                                 totalMonthTime = totalTimeInt.toString();
                                 return Column(
