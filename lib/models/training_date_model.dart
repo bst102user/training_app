@@ -49,18 +49,22 @@ class TrainingDateDatum {
   TrainingDateDatum({
     required this.dates,
     required this.totalRainingstime,
+    required this.isUpdate,
   });
 
   DateTime dates;
   String totalRainingstime;
+  String isUpdate;
 
   factory TrainingDateDatum.fromJson(Map<String, dynamic> json) => TrainingDateDatum(
     dates: (json["dates"]==null||json["dates"]=='Date')?DateTime.parse('2022-04-11'):DateTime.parse(json["dates"]),
     totalRainingstime: json["total_rainingstime"],
+    isUpdate: json["is_update"],
   );
 
   Map<String, dynamic> toJson() => {
     "dates": "${dates.year.toString().padLeft(4, '0')}-${dates.month.toString().padLeft(2, '0')}-${dates.day.toString().padLeft(2, '0')}",
     "total_rainingstime": totalRainingstime,
+    "is_update": isUpdate,
   };
 }

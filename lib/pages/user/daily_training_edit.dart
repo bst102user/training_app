@@ -19,6 +19,7 @@ class DatlyTrainingEdit extends StatefulWidget{
 }
 
 class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
+  double _currentIndex = 0;
   List<TextEditingController> weightCtrl = [];
   List<TextEditingController> wattCtrl = [];
   List<TextEditingController> pulseCtrl = [];
@@ -378,41 +379,40 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                                 const SizedBox(height: 10.0,),
 
                                 Directionality(
-                                  textDirection: TextDirection.rtl,
+                                  textDirection: TextDirection.ltr,
                                   child: RatingBar.builder(
                                     unratedColor: Colors.white,
                                     initialRating: isNumeric(widget.dailyTrainDatum[index].aRating)?double.parse(widget.dailyTrainDatum[index].aRating==null?'0.0':widget.dailyTrainDatum[index].aRating):0.0,
                                     itemCount: 5,
                                     itemBuilder: (context, index) {
-
                                       if(index == 0){
-                                        mReturnWigdet = const Icon(
-                                          Icons.sentiment_very_dissatisfied,
-                                          color: Colors.red,
+                                        mReturnWigdet = Icon(
+                                          Icons.sentiment_very_satisfied,
+                                          color: _currentIndex == 1.0?Colors.green:Colors.white,
                                         );
                                       }
                                       else if(index == 1){
-                                        mReturnWigdet = const Icon(
-                                          Icons.sentiment_dissatisfied,
-                                          color: Colors.redAccent,
+                                        mReturnWigdet = Icon(
+                                          Icons.sentiment_satisfied,
+                                          color:  _currentIndex == 2.0?Colors.lightGreen:Colors.white,
                                         );
                                       }
                                       else if(index == 2){
-                                        mReturnWigdet = const Icon(
+                                        mReturnWigdet = Icon(
                                           Icons.sentiment_neutral,
-                                          color: Colors.amber,
+                                          color: _currentIndex == 3.0?Colors.amber:Colors.white,
                                         );
                                       }
                                       else if(index == 3){
-                                        mReturnWigdet = const Icon(
-                                          Icons.sentiment_satisfied,
-                                          color: Colors.lightGreen,
+                                        mReturnWigdet = Icon(
+                                          Icons.sentiment_dissatisfied,
+                                          color: _currentIndex == 4.0?Colors.redAccent:Colors.white,
                                         );
                                       }
                                       else if(index == 4){
-                                        mReturnWigdet = const Icon(
-                                          Icons.sentiment_very_satisfied,
-                                          color: Colors.green,
+                                        mReturnWigdet = Icon(
+                                          Icons.sentiment_very_dissatisfied,
+                                          color: _currentIndex == 5.0?Colors.red:Colors.white,
                                         );
                                       }
                                       return mReturnWigdet;
@@ -420,6 +420,7 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                                     onRatingUpdate: (rating) {
                                       print(rating);
                                       ratingList[index] = rating.toString();
+                                      _currentIndex = rating;
                                     },
                                   ),
                                 ),

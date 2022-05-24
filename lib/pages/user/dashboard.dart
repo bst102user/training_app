@@ -26,7 +26,9 @@ class DashboardState extends State<Dashboard>{
   Color scrollHintColor = Colors.black;
   String totalMonthTime = '0';
   int totalTimeInt = 0;
-  List<DateTime> toHighlight = [];
+  // List<DateTime> toHighlight = [];
+  Map<DateTime,String> toHighlight = {};
+  List<String> isUpdated = [];
   Future<List<String>> getDataList()async{
     SharedPreferences mPref = await SharedPreferences.getInstance();
     String email = mPref.getString('user_email').toString();
@@ -486,7 +488,8 @@ class DashboardState extends State<Dashboard>{
 
                                 for(int i=0;i<listData.length;i++){
                                   totalTimeInt = totalTimeInt+int.parse(listData[i].totalRainingstime);
-                                  toHighlight.add(listData[i].dates);
+                                  // toHighlight.add(listData[i].dates);
+                                  toHighlight[listData[i].dates] = listData[i].isUpdate;
                                 }
                                 totalMonthTime = totalTimeInt.toString();
                                 return Column(

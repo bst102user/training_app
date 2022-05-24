@@ -121,21 +121,25 @@ class Msg {
     required this.totalTrainingstime,
     required this.aWeight,
     required this.aComment,
+    required this.isUpdated,
   });
 
   String totalTrainingstime;
   String aWeight;
   String aComment;
+  String isUpdated;
 
   factory Msg.fromJson(Map<String, dynamic> json) => Msg(
     totalTrainingstime: json["total_trainingstime"],
     aWeight: json["a_weight"],
     aComment: json["a_comment"],
+    isUpdated: json["is_update"],
   );
 
   Map<String, dynamic> toJson() => {
     "total_trainingstime": totalTrainingstime,
     "a_weight": aWeight,
     "a_comment": aComment,
+    "is_update": isUpdated,
   };
 }
