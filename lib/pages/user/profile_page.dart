@@ -260,7 +260,7 @@ class ProfilePageState extends State<ProfilePage>{
           color: Colors.black,
           image: DecorationImage(
             image: AssetImage(
-              "assets/images/profile.png",
+              "assets/images/profile_back.png",
             ),
             fit: BoxFit.fill,
           ),
@@ -269,7 +269,7 @@ class ProfilePageState extends State<ProfilePage>{
           padding: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 20.0),
           child: Column(
             children: [
-              CommonWidgets.commonHeader(context, 'profile'),
+              CommonWidgets.commonHeader(context, 'Profile'),
               InkWell(
                 onTap: (){
                   _showChoiceDialog(context);

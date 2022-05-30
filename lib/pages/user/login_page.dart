@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,7 +9,6 @@ import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/firebase/methods.dart';
-import 'package:training_app/models/profile_model.dart';
 import 'package:training_app/pages/trainer/tr_dashboard.dart';
 import 'package:training_app/pages/user/forget_password.dart';
 import 'nav_dashboard.dart';
@@ -177,8 +175,12 @@ class LoginPageState extends State<LoginPage> {
                           children: [
                             Padding(
                               padding: const EdgeInsets.only(top: 30.0),
-                              child: CommonWidgets.commonTextField(mController:emailController,keybordType: TextInputType.emailAddress,mTitle: 'Email',
-                              mIcon: Icons.mail_outline),
+                              child: CommonWidgets.commonTextField(
+                                  mController:emailController,
+                                  keybordType: TextInputType.emailAddress,
+                                  mTitle: 'Email',
+                                  mIcon: Icons.mail_outline,
+                              ),
                             ),
                             Padding(
                               padding: const EdgeInsets.only(top: 10.0),

@@ -189,7 +189,7 @@ class DailyTrainingState extends State<DailyTraining>{
                 padding: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 20.0),
                 child: ListView(
                   children: [
-                    CommonWidgets.commonHeader(context, 'daily training'),
+                    CommonWidgets.commonHeader(context, 'Daily Training'),
                     CommonWidgets.mHeightSizeBox(height: 30.0),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -364,7 +364,6 @@ class DailyTrainingState extends State<DailyTraining>{
                                   style: GoogleFonts.roboto(
                                     color: Colors.white,
                                     fontSize: 20.0,
-                                    fontWeight: FontWeight.w600
                                   ),
                                 ),
                               ],
@@ -384,7 +383,9 @@ class DailyTrainingState extends State<DailyTraining>{
 
                                       });
                                     });
-                                  }),
+                                  },
+                                  mHeight: MediaQuery.of(context).size.height*0.08
+                                  ),
                                   const SizedBox(height: 15.0,),
                                   SizedBox(
                                     height: CommonMethods.deviceHeight(context)*0.55,
@@ -404,37 +405,39 @@ class DailyTrainingState extends State<DailyTraining>{
                                                 child: Column(
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
-                                                    Text(
-                                                      dtm.data[index].headline,
-                                                      style: GoogleFonts.roboto(
-                                                          color: Colors.white,
-                                                          fontSize: 17.0,
-                                                          fontWeight: FontWeight.w600
-                                                      ),
+                                                    Row(
+                                                      children: [
+                                                        SizedBox(
+                                                          width: MediaQuery.of(context).size.width*0.4,
+                                                        ),
+                                                        Container(
+                                                          width: MediaQuery.of(context).size.width*0.4,
+                                                          child: Text(
+                                                            dtm.data[index].headline,
+                                                            style: GoogleFonts.roboto(
+                                                                color: Colors.white,
+                                                                fontSize: 17.0,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
                                                     const SizedBox(height: 15.0,),
                                                     Row(
                                                       children: [
                                                         SizedBox(
-                                                          width:MediaQuery.of(context).size.width*0.4,
-                                                          child: Text(
-                                                            'Training Time',
-                                                            style: GoogleFonts.roboto(
-                                                                color: Colors.white,
-                                                                fontSize: 17.0,
-                                                                fontWeight: FontWeight.w600
-                                                            ),
-                                                          ),
+                                                          width: MediaQuery.of(context).size.width*0.4,
                                                         ),
-                                                        const SizedBox(width: 30.0,),
-                                                        Text(
-                                                          dtm.data[index].trainingstimeMin,
-                                                          style: GoogleFonts.roboto(
+                                                        Container(
+                                                          width: MediaQuery.of(context).size.width*0.4,
+                                                          child: Text(
+                                                            dtm.data[index].trainingstimeMin,
+                                                            style: GoogleFonts.roboto(
                                                               color: Colors.white,
                                                               fontSize: 17.0,
-                                                              fontWeight: FontWeight.w600,
+                                                            ),
+                                                            textAlign: TextAlign.left,
                                                           ),
-                                                          textAlign: TextAlign.start,
                                                         ),
                                                       ],
                                                     ),
@@ -442,25 +445,18 @@ class DailyTrainingState extends State<DailyTraining>{
                                                     Row(
                                                       children: [
                                                         SizedBox(
-                                                          width:MediaQuery.of(context).size.width*0.4,
+                                                          width: MediaQuery.of(context).size.width*0.4,
+                                                        ),
+                                                        Container(
+                                                          width: MediaQuery.of(context).size.width*0.4,
                                                           child: Text(
-                                                            'Power Watt ',
+                                                            dtm.data[index].powerWatt,
                                                             style: GoogleFonts.roboto(
                                                                 color: Colors.white,
                                                                 fontSize: 17.0,
-                                                                fontWeight: FontWeight.w600
                                                             ),
+                                                            textAlign: TextAlign.left,
                                                           ),
-                                                        ),
-                                                        const SizedBox(width: 30.0,),
-                                                        Text(
-                                                          dtm.data[index].powerWatt,
-                                                          style: GoogleFonts.roboto(
-                                                              color: Colors.white,
-                                                              fontSize: 17.0,
-                                                              fontWeight: FontWeight.w600
-                                                          ),
-                                                          textAlign: TextAlign.start,
                                                         ),
                                                       ],
                                                     ),
@@ -468,25 +464,19 @@ class DailyTrainingState extends State<DailyTraining>{
                                                     Row(
                                                       children: [
                                                         SizedBox(
-                                                          width:MediaQuery.of(context).size.width*0.4,
+                                                          width: MediaQuery.of(context).size.width*0.4,
+                                                        ),
+                                                        Container(
+                                                          width: MediaQuery.of(context).size.width*0.4,
                                                           child: Text(
-                                                            'Pulse ',
+                                                            dtm.data[index].pulse==null?'N/A':dtm.data[index].pulse,
                                                             style: GoogleFonts.roboto(
                                                                 color: Colors.white,
                                                                 fontSize: 17.0,
-                                                                fontWeight: FontWeight.w600
+
                                                             ),
+                                                            textAlign: TextAlign.start,
                                                           ),
-                                                        ),
-                                                        const SizedBox(width: 30.0,),
-                                                        Text(
-                                                          dtm.data[index].pulse==null?'N/A':dtm.data[index].pulse,
-                                                          style: GoogleFonts.roboto(
-                                                              color: Colors.white,
-                                                              fontSize: 17.0,
-                                                              fontWeight: FontWeight.w600
-                                                          ),
-                                                          textAlign: TextAlign.start,
                                                         ),
                                                       ],
                                                     ),
@@ -494,25 +484,18 @@ class DailyTrainingState extends State<DailyTraining>{
                                                     Row(
                                                       children: [
                                                         SizedBox(
-                                                          width:MediaQuery.of(context).size.width*0.4,
+                                                          width: MediaQuery.of(context).size.width*0.4,
+                                                        ),
+                                                        Container(
+                                                          width: MediaQuery.of(context).size.width*0.4,
                                                           child: Text(
-                                                            'Codence ',
+                                                            dtm.data[index].cadence==null?'N/A':dtm.data[index].cadence,
                                                             style: GoogleFonts.roboto(
                                                                 color: Colors.white,
                                                                 fontSize: 17.0,
-                                                                fontWeight: FontWeight.w600
                                                             ),
+                                                            textAlign: TextAlign.start,
                                                           ),
-                                                        ),
-                                                        const SizedBox(width: 30.0,),
-                                                        Text(
-                                                          dtm.data[index].cadence==null?'N/A':dtm.data[index].cadence,
-                                                          style: GoogleFonts.roboto(
-                                                              color: Colors.white,
-                                                              fontSize: 17.0,
-                                                              fontWeight: FontWeight.w600
-                                                          ),
-                                                          textAlign: TextAlign.start,
                                                         ),
                                                       ],
                                                     ),
@@ -532,15 +515,14 @@ class DailyTrainingState extends State<DailyTraining>{
                                                             style: GoogleFonts.roboto(
                                                                 color: Colors.white,
                                                                 fontSize: 17.0,
-                                                                fontWeight: FontWeight.w600
+
                                                             ),
                                                           ),
                                                           Text(
-                                                              dtm.data[index].breaks==null?'N/A':dtm.data[index].breaks,
+                                                            dtm.data[index].breaks==null?'N/A':dtm.data[index].breaks,
                                                             style: GoogleFonts.roboto(
                                                                 color: Colors.white,
                                                                 fontSize: 17.0,
-                                                                fontWeight: FontWeight.w600
                                                             ),
                                                           )
                                                         ],

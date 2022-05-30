@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:training_app/common/common_methods.dart';
+import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/firebase/methods.dart';
 import 'package:training_app/pages/user/login_page.dart';
@@ -22,7 +23,7 @@ class AccountPage extends StatefulWidget{
 class AccountPageState extends State<AccountPage>{
 
 
-  Widget commonView(IconData mIcon, String label, {mCallback}){
+  Widget commonView(String imagePath, String label, {mCallback}){
     const borderSide = BorderSide(color: Colors.white, width: 0.5);
     return InkWell(
       onTap: mCallback,
@@ -38,11 +39,7 @@ class AccountPageState extends State<AccountPage>{
           children: [
             Row(
               children: [
-                Icon(
-                    mIcon,
-                  size: 30.0,
-                  color: Colors.white,
-                ),
+                Image.asset(imagePath),
                 const SizedBox(width: 15.0,),
                 Text(
                   label,
@@ -78,32 +75,32 @@ class AccountPageState extends State<AccountPage>{
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
           child: ListView(
             children: [
-              CommonWidgets.commonHeader(context, 'account',isShowBack: widget.isBackIcon),
+              CommonWidgets.commonHeader(context, 'Account',isShowBack: widget.isBackIcon),
               CommonWidgets.mHeightSizeBox(height: 20.0),
-              commonView(Icons.person, 'Profile',mCallback: (){
+              commonView('assets/images/profile.png', 'Profile',mCallback: (){
                 Get.to(ProfilePage());
               }),
-              commonView(Icons.notifications_rounded, 'Notification',mCallback: (){
+              commonView('assets/images/notification.png', 'Notification',mCallback: (){
                 Navigator.push(context, MaterialPageRoute(builder: (context)=>NotificationPage()));
               }),
-              commonView(Icons.calendar_today_outlined, 'Race Calender',mCallback: (){
+              commonView('assets/images/race_calender.png', 'Race Calender',mCallback: (){
                 // Navigator.push(context, MaterialPageRoute(builder: (context)=>RacingCalender()));
                 Get.to(RacingCalender());
               }),
-              commonView(Icons.document_scanner, 'Documents',mCallback: (){
+              commonView('assets/images/document.png', 'Documents',mCallback: (){
                 Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => DocumentPage())
                 );
               }),
-              commonView(Icons.person, 'Offers'),
-              commonView(Icons.person, 'Upgrade',mCallback: (){
+              commonView('assets/images/offers.png', 'Offers'),
+              commonView('assets/images/upgrade.png', 'Upgrade',mCallback: (){
                 Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => UpgradePage())
                 );
               }),
-              commonView(Icons.person, 'Logout',mCallback: ()async{
+              commonView('assets/images/logout.png', 'Logout',mCallback: ()async{
                 CommonMethods.twoButtonDialoge(context, 'Logout', 'Would you like to logout from the Application?',(){
                   updateToken();
                   logOut(context).then((value)async{

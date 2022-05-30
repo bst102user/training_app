@@ -31,7 +31,7 @@ class SelectTrainerState extends State<SelectTrainer>{
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
           child: ListView(
             children: [
-              CommonWidgets.commonHeader(context, 'select trainer'.toUpperCase()),
+              CommonWidgets.commonHeader(context, 'Select Trainer'.toUpperCase()),
               CommonWidgets.mHeightSizeBox(height: 20.0),
               FutureBuilder(
                 future: CommonMethods.getRequest(ApiInterface.ALL_TRAINER, context),

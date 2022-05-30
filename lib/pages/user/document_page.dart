@@ -85,7 +85,7 @@ class DocumentPageState extends State<DocumentPage>{
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
           child: ListView(
             children: [
-              CommonWidgets.commonHeader(context, 'documents'),
+              CommonWidgets.commonHeader(context, 'Documents'),
               CommonWidgets.mHeightSizeBox(height: 20.0),
               commonView('Name Proof',ApiInterface.SHOW_DOCUMENT),
               commonView('Consectetur',ApiInterface.SHOW_DOCUMENT),

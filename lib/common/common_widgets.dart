@@ -24,11 +24,11 @@ class CommonWidgets{
     return Center(child: LoadingBouncingLine(size: 20,));
   }
 
-  static Widget commonButton(String label,VoidCallback mCallback,{iconData}){
+  static Widget commonButton(String label,VoidCallback mCallback,{iconData, mHeight = 50.0, iconSize = 20.0}){
     return InkWell(
       onTap: mCallback,
       child: Container(
-        height: 50.0,
+        height: mHeight,
         width: double.infinity,
         decoration: const BoxDecoration(
           color: CommonVar.RED_BUTTON_COLOR,
@@ -41,17 +41,14 @@ class CommonWidgets{
           children: [
             Padding(
               padding: const EdgeInsets.only(left: 10.0),
-              child: Icon(
-                  iconData,
-              color: Colors.white,),
+              child: iconData,
             ),
             Center(
                 child: Text(
                     label,
                   style: GoogleFonts.roboto(
                     color: Colors.white,
-                    fontSize: 17.0,
-                    fontWeight: FontWeight.w600
+                    fontSize: 16.0,
                   ),
                 )
             ),
@@ -76,9 +73,10 @@ class CommonWidgets{
         isNextCon = true,
         isTextCenter = false,
         mOnchangedStr,
+        mHeight = 50.0,
       }){
     return Container(
-      height: 50.0,
+      height: mHeight,
       width: double.infinity,
       decoration: BoxDecoration(
         color: mColor.withOpacity(shouldOpocity),
@@ -86,26 +84,28 @@ class CommonWidgets{
             Radius.circular(10)
         ),
       ),
-      child: TextFormField(
-        textInputAction: isNextCon?TextInputAction.next:TextInputAction.done,
-        // autofocus: true,
-        controller: mController,
-        keyboardType: keybordType,
-        textAlign: isTextCenter?TextAlign.center:TextAlign.left,
-        style: GoogleFonts.roboto(
-          color: enterTextColor
+      child: Center(
+        child: TextFormField(
+          textInputAction: isNextCon?TextInputAction.next:TextInputAction.done,
+          // autofocus: true,
+          controller: mController,
+          keyboardType: keybordType,
+          textAlign: isTextCenter?TextAlign.center:TextAlign.left,
+          style: GoogleFonts.roboto(
+            color: enterTextColor
+          ),
+          onChanged: mOnchangedStr,
+          decoration: InputDecoration(
+            contentPadding: contentPadding,
+              prefixIcon: shouldPreIcon?Icon(
+                  mIcon,
+                color: Colors.white,
+              ):null,
+              border: InputBorder.none,
+              hintStyle: GoogleFonts.roboto(color: hintColor),
+              hintText: mTitle,
+              fillColor: mColor),
         ),
-        onChanged: mOnchangedStr,
-        decoration: InputDecoration(
-          contentPadding: contentPadding,
-            prefixIcon: shouldPreIcon?Icon(
-                mIcon,
-              color: Colors.white,
-            ):null,
-            border: InputBorder.none,
-            hintStyle: GoogleFonts.roboto(color: hintColor),
-            hintText: mTitle,
-            fillColor: mColor),
       ),
     );
   }
@@ -116,12 +116,13 @@ class CommonWidgets{
     mTitle = "Text",
     shouldOpocity = 0.8,
     callBack,
-    width = double.infinity
+    width = double.infinity,
+    mHeight = 50.0,
   }){
     return InkWell(
       onTap: callBack,
       child: Container(
-        height: 50.0,
+        height: mHeight,
         width: width,
         decoration: BoxDecoration(
           color: mColor.withOpacity(shouldOpocity),
@@ -283,7 +284,7 @@ class CommonWidgets{
               ):Container(),
               const SizedBox(width: 10.0,),
               Text(
-                title.toUpperCase(),
+                title,
                 style: GoogleFonts.roboto(
                     fontSize: 25.0,
                     fontWeight: FontWeight.w800,

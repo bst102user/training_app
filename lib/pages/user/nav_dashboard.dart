@@ -30,22 +30,34 @@ class NavDashboardState extends State<NavDashboard> with WidgetsBindingObserver{
       backgroundColor: Colors.transparent,
       items: [
         CustomNavigationBarItem(
-          icon: Icon(
-              Icons.home_outlined,
+            icon: Image.asset(
+                'assets/images/home.png',
               color: _currentIndex==0?Colors.white:Colors.white60,
-          )
+            )
+          // icon: Icon(
+          //     Icons.home_outlined,
+          //     color: _currentIndex==0?Colors.white:Colors.white60,
+          // )
         ),
         CustomNavigationBarItem(
-            icon: Icon(
-              Icons.chat_bubble_outline,
+            icon: Image.asset(
+                'assets/images/chat.png',
               color: _currentIndex==1?Colors.white:Colors.white60,
             )
+            // icon: Icon(
+            //   Icons.chat_bubble_outline,
+            //   color: _currentIndex==1?Colors.white:Colors.white60,
+            // )
         ),
         CustomNavigationBarItem(
-            icon: Icon(
-              Icons.person_outline,
-              color: _currentIndex==2?Colors.white:Colors.white60,
-            )
+          icon: Image.asset(
+              'assets/images/user.png',
+            color: _currentIndex==2?Colors.white:Colors.white60,
+          )
+            // icon: Icon(
+            //   Icons.person_outline,
+            //   color: _currentIndex==2?Colors.white:Colors.white60,
+            // )
         ),
       ],
       currentIndex: _currentIndex,

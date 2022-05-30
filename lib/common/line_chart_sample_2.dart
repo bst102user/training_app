@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:training_app/common/common_var.dart';
 
 class LineChartSample2 extends StatefulWidget {
   final List<FlSpot> flspot;
@@ -11,8 +12,8 @@ class LineChartSample2 extends StatefulWidget {
 
 class _LineChartSample2State extends State<LineChartSample2> {
   List<Color> gradientColors = [
-    const Color(0xff23b6e6),
-    const Color(0xff02d39a),
+    CommonVar.RED_BUTTON_COLOR,
+    CommonVar.RED_BUTTON_COLOR,
   ];
   List<int> xx = [2,4,9];
 
@@ -20,26 +21,11 @@ class _LineChartSample2State extends State<LineChartSample2> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        AspectRatio(
-          aspectRatio: 1.70,
-          child: Container(
-            decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(18),
-                ),
-                color: Color(0xff232d37)),
-            child: Padding(
-              padding: const EdgeInsets.only(
-                  right: 18.0, left: 12.0, top: 24, bottom: 12),
-              child: LineChart(
-                mainData(),
-              ),
-            ),
-          ),
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: LineChart(
+        mainData(),
+      ),
     );
   }
 
@@ -102,19 +88,19 @@ class _LineChartSample2State extends State<LineChartSample2> {
         verticalInterval: 50,
         getDrawingHorizontalLine: (value) {
           return FlLine(
-            color: const Color(0xff37434d),
+            color: Colors.transparent,
             strokeWidth: 1,
           );
         },
         getDrawingVerticalLine: (value) {
           return FlLine(
-            color: const Color(0xff37434d),
+            color: Colors.transparent,
             strokeWidth: 1,
           );
         },
       ),
       titlesData: FlTitlesData(
-        show: true,
+        show: false,
         rightTitles: AxisTitles(
           sideTitles: SideTitles(showTitles: false),
         ),
@@ -154,13 +140,13 @@ class _LineChartSample2State extends State<LineChartSample2> {
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
-          barWidth: 5,
+          barWidth: 3,
           isStrokeCapRound: true,
           dotData: FlDotData(
             show: false,
           ),
           belowBarData: BarAreaData(
-            show: true,
+            show: false,
             gradient: LinearGradient(
               colors: gradientColors
                   .map((color) => color.withOpacity(0.3))

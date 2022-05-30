@@ -8,76 +8,9 @@ import 'package:training_app/splash_screen.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 
-// FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-// final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
-//
-// Widget? openView;
-//
-// void configLocalNotification() {
-//   var initializationSettingsAndroid = const AndroidInitializationSettings('app_icon');
-//   var initializationSettingsIOS = const IOSInitializationSettings();
-//   var initializationSettings = InitializationSettings(android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
-//   flutterLocalNotificationsPlugin.initialize(initializationSettings);
-// }
-//
-// void showNotification(String title, String message, String payload) async {
-//   // var message = {'title':'ii','body':'yyyy'};
-//   //json.decode(message.data['data'])['title'])
-//   // var message = json.encode(mJson);
-//   var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-//     Platform.isAndroid ? 'com.dfa.flutterchatdemo' : 'com.duytq.flutterchatdemo',
-//     'Flutter chat demo',
-//     playSound: true,
-//     enableVibration: true,
-//     importance: Importance.max,
-//     priority: Priority.high,
-//   );
-//   var iOSPlatformChannelSpecifics = const IOSNotificationDetails();
-//   var platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics,
-//       iOS: iOSPlatformChannelSpecifics /*androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics*/);
-//   await flutterLocalNotificationsPlugin.show(
-//       0, title,message, platformChannelSpecifics,
-//       payload: payload);
-// }
+const apiKey = "AIzaSyAgseBhE7uD3XlhDWF2oh7W5xYuYU1ZjqY";
 
-// void registerNotification() {
-//   firebaseMessaging.requestPermission();
-//   // message.notification.title
-//   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-//     print('onMessage: $message');
-//     try {
-//       if (message.data != null) {
-//         showNotification(
-//             'Message From Sportfood' , message.data['message'],
-//             message.messageId!);
-//       }
-//     }
-//     catch(e){
-//       showNotification(
-//           (message.notification!.title).toString(), (message.notification!.body).toString(),
-//           message.messageId!);
-//     }
-//     return;
-//   });
-//   FirebaseMessaging.onMessageOpenedApp.listen((event) {
-//     openView = ProfilePage();
-//   });
-
-  // FirebaseMessaging.instance.getInitialMessage().then((message){
-  //   if (message != null) {
-  //     openView = ProfilePage();
-  //   }
-  // });
-
-  // firebaseMessaging.getToken().then((token) {
-  //   print('push token: $token');
-  //   if (token != null) {
-  //     // homeProvider.updateDataFirestore(FirestoreConstants.pathUserCollection, currentUserId, {'pushToken': token});
-  //   }
-  // }).catchError((err) {
-  //   Fluttertoast.showToast(msg: err.message.toString());
-  // });
-// }
+const projectId = "trainingapp-f2ce0";
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();

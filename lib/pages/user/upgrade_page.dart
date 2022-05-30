@@ -58,14 +58,7 @@ class UpgradePageState extends State<UpgradePage>{
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
           child: ListView(
             children: [
-              Text(
-                'upgrade'.toUpperCase(),
-                style: GoogleFonts.roboto(
-                    color: Colors.white,
-                    fontSize: 25.0,
-                    fontWeight: FontWeight.w600
-                ),
-              ),
+              CommonWidgets.commonHeader(context, 'Upgrade'),
               CommonWidgets.mHeightSizeBox(height: 20.0),
               commonView('Actual Package'),
               commonView('Upgrade to Advance'),

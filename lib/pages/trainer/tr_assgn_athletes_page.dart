@@ -35,7 +35,7 @@ class TrAssgnAthletesPageState extends State<TrAssgnAthletesPage>{
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
           child: ListView(
             children: [
-              CommonWidgets.commonHeader(context, 'list athletes'.toUpperCase()),
+              CommonWidgets.commonHeader(context, 'List Athletes'.toUpperCase()),
               CommonWidgets.mHeightSizeBox(height: 20.0),
               FutureBuilder(
                 future: CommonMethods.getUserId(),

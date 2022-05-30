@@ -193,11 +193,12 @@ class AddRaceState extends State<AddRace>{
                 CommonWidgets.commonHeader(context,titleStr),
                 CommonWidgets.mHeightSizeBox(height: 25.0),
                 CommonWidgets.commonTextField(
-                    mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
-                    mIcon: Icons.person,
-                    mTitle: 'Name',
+                  mColor: CommonVar.BLACK_TEXT_FIELD_COLOR2,
+                  mIcon: Icons.person,
+                  mTitle: 'Name',
                   mController: nameCtrl,
-                  keybordType: TextInputType.text
+                  keybordType: TextInputType.text,
+                  mHeight: MediaQuery.of(context).size.height*0.1
                 ),
                 CommonWidgets.mHeightSizeBox(),
                 CommonWidgets.containerLikeTextField(
@@ -207,7 +208,8 @@ class AddRaceState extends State<AddRace>{
                     callBack: (){
                       isFirstDay = true;
                       _selectDate(context);
-                    }
+                    },
+                    mHeight: MediaQuery.of(context).size.height*0.1
                 ),
                 CommonWidgets.mHeightSizeBox(),
                 CommonWidgets.containerLikeTextField(
@@ -217,7 +219,8 @@ class AddRaceState extends State<AddRace>{
                     callBack: (){
                       isFirstDay = false;
                       _selectDate(context);
-                    }
+                    },
+                    mHeight: MediaQuery.of(context).size.height*0.1
                 ),
                 CommonWidgets.mHeightSizeBox(),
                 CommonWidgets.commonTextField(
@@ -225,7 +228,8 @@ class AddRaceState extends State<AddRace>{
                     mIcon: Icons.edit_road,
                     mTitle: 'Distance',
                     mController: distanceCtrl,
-                    keybordType: TextInputType.number
+                    keybordType: TextInputType.number,
+                    mHeight: MediaQuery.of(context).size.height*0.1
                 ),
                 CommonWidgets.mHeightSizeBox(),
                 CommonWidgets.commonTextField(
@@ -233,7 +237,8 @@ class AddRaceState extends State<AddRace>{
                     mIcon: Icons.merge_type,
                     mTitle: 'Vertical Meter',
                     mController: verMetCtrl,
-                    keybordType: TextInputType.number
+                    keybordType: TextInputType.number,
+                    mHeight: MediaQuery.of(context).size.height*0.1
                 ),
                 CommonWidgets.mHeightSizeBox(),
                 CommonWidgets.commonTextField(
@@ -241,7 +246,8 @@ class AddRaceState extends State<AddRace>{
                     mIcon: Icons.grade_outlined,
                     mTitle: 'Goal',
                     mController: goalCtrl,
-                    keybordType: TextInputType.text
+                    keybordType: TextInputType.text,
+                    mHeight: MediaQuery.of(context).size.height*0.1
                 ),
                 CommonWidgets.mHeightSizeBox(),
                 CommonWidgets.commonTextField(
@@ -249,7 +255,8 @@ class AddRaceState extends State<AddRace>{
                     mIcon: Icons.priority_high,
                     mTitle: 'Priority',
                     mController: priorityCtrl,
-                    keybordType: TextInputType.text
+                    keybordType: TextInputType.text,
+                    mHeight: MediaQuery.of(context).size.height*0.1
                 ),
                 CommonWidgets.mHeightSizeBox(),
                 CommonWidgets.containerLikeTextField(
@@ -259,7 +266,8 @@ class AddRaceState extends State<AddRace>{
                     callBack: (){
                       // isFirstDay = true;
                       _selectArrival(context);
-                    }
+                    },
+                    mHeight: MediaQuery.of(context).size.height*0.1
                 ),
                 CommonWidgets.mHeightSizeBox(),
                 CommonWidgets.containerLikeTextField(
@@ -269,7 +277,8 @@ class AddRaceState extends State<AddRace>{
                     callBack: (){
                       isFirstDay = true;
                       _selectDeparture(context);
-                    }
+                    },
+                    mHeight: MediaQuery.of(context).size.height*0.1
                 ),
                 CommonWidgets.mHeightSizeBox(height: 20.0),
                 CommonWidgets.commonButton(buttonName,(){
@@ -282,9 +291,9 @@ class AddRaceState extends State<AddRace>{
                     CommonMethods.getUserId().then((userId){
                       addOrUpdateRace(ApiInterface.UPDATE_RACE+'/'+widget.canData.id+'/'+userId);
                     });
-
                   }
-                })
+                },
+                mHeight: MediaQuery.of(context).size.height*0.07)
               ],
             ),
           ),

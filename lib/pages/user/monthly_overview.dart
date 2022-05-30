@@ -130,7 +130,7 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.only(top: 20.0,left: 20.0),
-                child: CommonWidgets.commonHeader(context, 'monthly overview'),
+                child: CommonWidgets.commonHeader(context, 'Monthly Overview'),
               ),
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 16.0),
@@ -283,7 +283,7 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
                           if(myMap['data'].runtimeType == bool){
                             return Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 20.0,vertical: 20.0),
-                              child: CommonWidgets.commonButton('Training time in this month\n0 minutes', () { },iconData: Icons.motorcycle),
+                              child: CommonWidgets.commonButton('Training time in this month\n0 minutes', () { },iconData: Image.asset('assets/images/bicycle_icon.png'),mHeight: 60.0),
                             );
                           }
                           else{
@@ -298,7 +298,9 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
                             }
                             return Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 20.0,vertical: 20.0),
-                              child: CommonWidgets.commonButton('Training time in this month\n'+timeInt.toString()+ ' minutes', () { },iconData: Icons.motorcycle),
+                              child: CommonWidgets.commonButton('Training time in this month\n'+timeInt.toString()+ ' minutes', () { },
+                                  iconData: Image.asset('assets/images/bicycle_icon.png'),
+                                  mHeight: 60.0),
                             );
                           }
                         }
@@ -370,30 +372,7 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
                                   TimeSeriesSales tss = TimeSeriesSales(listData[i].dates,int.parse(listData[i].totalRainingstime));
                                   mData.add(tss);
                                 }
-                                // return TimeSeriesLineAnnotationChart(_createSampleData(mData));
                                 return LineChartSample2(mFlSpot);
-                                // return DChartLine(
-                                //   data: [
-                                //     {
-                                //       'id': 'Bar',
-                                //       'data': showVal,
-                                //     },
-                                //   ],
-                                //   lineColor: (lineData, index, id) => CommonVar.RED_BUTTON_COLOR,
-                                //   includePoints: true,
-                                  // domainLabelPaddingToAxisLine: 16,
-                                  // axisLineTick: 2,
-                                  // axisLinePointTick: 2,
-                                  // axisLinePointWidth: 8,
-                                  // axisLineColor: CommonVar.RED_BUTTON_COLOR,
-                                  // measureLabelPaddingToAxisLine: 16,
-                                  // barColor: (barData, index, id) => CommonVar.RED_BUTTON_COLOR,
-                                  // barValue: (barData, index) => '${barData['measure']}',
-                                  // barValueColor: Colors.white,
-                                  // showBarValue: true,
-                                  // barValuePosition: BarValuePosition.auto,
-                                  // measureLabelColor: Colors.white,
-                                  // domainLabelColor: Colors.white, lineColor: (Map<String, dynamic> lineData, int? index, String id) {  },
                               }
                             }
                           },

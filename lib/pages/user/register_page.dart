@@ -160,7 +160,7 @@ class RegisterPageState extends State<RegisterPage>{
             color: Colors.black,
             image: DecorationImage(
               image: AssetImage(
-                "assets/images/profile.png",
+                "assets/images/profile_back.png",
               ),
               fit: BoxFit.fill,
             ),

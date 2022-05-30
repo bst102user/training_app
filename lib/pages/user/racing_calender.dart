@@ -47,7 +47,7 @@ class RacingCalenderState extends State<RacingCalender>{
                   });
                 },
                 child: Container(
-                  height: 50.0,
+                  height: MediaQuery.of(context).size.height*0.1,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: CommonVar.BLACK_TEXT_FIELD_COLOR2.withOpacity(0.8),
@@ -61,6 +61,7 @@ class RacingCalenderState extends State<RacingCalender>{
                       const Icon(
                         Icons.add_circle,
                         color: Colors.white,
+                        size: 30.0,
                       ),
                       CommonWidgets.mWidthSizeBox(width: 20.0),
                       Text(

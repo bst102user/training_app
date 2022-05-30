@@ -24,7 +24,7 @@ class EditProfileState extends State<EditProfile>{
             color: Colors.black,
             image: DecorationImage(
               image: AssetImage(
-                  "assets/images/profile.png",
+                  "assets/images/profile_back.png",
               ),
               fit: BoxFit.fill,
             ),

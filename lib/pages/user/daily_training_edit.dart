@@ -1,15 +1,21 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:training_app/common/api_interface.dart';
 import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
+import 'package:http/http.dart' as http;
+import 'package:training_app/firebase/keys.dart';
 
 class DatlyTrainingEdit extends StatefulWidget{
   final List dailyTrainDatum;
@@ -44,10 +50,13 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
   String weightTop = '';
   String tttTop = '';
   String commentTop = '';
+  CollectionReference collectionRef = FirebaseFirestore.instance.collection('users');
+  Map? trainerMap;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    getTrainerToken();
     for(int i=0;i<widget.dailyTrainDatum.length;i++){
       TextEditingController wc = TextEditingController();
       TextEditingController wc1 = TextEditingController();
@@ -92,6 +101,49 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
     commentTop = widget.otherTopData[0].aComment;
   }
 
+  Future<dynamic> getData() async {
+    // Get docs from collection reference
+    QuerySnapshot querySnapshot = await collectionRef.get();
+
+    // Get data from docs and convert map to List
+    final allData = querySnapshot.docs.map((doc) => doc.data()).toList();
+
+    print(allData);
+
+    return allData;
+  }
+  Future<dynamic> getCurrentUser()async{
+    List<String> sharePrefValue = [];
+    SharedPreferences mPref = await SharedPreferences.getInstance();
+    String emailStr = mPref.getString('user_email') as String;
+    String userId = mPref.getString('user_id') as String;
+    String trainerId = mPref.getString('trainer_id') as String;
+    sharePrefValue.add(emailStr);
+    sharePrefValue.add(userId);
+    sharePrefValue.add(trainerId);
+    return sharePrefValue;
+  }
+  getTrainerToken()async {
+    List usersList = await getData();
+    List<String> prefVal = await getCurrentUser();
+    for(int index=0;index<usersList.length;index++){
+      if(usersList[index]['user_type'] == 'trainer' && usersList[index]['trainer_id'] == prefVal[2]){
+        trainerMap = usersList[index];
+        print(trainerMap);
+      }
+    }
+  }
+
+  Future<List<String>> getUserAndTrainerId()async{
+    List<String> savedData = [];
+    SharedPreferences mPref = await SharedPreferences.getInstance();
+    String userId = mPref.getString('user_id') as String;
+    String trainerId = mPref.getString('trainer_id') as String;
+    savedData.add(userId);
+    savedData.add(trainerId);
+    return savedData;
+  }
+
   saveFullData()async{
     CommonMethods.showAlertDialog(context);
     List<Map> allIntervalMap = [];
@@ -118,6 +170,18 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
     Response myResponse = await CommonMethods.commonPostApiData(ApiInterface.UPDATE_DAILY_TRAINING+userId, outerMap);
     Map resMap = json.decode(myResponse.data);
     Navigator.pop(context);
+    sendAndRetrieveMessage(
+        trainerMap!['auth_token'], "Data Saved",
+        'Training data has been saved');
+    Map notifSendMap = {
+      "title": "File Data Saved",
+      "message": "Training data has been saved"
+    };
+    List<String> detailData = await getUserAndTrainerId();
+    Response myRes = await CommonMethods
+        .commonPostApiData(
+        ApiInterface.NOTIF_TO_TRAINER + detailData[0] +
+            '/' + detailData[1], notifSendMap);
     CommonMethods.getDialoge('Your changes has been saved',intTitle: 2,voidCallback: (){
       Navigator.pop(context);
       Navigator.pop(context);
@@ -129,6 +193,46 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
       return false;
     }
     return double.tryParse(s) != null;
+  }
+
+  Future<Map<String, dynamic>> sendAndRetrieveMessage(String token,String title,String body) async {
+    var url = 'https://fcm.googleapis.com/fcm/send';
+    Uri mUri = Uri.parse(url);
+    var res = await http.post(
+      mUri,
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization': 'key=$MY_SERVER_KEY',
+      },
+      body: jsonEncode(
+        <String, dynamic>{
+          'notification': <String, dynamic>{
+            'body': body,
+            'title': title
+          },
+          'priority': 'high',
+          'data': <String, dynamic>{
+            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+            'id': '1',
+            'status': 'done',
+            'navigate' : 'notification'
+          },
+          'to': token,
+        },
+      ),
+    );
+
+    print(res);
+    final Completer<Map<String, dynamic>> completer = Completer<Map<String, dynamic>>();
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage? message) {
+      if (message != null) {
+        print(message);
+      }
+    });
+
+    return completer.future;
   }
 
   @override
@@ -167,7 +271,7 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                         ),
                         const SizedBox(width: 10.0,),
                         Text(
-                          'edit training'.toUpperCase(),
+                          'Edit Training',
                           style: GoogleFonts.roboto(
                               fontSize: 25.0,
                               fontWeight: FontWeight.w800,
@@ -189,7 +293,7 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                           size: 30.0,
                         ),
                         Text(
-                          'Save'.toUpperCase(),
+                          'Save',
                           style: GoogleFonts.roboto(
                               color: Colors.white
                           ),
@@ -221,7 +325,8 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                               mTitle: widget.otherTopData[0].aWeight.isEmpty?'Weight':widget.otherTopData[0].aWeight,
                               keybordType: TextInputType.text,
                               mController: weightUpCtrl,
-                              hintColor: Colors.grey
+                              hintColor: Colors.grey,
+                              mHeight: MediaQuery.of(context).size.height*0.07
                           ),
                           const SizedBox(height: 10.0,),
                           Text('Total Training Time',
@@ -237,7 +342,8 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                               mTitle: (widget.otherTopData[0].totalTrainingstime).isEmpty?'Total Training Time':widget.otherTopData[0].totalTrainingstime,
                               keybordType: TextInputType.text,
                               mController: trainingEstimateCtrl,
-                              hintColor: Colors.grey
+                              hintColor: Colors.grey,
+                              mHeight: MediaQuery.of(context).size.height*0.07
                           ),
                           const SizedBox(height: 10.0,),
                           Text('Comment',
@@ -253,7 +359,8 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                               mTitle: widget.otherTopData[0].aComment.isEmpty?'Comment':widget.otherTopData[0].aComment,
                               keybordType: TextInputType.text,
                               mController: commentCtrl,
-                              hintColor: Colors.grey
+                              hintColor: Colors.grey,
+                              mHeight: MediaQuery.of(context).size.height*0.07
                           ),
                         ],
                       ),
@@ -294,7 +401,8 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                                     shouldPreIcon: false,
                                     contentPadding: const EdgeInsets.all(10.0),
                                     mController: wattCtrl[index],
-                                    hintColor: Colors.grey
+                                    hintColor: Colors.grey,
+                                    mHeight: MediaQuery.of(context).size.height*0.07
                                 ),
                                 const SizedBox(height: 10.0,),
                                 Text(
@@ -314,7 +422,8 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                                     shouldPreIcon: false,
                                     contentPadding: const EdgeInsets.all(10.0),
                                     mController: pulseCtrl[index],
-                                    hintColor: Colors.grey
+                                    hintColor: Colors.grey,
+                                    mHeight: MediaQuery.of(context).size.height*0.07
                                 ),
                                 const SizedBox(height: 10.0,),
                                 Text(
@@ -334,7 +443,8 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                                     shouldPreIcon: false,
                                     contentPadding: const EdgeInsets.all(10.0),
                                     mController: avgPower[index],
-                                    hintColor: Colors.grey
+                                    hintColor: Colors.grey,
+                                    mHeight: MediaQuery.of(context).size.height*0.07
                                 ),
                                 const SizedBox(height: 10.0,),
                                 Text(
@@ -354,7 +464,8 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                                     shouldPreIcon: false,
                                     contentPadding: const EdgeInsets.all(10.0),
                                     mController: codenceCtrl[index],
-                                    hintColor: Colors.grey
+                                    hintColor: Colors.grey,
+                                    mHeight: MediaQuery.of(context).size.height*0.07
                                 ),
                                 const SizedBox(height: 10.0,),
                                 Text(
@@ -374,7 +485,8 @@ class DatlyTrainingEditState extends State<DatlyTrainingEdit>{
                                     shouldPreIcon: false,
                                     contentPadding: const EdgeInsets.all(10.0),
                                     mController: timeEstimateCtrl[index],
-                                    hintColor: Colors.grey
+                                    hintColor: Colors.grey,
+                                    mHeight: MediaQuery.of(context).size.height*0.07
                                 ),
                                 const SizedBox(height: 10.0,),
 

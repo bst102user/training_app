@@ -53,6 +53,8 @@ class ChatRoomState extends State<ChatRoom>{
     // configLocalNotification();
   }
 
+
+
   void configLocalNotification() {
     var initializationSettingsAndroid = const AndroidInitializationSettings('app_icon');
     var initializationSettingsIOS = const IOSInitializationSettings();
@@ -335,12 +337,13 @@ class ChatRoomState extends State<ChatRoom>{
     return SafeArea(
       child: Scaffold(
         body: Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage("assets/images/cycle_blur.png"),
-              fit: BoxFit.cover,
-            ),
-          ),
+          color: CommonVar.BLACK_TEXT_FIELD_COLOR,
+          // decoration: const BoxDecoration(
+          //   image: DecorationImage(
+          //     image: AssetImage("assets/images/cycle_blur.png"),
+          //     fit: BoxFit.cover,
+          //   ),
+          // ),
           child: Stack(
             children: [
               Align(
@@ -358,8 +361,20 @@ class ChatRoomState extends State<ChatRoom>{
                           if (snapshot.data != null) {
                             return Container(
                               child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const SizedBox(width: 30.0,),
+                                  const SizedBox(width: 10.0,),
+                                  widget.userMap['user_type']!='trainer'?InkWell(
+                                    onTap: ()=>Navigator.pop(context),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Icon(
+                                          Icons.arrow_back_ios_rounded,
+                                          color: Colors.white,
+                                      ),
+                                    ),
+                                  ):Container(),
+                                  const SizedBox(width: 10.0,),
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -436,39 +451,90 @@ class ChatRoomState extends State<ChatRoom>{
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SizedBox(
-                          height: 40.0,
+                          height: 50.0,
                           width: size.width / 1.3,
-                          child: TextFormField(
-                            controller: _message,
-                            keyboardType: TextInputType.text,
+                          child: TextField(
+                              style: const TextStyle(color: Colors.white),
+                              controller: _message,
+                              keyboardType: TextInputType.text,
                             decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.transparent,
                               hintText: 'Type a message..',
-                              hintStyle: const TextStyle(fontSize: 16),
+                              hintStyle: const TextStyle(
+                                fontSize: 16.0,
+                              fontWeight: FontWeight.w300, // light
+                              fontStyle: FontStyle.italic,
+                                color: Colors.white// italic
+                            ),
                               suffixIcon: IconButton(
                                 onPressed: () => showDialogWithFields(),
                                 icon: const Icon(
                                   Icons.attach_file,
-                                  color: CommonVar.RED_BUTTON_COLOR,),
+                                  color: Colors.white,),
                               ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(
-                                  width: 0,
-                                  style: BorderStyle.none,
-                                ),
+                              focusedBorder: const OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(10)),
+                                borderSide: BorderSide(width: 1,color: Colors.white),
                               ),
-                              filled: true,
-                              contentPadding: const EdgeInsets.all(16),
-                              fillColor: Colors.white,
+                              enabledBorder: const OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(10)),
+                                borderSide: BorderSide(width: 1,color: Colors.white),
+                              ),
+                              border: const OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                                  borderSide: BorderSide(width: 1,)
+                              ),
+                            )
+                          ),
+                          // child: TextFormField(
+                          //   controller: _message,
+                          //   keyboardType: TextInputType.text,
+                          //   decoration: InputDecoration(
+                          //     hintText: 'Type a message..',
+                          //     hintStyle: const TextStyle(fontSize: 16),
+                          //     suffixIcon: IconButton(
+                          //       onPressed: () => showDialogWithFields(),
+                          //       icon: const Icon(
+                          //         Icons.attach_file,
+                          //         color: CommonVar.RED_BUTTON_COLOR,),
+                          //     ),
+                          //     border: OutlineInputBorder(
+                          //       borderRadius: BorderRadius.circular(8),
+                          //       borderSide: const BorderSide(
+                          //         width: 0,
+                          //         style: BorderStyle.none,
+                          //       ),
+                          //     ),
+                          //     filled: true,
+                          //     contentPadding: const EdgeInsets.all(16),
+                          //     fillColor: Colors.white,
+                          //   ),
+                          // ),
+                        ),
+                        // IconButton(
+                        //     icon: const Icon(
+                        //       Icons.send,
+                        //       color: Colors.white,
+                        //       size: 30.0,
+                        //     ), onPressed: onSendMessage),
+                        const SizedBox(width: 20.0,),
+                        InkWell(
+                          onTap: onSendMessage,
+                          child: Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: CommonVar.RED_BUTTON_COLOR,
+                            ),
+                            child: Image.asset(
+                                'assets/images/chat_arow.png',
+                              color: Colors.white,
+                              height: 25.0,
+                              width: 25.0,
                             ),
                           ),
-                        ),
-                        IconButton(
-                            icon: const Icon(
-                              Icons.send,
-                              color: Colors.white,
-                              size: 30.0,
-                            ), onPressed: onSendMessage),
+                        )
                       ],
                     ),
                   ),

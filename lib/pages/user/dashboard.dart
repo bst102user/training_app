@@ -125,7 +125,7 @@ class DashboardState extends State<Dashboard>{
       children: [
         Container(
             width: double.infinity,
-            height: 80.0,
+            height: MediaQuery.of(context).size.height*0.11,
             decoration: BoxDecoration(
                 border: Border.all(
                     color: Colors.white,
@@ -174,7 +174,7 @@ class DashboardState extends State<Dashboard>{
               ],
             )
         ),
-        const SizedBox(height: 5.0,),
+        SizedBox(height: MediaQuery.of(context).size.height*0.03,),
       ],
     );
   }
@@ -216,7 +216,7 @@ class DashboardState extends State<Dashboard>{
           child: ListView(
             children: [
               Text(
-                'Dashboard'.toUpperCase(),
+                'Dashboard',
                 style: GoogleFonts.roboto(
                     fontSize: 25.0,
                     fontWeight: FontWeight.w800,
@@ -293,7 +293,6 @@ class DashboardState extends State<Dashboard>{
                                   dataList[1]+' '+dataList[2],
                                   style: GoogleFonts.roboto(
                                       fontSize: 20.0,
-                                      fontWeight: FontWeight.w800,
                                       color: Colors.white
                                   ),
                                 ),
@@ -438,7 +437,11 @@ class DashboardState extends State<Dashboard>{
                   CommonWidgets.mHeightSizeBox(height: 30.0),
                   CommonWidgets.commonButton('Monthly Overview', () {
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>MonthlyOverview(toHighlight)));
-                  },iconData: Icons.calendar_today),
+                  },
+                      iconData: const Icon(Icons.calendar_today,
+                      color: Colors.white,),
+                      mHeight: 65.0,
+                      iconSize: 30.0),
                   CommonWidgets.mHeightSizeBox(height: 20.0),
                   FutureBuilder(
                     future: CommonMethods.getUserId(),
@@ -500,6 +503,7 @@ class DashboardState extends State<Dashboard>{
                                         color: Colors.white,
                                       ),
                                     ),
+                                    SizedBox(height: MediaQuery.of(context).size.height*0.01,),
                                     SizedBox(
                                       height: MediaQuery.of(context).size.height*0.4,
                                       child: ListView.builder(

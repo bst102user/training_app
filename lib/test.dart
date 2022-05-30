@@ -17,7 +17,7 @@ class TrAssgnAthletesPageState extends State<TrAssgnAthletesPage>{
     return Scaffold(
       body: ListView(
         children: [
-          CommonWidgets.commonHeader(context, 'list athletes'),
+          CommonWidgets.commonHeader(context, 'List Athletes'),
           FutureBuilder(
             future: CommonMethods.getRequest(ApiInterface.LIST_ATHLETES+'/8', context),
             builder: (context, snapshot){
