@@ -215,7 +215,7 @@ class LoginPageState extends State<LoginPage> {
                                         'Remember Me',
                                         style: GoogleFonts.roboto(
                                             color: Colors.white,
-                                            fontSize: 15.0
+
                                         ),
                                       )
                                     ],
@@ -273,7 +273,6 @@ class LoginPageState extends State<LoginPage> {
                                     style: GoogleFonts.roboto(
                                         color: Colors.white,
                                         decoration: TextDecoration.underline,
-                                        fontSize: 18.0
                                     ),
                                   ),
                                 ),

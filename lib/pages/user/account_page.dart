@@ -13,6 +13,9 @@ import 'document_page.dart';
 import 'profile_page.dart';
 import 'racing_calender.dart';
 import 'upgrade_page.dart';
+import 'dart:io' show Platform;
+
+
 
 class AccountPage extends StatefulWidget{
   final bool isBackIcon;
@@ -62,7 +65,9 @@ class AccountPageState extends State<AccountPage>{
     // TODO: implement build
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: Platform.isMacOS?const BoxDecoration(
+          color: CommonVar.BLACK_BG_BG_COLOR,
+        ):const BoxDecoration(
           color: Colors.black,
           image: DecorationImage(
             image: AssetImage(

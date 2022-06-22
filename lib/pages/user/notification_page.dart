@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
@@ -39,7 +40,6 @@ class NotificationPageState extends State<NotificationPage>{
           key,
           style: GoogleFonts.roboto(
               color: Colors.white,
-              fontSize: 20.0,
               fontWeight: FontWeight.w600
           ),
         ),
@@ -60,7 +60,9 @@ class NotificationPageState extends State<NotificationPage>{
     // TODO: implement build
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: Platform.isMacOS?const BoxDecoration(
+          color: CommonVar.BLACK_BG_BG_COLOR,
+        ):const BoxDecoration(
           color: Colors.black,
           image: DecorationImage(
             image: AssetImage(
@@ -122,7 +124,7 @@ class NotificationPageState extends State<NotificationPage>{
                                           listData[index].title,
                                           style: GoogleFonts.roboto(
                                               color: Colors.white,
-                                              fontSize: 20.0,
+                                              fontSize: 17.0,
                                               fontWeight: FontWeight.w600
                                           ),
                                         ),

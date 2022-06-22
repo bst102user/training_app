@@ -7,52 +7,102 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:training_app/common/api_interface.dart';
-import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_var.dart';
 import 'package:training_app/firebase/firebase_api.dart';
 import 'package:training_app/firebase/keys.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 import 'package:flutter/cupertino.dart';
 
-class ChatRoom extends StatefulWidget {
-  ChatRoomState createState() => ChatRoomState();
+
+class ChatRoomForMac extends StatefulWidget {
+  ChatRoomForMacState createState() => ChatRoomForMacState();
   final Map<String, dynamic> userMap;
   final String chatRoomId;
+
   final bool isSetNavigation;
-  ChatRoom({required this.chatRoomId, required this.userMap, required this.isSetNavigation});
+  ChatRoomForMac({required this.chatRoomId, required this.userMap, required this.isSetNavigation});
 }
 
-class ChatRoomState extends State<ChatRoom>{
+class ChatRoomForMacState extends State<ChatRoomForMac>{
   final TextEditingController _message = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final ScrollController _controller = ScrollController();
   final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
   File? imageFile;
   File? file;
   UploadTask? task;
   bool load = false;
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // registerNotification();
+    // configLocalNotification();
+  }
+
+  Future<File> testCompressAndGetFile(File file, String targetPath) async {
+    var result = await FlutterImageCompress.compressAndGetFile(
+      file.absolute.path,
+      targetPath,
+      quality: 70,
+      rotate: 0,
+    );
+    print(file.lengthSync());
+    return result!;
+  }
+
+  void generateFileToUrl(BuildContext context,File imageFile) async{
+    // Navigator.pop(context);
+    // final picker = ImagePicker();
+    // final pickedFile = await picker.getImage(source: ImageSource.gallery);
+    // imageFile = File(pickedFile!.path);
+    // final dir = await path_provider.getTemporaryDirectory();
+    // final tempTargetPath = dir.absolute.path + "/temp.jpg";
+    // File compressFile = await testCompressAndGetFile(imageFile, tempTargetPath);
+    // String userId = await CommonMethods.getUserId();
+    //create multipart request for POST or PATCH method
+    var request = http.MultipartRequest("POST", Uri.parse('https://teamwebdevelopers.com/sportsfood/api/image/6'));
+    var pic = await http.MultipartFile.fromPath("sendimage", imageFile.path);
+    //add multipart to request
+    request.files.add(pic);
+    var response = await request.send();
+    setState(() {
+      load = false;
+    });
+    //Get the response from the server
+    var responseData = await response.stream.toBytes();
+    var responseString = String.fromCharCodes(responseData);
+    print(responseString);
+    _message.text = responseString;
+  }
+
+
+
   void configLocalNotification() {
     var initializationSettingsAndroid = const AndroidInitializationSettings('app_icon');
     var initializationSettingsIOS = const IOSInitializationSettings();
-    var initializationSettings = InitializationSettings(android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+    var initializationSettingsMacOS = const MacOSInitializationSettings();
+    var initializationSettings = InitializationSettings(android: initializationSettingsAndroid,
+        iOS: initializationSettingsIOS,
+        macOS: initializationSettingsMacOS
+    );
     flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
-
   void registerNotification() {
     firebaseMessaging.requestPermission();
+
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print('onMessage: $message');
       if (message.notification != null) {
@@ -64,13 +114,12 @@ class ChatRoomState extends State<ChatRoom>{
     firebaseMessaging.getToken().then((token) {
       print('push token: $token');
       if (token != null) {
-
+        // homeProvider.updateDataFirestore(FirestoreConstants.pathUserCollection, currentUserId, {'pushToken': token});
       }
     }).catchError((err) {
       Fluttertoast.showToast(msg: err.message.toString());
     });
   }
-
   void showNotification(message) async {
     // var message = {'title':'ii','body':'yyyy'};
     // var message = json.encode(mJson);
@@ -90,155 +139,129 @@ class ChatRoomState extends State<ChatRoom>{
         payload: json.encode(message));
   }
 
-  Future<String> getNames(String key)async{
-    SharedPreferences mPref = await SharedPreferences.getInstance();
-    return mPref.getString(key) as String;
-  }
 
   Future selectFile() async {
     load = true;
-    final result = await FilePicker.platform.pickFiles(allowMultiple: false);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'pdf', 'doc', 'png', 'jpeg'],);
 
+    print('Download-Link: $result');
     if (result == null) return;
     final path = result.files.single.path!;
-
-    setState(() => file = File(path));
-
-    final fileName = basename(file!.path);
-    final destination = 'files/$fileName';
-
-    task = FirebaseApi.uploadFile(destination, file!);
-    setState(() {});
-
-    if (task == null) return;
-
-    final snapshot = await task!.whenComplete(() {});
-    final urlDownload = await snapshot.ref.getDownloadURL();
-
-    print('Download-Link: $urlDownload');
+    print('path $path');
+    // setState(() => file = File(path));
     setState(() {
-      load = false;
+      file = File(path);
+      imageFile = File(result.files.single.path!);
+      generateFileToUrl(this.context, file!);
     });
-    _message.text = urlDownload;
-    onSendMessage();
+    // if(imageFile!.path.split('.').last == 'jpeg'||imageFile!.path.split('.').last == 'jpg'||imageFile!.path.split('.').last == 'png'){
+    //   load = false;
+    //   uploadImage();
+    // }
+    // else{
+    //   final fileName = basename(file!.path);
+    //   final destination = 'files/$fileName';
+    //   print('fileName $fileName');
+    //   task = FirebaseApi.uploadFile(destination, file!);
+    //   setState(() {});
+    //   print('task $task');
+    //   if (task == null) return;
+    //
+    //   final snapshot = await task!.whenComplete(() {});
+    //   final urlDownload = await snapshot.ref.getDownloadURL();
+    //
+    //   print('Download-Linkmmmm: $urlDownload');
+    //   setState(() {
+    //     load = false;
+    //   });
+    //   _message.text = urlDownload;
+    //   onSendMessage();
+    // }
   }
 
   void _launchURL(String _url) async {
     if (!await launch(_url)) throw 'Could not launch $_url';
   }
 
-  uploadFiles(File files)async{
-    CommonMethods.showAlertDialog(this.context);
-    var postUri = Uri.parse(ApiInterface.UPLOAD_XLS_FILE);
-    http.MultipartRequest request = http.MultipartRequest("POST", postUri);
-    http.MultipartFile multipartFile = await http.MultipartFile.fromPath(
-        'sendfile', files.path);
-    request.files.add(multipartFile);
-    http.StreamedResponse response = await request.send();
-    print(response.statusCode);
-    if (response.statusCode == 200) {
-      Navigator.pop(this.context);
-      CommonMethods.showToast(this.context, 'Files uploaded');
-      Navigator.pop(this.context);
-    }
-  }
-
-  void showDialogWithFields() {
-    showDialog(
-      context: this.context,
-      builder: (_) {
-        return AlertDialog(
-          title: Text('Choose file type'),
-          content: Container(
-            height: 100.0,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                InkWell(
-                  onTap: (){
-                    getImage();
-                    Navigator.pop(this.context);
-                  },
-                  child: const Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: Text('Select image'),
-                  ),
-                ),
-                InkWell(
-                  onTap: (){
-                    selectFile();
-                    Navigator.pop(this.context);
-                  },
-                  child: const Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: Text('Select File'),
-                  ),
-                )
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(this.context),
-              child: const Text('Cancel'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future getImage() async {
-    ImagePicker _picker = ImagePicker();
-
-    await _picker.pickImage(source: ImageSource.gallery).then((xFile) {
-      if (xFile != null) {
-        imageFile = File(xFile.path);
-        uploadImage();
-      }
-    });
-  }
 
   Future uploadImage() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'pdf', 'doc', 'png', 'jpeg'],);
+
+    print('Download-Link: $result');
+    if (result == null) return;
+    final path = result.files.single.path!;
+    print('path $path');
+    // setState(() => file = File(path));
+    setState(() {
+      file = File(path);
+      imageFile = File(result.files.single.path!);
+    });
+
+
     String fileName = const Uuid().v1();
     int status = 1;
-    await _firestore
-        .collection('chatroom')
-        .doc(widget.chatRoomId)
-        .collection('chats')
-        .doc(fileName)
-        .set({
-      "sendby": _auth.currentUser!.uid,
-      "message": "",
-      "type": "img",
-      "time": FieldValue.serverTimestamp(),
-    });
 
-    var ref = FirebaseStorage.instance.ref().child('images').child("$fileName.jpg");
-    var ref2 = FirebaseStorage.instance.ref().child('files').child("$fileName.pdf");
-
-    var uploadTask = await ref.putFile(imageFile!).catchError((error) async {
+    if(imageFile!.path.split('.').last == 'jpeg'||imageFile!.path.split('.').last == 'jpg'||imageFile!.path.split('.').last == 'png'){
       await _firestore
           .collection('chatroom')
           .doc(widget.chatRoomId)
           .collection('chats')
           .doc(fileName)
-          .delete();
+          .set({
+        "sendby": _auth.currentUser!.uid,
+        "message": "",
+        "type": "img",
+        "time": FieldValue.serverTimestamp(),
+      });
+      var ref = FirebaseStorage.instance.ref().child('images').child("$fileName.jpg");
 
-      status = 0;
-    });
+      var uploadTask = await ref.putFile(imageFile!).catchError((error) async {
+        await _firestore
+            .collection('chatroom')
+            .doc(widget.chatRoomId)
+            .collection('chats')
+            .doc(fileName)
+            .delete();
 
-    if (status == 1) {
-      String imageUrl = await uploadTask.ref.getDownloadURL();
+        status = 0;
+      });
 
-      await _firestore
-          .collection('chatroom')
-          .doc(widget.chatRoomId)
-          .collection('chats')
-          .doc(fileName)
-          .update({"message": imageUrl});
-      sendAndRetrieveMessage(widget.userMap['auth_token']);
-      print(imageUrl);
+      if (status == 1) {
+        String imageUrl = await uploadTask.ref.getDownloadURL();
+
+        await _firestore
+            .collection('chatroom')
+            .doc(widget.chatRoomId)
+            .collection('chats')
+            .doc(fileName)
+            .update({"message": imageUrl});
+
+        print('lllllll'+imageUrl);
+      }
+    }
+    else{
+      load = false;
+      final fileName = basename(file!.path);
+      final destination = 'files/$fileName';
+      print('fileName $fileName');
+      task = FirebaseApi.uploadFile(destination, file!);
+      setState(() {});
+      print('task $task');
+      if (task == null) return;
+
+      final snapshot = await task!.whenComplete(() {});
+      final urlDownload = await snapshot.ref.getDownloadURL();
+
+      print('Download-Linkmmmm: $urlDownload');
+      setState(() {
+        load = false;
+      });
+      _message.text = urlDownload;
+      onSendMessage();
     }
   }
 
@@ -255,6 +278,7 @@ class ChatRoomState extends State<ChatRoom>{
         "time": FieldValue.serverTimestamp(),
       };
       sendAndRetrieveMessage(widget.userMap['auth_token']);
+      _message.clear();
       await _firestore
           .collection('chatroom')
           .doc(widget.chatRoomId)
@@ -268,15 +292,6 @@ class ChatRoomState extends State<ChatRoom>{
   Future<Map<String, dynamic>> sendAndRetrieveMessage(String token) async {
     var url = 'https://fcm.googleapis.com/fcm/send';
     Uri mUri = Uri.parse(url);
-    // Map<String, dynamic> toUserMap = {
-    //   'name' : widget.userMap['name'],
-    //   'lname' : widget.userMap['lname'],
-    // };
-    SharedPreferences mPref = await SharedPreferences.getInstance();
-    String fName = mPref.getString('user_fname') as String;
-    String lName = mPref.getString('user_lname') as String;
-    widget.userMap['name'] = fName;
-    widget.userMap['lname'] = lName;
     var res = await http.post(
       mUri,
       headers: <String, String>{
@@ -302,8 +317,8 @@ class ChatRoomState extends State<ChatRoom>{
         },
       ),
     );
+
     print(res);
-    _message.clear();
     final Completer<Map<String, dynamic>> completer = Completer<Map<String, dynamic>>();
     FirebaseMessaging.instance
         .getInitialMessage()
@@ -315,6 +330,7 @@ class ChatRoomState extends State<ChatRoom>{
 
     return completer.future;
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -359,8 +375,8 @@ class ChatRoomState extends State<ChatRoom>{
                                     child: const Padding(
                                       padding: EdgeInsets.all(8.0),
                                       child: Icon(
-                                          Icons.arrow_back_ios_rounded,
-                                          color: Colors.white,
+                                        Icons.arrow_back_ios_rounded,
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ):Container(),
@@ -368,38 +384,17 @@ class ChatRoomState extends State<ChatRoom>{
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      FutureBuilder(
-                                        future: getNames('ch_fname'),
-                                        builder: (context, namesnap){
-                                          if(snapshot.data == null){
-                                            return Text('');
-                                          }
-                                          else{
-                                            return FutureBuilder(
-                                              future: getNames('ch_lname'),
-                                              builder: (context,lnamesnap){
-                                                if(lnamesnap.data==null){
-                                                  return Text('');
-                                                }
-                                                else{
-                                                  return Text(namesnap.data.toString()+' '+lnamesnap.data.toString(),
-                                                    style: GoogleFonts.roboto(
-                                                        fontSize: 20.0,
-                                                        fontWeight: FontWeight.w600,
-                                                        color: Colors.white
-                                                    ),);
-                                                }
-                                              },
-                                            );
-                                          }
-                                        },
-                                      ),
-
+                                      Text(widget.userMap['name']+' '+widget.userMap['lname'],
+                                        style: GoogleFonts.roboto(
+                                            fontSize: 20.0,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white
+                                        ),),
                                       Text(
                                         snapshot.data!['status'],
                                         style: GoogleFonts.roboto(
                                             color: Colors.white,
-                                          fontSize: 12.0
+                                            fontSize: 12.0
                                         ),
                                       ),
                                       const Divider(
@@ -468,35 +463,35 @@ class ChatRoomState extends State<ChatRoom>{
                               style: const TextStyle(color: Colors.white),
                               controller: _message,
                               keyboardType: TextInputType.text,
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.transparent,
-                              hintText: 'Type a message..',
-                              hintStyle: const TextStyle(
-                                fontSize: 16.0,
-                              fontWeight: FontWeight.w300, // light
-                              fontStyle: FontStyle.italic,
-                                color: Colors.white// italic
-                            ),
-                              suffixIcon: IconButton(
-                                onPressed: () => showDialogWithFields(),
-                                icon: const Icon(
-                                  Icons.attach_file,
-                                  color: Colors.white,),
-                              ),
-                              focusedBorder: const OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(10)),
-                                borderSide: BorderSide(width: 1,color: Colors.white),
-                              ),
-                              enabledBorder: const OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(10)),
-                                borderSide: BorderSide(width: 1,color: Colors.white),
-                              ),
-                              border: const OutlineInputBorder(
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.transparent,
+                                hintText: 'Type a message..',
+                                hintStyle: const TextStyle(
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.w300, // light
+                                    fontStyle: FontStyle.italic,
+                                    color: Colors.white// italic
+                                ),
+                                suffixIcon: IconButton(
+                                  onPressed: () => uploadImage(),
+                                  icon: const Icon(
+                                    Icons.attach_file,
+                                    color: Colors.white,),
+                                ),
+                                focusedBorder: const OutlineInputBorder(
                                   borderRadius: BorderRadius.all(Radius.circular(10)),
-                                  borderSide: BorderSide(width: 1,)
-                              ),
-                            )
+                                  borderSide: BorderSide(width: 1,color: Colors.white),
+                                ),
+                                enabledBorder: const OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                                  borderSide: BorderSide(width: 1,color: Colors.white),
+                                ),
+                                border: const OutlineInputBorder(
+                                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                                    borderSide: BorderSide(width: 1,)
+                                ),
+                              )
                           ),
                         ),
                         const SizedBox(width: 20.0,),
@@ -508,14 +503,11 @@ class ChatRoomState extends State<ChatRoom>{
                               shape: BoxShape.circle,
                               color: CommonVar.RED_BUTTON_COLOR,
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(4.0),
-                              child: Image.asset(
-                                  'assets/images/chat_arow.png',
-                                color: Colors.white,
-                                height: 25.0,
-                                width: 25.0,
-                              ),
+                            child: Image.asset(
+                              'assets/images/chat_arow.png',
+                              color: Colors.white,
+                              height: 25.0,
+                              width: 25.0,
                             ),
                           ),
                         )
@@ -532,10 +524,10 @@ class ChatRoomState extends State<ChatRoom>{
     );
   }
 
-  Future<String> readTimestamp(Timestamp mMon)async {
+  String readTimestamp(Timestamp mMon) {
     var now = DateTime.now();
     var format = DateFormat('HH:mm');
-    int timestamp = await mMon.microsecondsSinceEpoch==null?0:mMon.microsecondsSinceEpoch;
+    int timestamp = mMon.microsecondsSinceEpoch==null?0:mMon.microsecondsSinceEpoch;
     var date = DateTime.fromMicrosecondsSinceEpoch(timestamp);
     var diff = date.difference(now);
     var time = '';
@@ -549,6 +541,7 @@ class ChatRoomState extends State<ChatRoom>{
         time = diff.inDays.toString() + 'days ago';
       }
     }
+
     return time;
   }
 
@@ -567,7 +560,7 @@ class ChatRoomState extends State<ChatRoom>{
             margin: EdgeInsets.only(top: 5.0,bottom: 5.0,left: map['sendby'] == _auth.currentUser!.uid?20.0:10.0,right: map['sendby'] == _auth.currentUser!.uid?10.0:20.0),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(10.0),
+                topLeft: const Radius.circular(10.0),
                 topRight: const Radius.circular(10.0),
                 bottomRight: map['sendby'] == _auth.currentUser!.uid?const Radius.circular(0.0):const Radius.circular(10.0),
                 bottomLeft: map['sendby'] == _auth.currentUser!.uid?const Radius.circular(10.0):const Radius.circular(0.0),
@@ -590,26 +583,15 @@ class ChatRoomState extends State<ChatRoom>{
               ),
             ),
           ),
-          FutureBuilder(
-            future: readTimestamp(map['time']),
-            builder: (context, snapshot){
-              if(snapshot.data == null){
-                return Text('');
-              }
-              else{
-                // return Text(snapshot.data as String);
-                return Padding(
-                  padding: EdgeInsets.only(left: map['sendby'] == _auth.currentUser!.uid?20:10, right: 5.0, bottom: 10.0),
-                  child: Text(//mList.docs[index].data()['time']
-                    snapshot.data as String,
-                    style: GoogleFonts.roboto(
-                        color: Colors.white,
-                        fontSize: 10.0
-                    ),
-                  ),
-                );
-              }
-            },
+          Padding(
+            padding: EdgeInsets.only(left: map['sendby'] == _auth.currentUser!.uid?20:10, right: 5.0, bottom: 10.0),
+            child: Text(//mList.docs[index].data()['time']
+              readTimestamp(map['time']),
+              style: GoogleFonts.roboto(
+                  color: Colors.white,
+                  fontSize: 10.0
+              ),
+            ),
           )
         ],
       ),
@@ -648,10 +630,13 @@ class ChatRoomState extends State<ChatRoom>{
 
 class ShowImage extends StatelessWidget {
   final String imageUrl;
+
   const ShowImage({required this.imageUrl, Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
+
     return Scaffold(
       body: Container(
         height: size.height,
@@ -662,5 +647,3 @@ class ShowImage extends StatelessWidget {
     );
   }
 }
-
-//

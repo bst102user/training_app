@@ -10,6 +10,9 @@ import 'package:training_app/firebase/screens/chat_room.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'dart:io' show Platform;
+
+import 'package:training_app/firebase/screens/chat_room_for_mac.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -163,14 +166,22 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                             children: [
                                               InkWell(
                                                 onTap:()async{
+                                                  SharedPreferences mPref = await SharedPreferences.getInstance();
+                                                  mPref.setString('ch_fname', usersList[index]['name']);
+                                                  mPref.setString('ch_lname', usersList[index]['lname']);
                                                   String roomId = chatRoomId(
                                                       _auth.currentUser!.uid,
                                                       usersList[index]['uid']);
                                                   Navigator.of(context).push(
                                                     MaterialPageRoute(
-                                                      builder: (_) => ChatRoom(
+                                                      builder: (_) => Platform.isMacOS?ChatRoomForMac(
                                                         chatRoomId: roomId,
                                                         userMap: usersList[index],
+                                                        isSetNavigation: true,
+                                                      ):ChatRoom(
+                                                        chatRoomId: roomId,
+                                                        userMap: usersList[index],
+                                                        isSetNavigation: true,
                                                       ),
                                                     ),
                                                   );

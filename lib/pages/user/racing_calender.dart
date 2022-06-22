@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,7 +25,9 @@ class RacingCalenderState extends State<RacingCalender>{
     // TODO: implement build
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: Platform.isMacOS?const BoxDecoration(
+          color: CommonVar.BLACK_BG_BG_COLOR,
+        ):const BoxDecoration(
           color: Colors.black,
           image: DecorationImage(
             image: AssetImage(
@@ -47,7 +51,7 @@ class RacingCalenderState extends State<RacingCalender>{
                   });
                 },
                 child: Container(
-                  height: MediaQuery.of(context).size.height*0.1,
+                  height: 50.0,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: CommonVar.BLACK_TEXT_FIELD_COLOR2.withOpacity(0.8),
@@ -67,7 +71,7 @@ class RacingCalenderState extends State<RacingCalender>{
                       Text(
                         'Add'.toUpperCase(),
                         style: GoogleFonts.roboto(
-                            fontSize: 18.0,
+                            fontSize: 17.0,
                             fontWeight: FontWeight.w600,
                             color: Colors.white
                         ),
@@ -127,8 +131,6 @@ class RacingCalenderState extends State<RacingCalender>{
                                                   Text(
                                                     allRaceDetum[i].name,
                                                     style: GoogleFonts.roboto(
-                                                        fontSize: 18.0,
-                                                        fontWeight: FontWeight.w600,
                                                         color: Colors.white
                                                     ),
                                                   ),
@@ -166,8 +168,7 @@ class RacingCalenderState extends State<RacingCalender>{
                                                   Text(
                                                     DateFormat('dd-MM-yyyy').format(allRaceDetum[i].updatedAt),
                                                     style: GoogleFonts.roboto(
-                                                        fontSize: 18.0,
-                                                        fontWeight: FontWeight.w600,
+
                                                         color: Colors.white
                                                     ),
                                                   ),

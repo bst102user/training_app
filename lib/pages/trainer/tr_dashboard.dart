@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:training_app/common/common_methods.dart';
+import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/firebase/methods.dart';
 import 'package:training_app/firebase/screens/home_screen.dart';
@@ -68,7 +71,9 @@ class TrDashboardState extends State<TrDashboard>{
     // TODO: implement build
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: Platform.isMacOS?const BoxDecoration(
+          color: CommonVar.BLACK_BG_BG_COLOR,
+        ):const BoxDecoration(
           color: Colors.black,
           image: DecorationImage(
             image: AssetImage(
@@ -91,16 +96,18 @@ class TrDashboardState extends State<TrDashboard>{
               ),
               CommonWidgets.mHeightSizeBox(height: 20.0),
               commonView(Icons.person, 'List Athlets',mCallback: (){
-                Get.to(TrAssgnAthletesPage());
+                Navigator.of(context).pushNamed('/traiisgnathlete');
               }),
               commonView(Icons.notifications_rounded, 'Notification', mCallback: (){
-                Get.to(NotificationTrainer());
+                // Get.to(NotificationTrainer());
+                Navigator.of(context).pushNamed('/notificationtrainer');
               }),
               commonView(Icons.chat_bubble, 'Messenger',mCallback: (){
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => HomeScreen())
-                );
+                // Navigator.push(
+                //     context,
+                //     MaterialPageRoute(builder: (context) => HomeScreen())
+                Navigator.of(context).pushNamed('/homepage');
+                // );
               }),
               commonView(Icons.logout, 'Logout',mCallback: ()async{
                 CommonMethods.twoButtonDialoge(context, 'Logout', 'Would you like to logout from the Application?',(){

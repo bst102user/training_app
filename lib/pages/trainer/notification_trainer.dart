@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -58,7 +60,9 @@ class NotificationTrainerState extends State<NotificationTrainer>{
     // TODO: implement build
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: Platform.isMacOS?const BoxDecoration(
+          color: CommonVar.BLACK_BG_BG_COLOR,
+        ):const BoxDecoration(
           color: Colors.black,
           image: DecorationImage(
             image: AssetImage(

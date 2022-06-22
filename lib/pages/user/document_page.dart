@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -5,8 +7,11 @@ import 'package:get/get.dart' hide Response;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:training_app/common/api_interface.dart';
 import 'package:training_app/common/common_methods.dart';
+import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'pdf_page.dart';
+import 'package:path/path.dart';
 
 class DocumentPage extends StatefulWidget{
   DocumentPageState createState() => DocumentPageState();
@@ -15,13 +20,33 @@ class DocumentPage extends StatefulWidget{
 class DocumentPageState extends State<DocumentPage>{
   String pdfUrl = '';
 
-  Widget commonView(String label, String mUrl, {mCallback}){
+  void _launchURL(String _url) async {
+    if (!await launch(_url)) throw 'Could not launch $_url';
+  }
+
+  Widget commonView(String label, String mUrl, String sendKey, {mCallback}){
     const borderSide = BorderSide(color: Colors.white, width: 0.5);
     return InkWell(
       onTap: ()async{
-        Response mResponse = await CommonMethods.commonGetApiData('https://teamwebdevelopers.com/sportsfood/api/show_pdf/9/5');
+        String userId = await CommonMethods.getUserId();
+        Map sendMap = {
+          "name" : sendKey
+        };
+        Response mResponse = await CommonMethods.commonPostApiData(ApiInterface.GET_DOCUMENT+userId,sendMap);
         String urlData = mResponse.data;
-        Get.to(PdfPage(label, urlData));
+        Map resMap = json.decode(urlData);
+        String url = resMap['data'];
+        File _file = File(url);
+        String _extenion = extension(_file.path);
+        if(_extenion == ''){
+          CommonMethods.showToast(this.context, 'No data found');
+        }
+        else if(_extenion == '.xls'||_extenion == '.xlsx'){
+          _launchURL(url);
+        }
+        else {
+          Get.to(PdfPage(label, url, _extenion));
+        }
       },
       child: Container(
         height: 70.0,
@@ -72,7 +97,9 @@ class DocumentPageState extends State<DocumentPage>{
     // TODO: implement build
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: Platform.isMacOS?const BoxDecoration(
+          color: CommonVar.BLACK_BG_BG_COLOR,
+        ):const BoxDecoration(
           color: Colors.black,
           image: DecorationImage(
             image: AssetImage(
@@ -87,14 +114,12 @@ class DocumentPageState extends State<DocumentPage>{
             children: [
               CommonWidgets.commonHeader(context, 'Documents'),
               CommonWidgets.mHeightSizeBox(height: 20.0),
-              commonView('Name Proof',ApiInterface.SHOW_DOCUMENT),
-              commonView('Consectetur',ApiInterface.SHOW_DOCUMENT),
-              commonView('Adipiscing',ApiInterface.SHOW_DOCUMENT),
-              commonView('Sollicitudin Sapien',ApiInterface.SHOW_DOCUMENT),
-              commonView('Ullamcorper',ApiInterface.SHOW_DOCUMENT),
-              commonView('Pretium',ApiInterface.SHOW_DOCUMENT),
-              commonView('Ullamcorper',ApiInterface.SHOW_DOCUMENT),
-              commonView('Pretium',ApiInterface.SHOW_DOCUMENT),
+              commonView('Name Proof',ApiInterface.SHOW_DOCUMENT,'name_proof'),
+              commonView('Consectetur',ApiInterface.SHOW_DOCUMENT,'consectetur'),
+              commonView('Adipiscing',ApiInterface.SHOW_DOCUMENT,'adipicing'),
+              commonView('Sollicitudin Sapien',ApiInterface.SHOW_DOCUMENT,'sollicitudin_sapien'),
+              commonView('Ullamcorper',ApiInterface.SHOW_DOCUMENT,'ullamcoper'),
+              commonView('Pretium',ApiInterface.SHOW_DOCUMENT,'pretium'),
             ],
           ),
         ),

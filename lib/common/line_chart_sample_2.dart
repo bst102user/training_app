@@ -4,6 +4,7 @@ import 'package:training_app/common/common_var.dart';
 
 class LineChartSample2 extends StatefulWidget {
   final List<FlSpot> flspot;
+
   LineChartSample2(this.flspot);
 
   @override
@@ -12,10 +13,10 @@ class LineChartSample2 extends StatefulWidget {
 
 class _LineChartSample2State extends State<LineChartSample2> {
   List<Color> gradientColors = [
-    CommonVar.RED_BUTTON_COLOR,
-    CommonVar.RED_BUTTON_COLOR,
+    const Color(0xffcea332),
+    const Color(0xffcea332),
   ];
-  List<int> xx = [2,4,9];
+  List<int> xx = [2, 4, 9];
 
   bool showAvg = false;
 
@@ -28,56 +29,6 @@ class _LineChartSample2State extends State<LineChartSample2> {
       ),
     );
   }
-
-  // Widget bottomTitleWidgets(double value, TitleMeta meta) {
-  //   const style = TextStyle(
-  //     color: Color(0xff68737d),
-  //     fontWeight: FontWeight.bold,
-  //     fontSize: 16,
-  //   );
-  //   Widget text = Text('');
-  //   switch (value.toInt()) {
-  //     case xx[0]:
-  //       text = Text(xx[i].toString(), style: style);
-  //       break;
-  //     case 22:
-  //       text = const Text('JUN', style: style);
-  //       break;
-  //     case 26:
-  //       text = const Text('SEP', style: style);
-  //       break;
-  //     default:
-  //       text = const Text('', style: style);
-  //       break;
-  //   }
-  //
-  //
-  //   return Padding(child: text, padding: const EdgeInsets.only(top: 8.0));
-  // }
-
-  // Widget leftTitleWidgets(double value, TitleMeta meta) {
-  //   const style = TextStyle(
-  //     color: Color(0xff67727d),
-  //     fontWeight: FontWeight.bold,
-  //     fontSize: 15,
-  //   );
-  //   String text;
-  //   switch (value.toInt()) {
-  //     case 1:
-  //       text = '10K';
-  //       break;
-  //     case 90:
-  //       text = '30k';
-  //       break;
-  //     case 70:
-  //       text = '50k';
-  //       break;
-  //     default:
-  //       return Container();
-  //   }
-  //
-  //   return Text(text, style: style, textAlign: TextAlign.left);
-  // }
 
   LineChartData mainData() {
     return LineChartData(
@@ -126,7 +77,16 @@ class _LineChartSample2State extends State<LineChartSample2> {
       ),
       borderData: FlBorderData(
           show: true,
-          border: Border.all(color: const Color(0xff37434d), width: 1)),
+          border: const Border(
+            left: BorderSide(
+              color: Colors.white,
+              width: 1.0,
+            ),
+            bottom: BorderSide(
+              color: Colors.white,
+              width: 1.0,
+            ),
+          )),
       minX: 0,
       maxX: 30,
       minY: 0,

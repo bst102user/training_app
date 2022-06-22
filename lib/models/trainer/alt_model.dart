@@ -1,39 +1,39 @@
-// To parse this JSON data, do
+// To parse required this JSON data, do
 //
-//     final dailyTrainingModel = dailyTrainingModelFromJson(jsonString);
+//     final altModel = altModelFromJson(jsonString);
 
 import 'dart:convert';
 
-DailyTrainingModel dailyTrainingModelFromJson(String str) => DailyTrainingModel.fromJson(json.decode(str));
+AltModel altModelFromJson(String str) => AltModel.fromJson(json.decode(str));
 
-String dailyTrainingModelToJson(DailyTrainingModel data) => json.encode(data.toJson());
+String altModelToJson(AltModel data) => json.encode(data.toJson());
 
-class DailyTrainingModel {
-  DailyTrainingModel({
+class AltModel {
+  AltModel({
     required this.status,
     required this.msg,
     required this.data,
   });
 
   String status;
-  List<Msg> msg;
-  List<Datum> data;
+  String msg;
+  List<ALTDatum> data;
 
-  factory DailyTrainingModel.fromJson(Map<String, dynamic> json) => DailyTrainingModel(
+  factory AltModel.fromJson(Map<String, dynamic> json) => AltModel(
     status: json["status"],
-    msg: List<Msg>.from(json["msg"].map((x) => Msg.fromJson(x))),
-    data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
+    msg: json["msg"],
+    data: List<ALTDatum>.from(json["data"].map((x) => ALTDatum.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
     "status": status,
-    "msg": List<dynamic>.from(msg.map((x) => x.toJson())),
+    "msg": msg,
     "data": List<dynamic>.from(data.map((x) => x.toJson())),
   };
 }
 
-class Datum {
-  Datum({
+class ALTDatum {
+  ALTDatum({
     required this.id,
     required this.userId,
     required this.dates,
@@ -43,13 +43,18 @@ class Datum {
     required this.powerWatt,
     required this.pulse,
     required this.cadence,
+    required this.totalRainingstime,
     required this.aTrainingsTimeMin,
     required this.aPowerWatt,
-    required this.aBreaks,
     required this.aMaxPlus,
     required this.aAveragePower,
     required this.aCandence,
     required this.aRating,
+    required this.aTrainingstime,
+    required this.aBreaks,
+    required this.aWeight,
+    required this.aComment,
+    required this.isUpdate,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -59,21 +64,26 @@ class Datum {
   DateTime dates;
   String headline;
   String trainingstimeMin;
-  dynamic breaks;
+  String breaks;
   String powerWatt;
   String pulse;
   String cadence;
+  String totalRainingstime;
   String aTrainingsTimeMin;
   String aPowerWatt;
-  String aBreaks;
   String aMaxPlus;
   String aAveragePower;
   String aCandence;
   String aRating;
+  String aTrainingstime;
+  String aBreaks;
+  String aWeight;
+  String aComment;
+  String isUpdate;
   DateTime createdAt;
   DateTime updatedAt;
 
-  factory Datum.fromJson(Map<String, dynamic> json) => Datum(
+  factory ALTDatum.fromJson(Map<String, dynamic> json) => ALTDatum(
     id: json["id"],
     userId: json["user_id"],
     dates: DateTime.parse(json["dates"]),
@@ -83,13 +93,18 @@ class Datum {
     powerWatt: json["power_watt"],
     pulse: json["pulse"],
     cadence: json["cadence"],
+    totalRainingstime: json["total_rainingstime"],
     aTrainingsTimeMin: json["a_trainings_time_min"],
     aPowerWatt: json["a_power_watt"],
-    aBreaks: json["a_breaks"],
     aMaxPlus: json["a_max_plus"],
     aAveragePower: json["a_average_power"],
     aCandence: json["a_candence"],
     aRating: json["a_rating"],
+    aTrainingstime: json["a_trainingstime"],
+    aBreaks: json["a_breaks"],
+    aWeight: json["a_weight"],
+    aComment: json["a_comment"],
+    isUpdate: json["is_update"],
     createdAt: DateTime.parse(json["created_at"]),
     updatedAt: DateTime.parse(json["updated_at"]),
   );
@@ -104,46 +119,19 @@ class Datum {
     "power_watt": powerWatt,
     "pulse": pulse,
     "cadence": cadence,
+    "total_rainingstime": totalRainingstime,
     "a_trainings_time_min": aTrainingsTimeMin,
     "a_power_watt": aPowerWatt,
-    "a_breaks": aBreaks,
     "a_max_plus": aMaxPlus,
     "a_average_power": aAveragePower,
     "a_candence": aCandence,
     "a_rating": aRating,
-    "created_at": createdAt.toIso8601String(),
-    "updated_at": updatedAt.toIso8601String(),
-  };
-}
-
-class Msg {
-  Msg({
-    required this.totalTrainingstime,
-    required this.aWeight,
-    required this.aComment,
-    required this.isUpdated,
-    required this.aTrainingstime,
-  });
-
-  String totalTrainingstime;
-  String aWeight;
-  String aComment;
-  String isUpdated;
-  String aTrainingstime;
-
-  factory Msg.fromJson(Map<String, dynamic> json) => Msg(
-    totalTrainingstime: json["total_trainingstime"],
-    aWeight: json["a_weight"],
-    aComment: json["a_comment"],
-    isUpdated: json["is_update"],
-    aTrainingstime: json["a_trainingstime"],
-  );
-
-  Map<String, dynamic> toJson() => {
-    "total_trainingstime": totalTrainingstime,
+    "a_trainingstime": aTrainingstime,
+    "a_breaks": aBreaks,
     "a_weight": aWeight,
     "a_comment": aComment,
-    "is_update": isUpdated,
-    "a_trainingstime": aTrainingstime,
+    "is_update": isUpdate,
+    "created_at": createdAt.toIso8601String(),
+    "updated_at": updatedAt.toIso8601String(),
   };
 }

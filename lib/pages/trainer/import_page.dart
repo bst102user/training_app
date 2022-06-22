@@ -1,14 +1,11 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:training_app/common/api_interface.dart';
 import 'package:training_app/common/common_methods.dart';
 import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
-
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
@@ -90,7 +87,9 @@ class ImportPageState extends State<ImportPage>{
     // TODO: implement build
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: Platform.isMacOS?const BoxDecoration(
+          color: CommonVar.BLACK_BG_BG_COLOR,
+        ):const BoxDecoration(
           color: Colors.black,
           image: DecorationImage(
             image: AssetImage(

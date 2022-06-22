@@ -198,7 +198,6 @@ class DailyTrainingState extends State<DailyTraining>{
                           workingDate,
                           style: GoogleFonts.roboto(
                             color: Colors.white,
-                            fontSize: 18.0,
                           ),
                         ),
                         FutureBuilder(
@@ -212,8 +211,11 @@ class DailyTrainingState extends State<DailyTraining>{
                               Map mMap = json.decode(result);
                               String isDataThere = mMap['status'];
                               if(isDataThere == 'error'){
-                                return const Text(
+                                return Text(
                                   '0',
+                                  style: GoogleFonts.roboto(
+                                    color: Colors.white,
+                                  ),
                                 );
                               }
                               else{
@@ -226,13 +228,13 @@ class DailyTrainingState extends State<DailyTraining>{
                                       Text(
                                         'Total Training Time',
                                         style: GoogleFonts.roboto(
-                                            color: Colors.white
+                                            color: Colors.white,
                                         ),
                                       ),
                                       Text(
-                                        dtm.msg[0].totalTrainingstime,
+                                        dtm.msg[0].aTrainingstime,
                                         style: GoogleFonts.roboto(
-                                            color: Colors.white
+                                            color: Colors.white,
                                         ),
                                       ),
                                     ],
@@ -416,7 +418,6 @@ class DailyTrainingState extends State<DailyTraining>{
                                                             dtm.data[index].headline,
                                                             style: GoogleFonts.roboto(
                                                                 color: Colors.white,
-                                                                fontSize: 17.0,
                                                             ),
                                                           ),
                                                         ),
@@ -434,7 +435,6 @@ class DailyTrainingState extends State<DailyTraining>{
                                                             dtm.data[index].trainingstimeMin,
                                                             style: GoogleFonts.roboto(
                                                               color: Colors.white,
-                                                              fontSize: 17.0,
                                                             ),
                                                             textAlign: TextAlign.left,
                                                           ),
@@ -453,7 +453,7 @@ class DailyTrainingState extends State<DailyTraining>{
                                                             dtm.data[index].powerWatt,
                                                             style: GoogleFonts.roboto(
                                                                 color: Colors.white,
-                                                                fontSize: 17.0,
+
                                                             ),
                                                             textAlign: TextAlign.left,
                                                           ),
@@ -472,7 +472,7 @@ class DailyTrainingState extends State<DailyTraining>{
                                                             dtm.data[index].pulse==null?'N/A':dtm.data[index].pulse,
                                                             style: GoogleFonts.roboto(
                                                                 color: Colors.white,
-                                                                fontSize: 17.0,
+
 
                                                             ),
                                                             textAlign: TextAlign.start,
@@ -492,7 +492,7 @@ class DailyTrainingState extends State<DailyTraining>{
                                                             dtm.data[index].cadence==null?'N/A':dtm.data[index].cadence,
                                                             style: GoogleFonts.roboto(
                                                                 color: Colors.white,
-                                                                fontSize: 17.0,
+
                                                             ),
                                                             textAlign: TextAlign.start,
                                                           ),
@@ -514,15 +514,12 @@ class DailyTrainingState extends State<DailyTraining>{
                                                             'Break',
                                                             style: GoogleFonts.roboto(
                                                                 color: Colors.white,
-                                                                fontSize: 17.0,
-
                                                             ),
                                                           ),
                                                           Text(
                                                             dtm.data[index].breaks==null?'N/A':dtm.data[index].breaks,
                                                             style: GoogleFonts.roboto(
                                                                 color: Colors.white,
-                                                                fontSize: 17.0,
                                                             ),
                                                           )
                                                         ],

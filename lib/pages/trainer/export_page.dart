@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:dotted_border/dotted_border.dart';
@@ -13,9 +12,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:training_app/common/api_interface.dart';
 import 'package:training_app/common/common_methods.dart';
+import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/firebase/keys.dart';
 import 'package:training_app/models/trainer/tr_assign_athletes_model.dart';
@@ -42,42 +41,6 @@ class ExportPageState extends State<ExportPage>{
       }
     }
     return userToken;
-  }
-
-
-  // @override
-  // initState(){
-  //   super.initState();
-  //   getData();
-  // }
-
-  uploadFiles(File files)async{
-    CommonMethods.showAlertDialog(this.context);
-    String userId = await CommonMethods.getUserId();
-    var postUri = Uri.parse(ApiInterface.UPLOAD_XLS_FILE+'/'+widget.athleteId.id);
-    http.MultipartRequest request = http.MultipartRequest("POST", postUri);
-    http.MultipartFile multipartFile = await http.MultipartFile.fromPath(
-        'sendfile', files.path);
-    request.files.add(multipartFile);
-    http.StreamedResponse response = await request.send();
-    print(response.statusCode);
-    if (response.statusCode == 200) {
-      Navigator.pop(this.context);
-      getData().then((value){
-        sendAndRetrieveMessage(value,'Data assigned','You have assigned new training data');
-      });
-      Map notifSendMap = {
-        "title": "Data assigned",
-        "message": "You have assigned new training data"
-      };
-      Response myRes = await CommonMethods
-          .commonPostApiData(
-          ApiInterface.SEND_NOTIFICATIONS + widget.athleteId.id +
-              '/' + userId, notifSendMap);
-      print(myRes);
-      CommonMethods.showToast(this.context, 'Files uploaded');
-      Navigator.pop(this.context);
-    }
   }
 
   Future<Map<String, dynamic>> sendAndRetrieveMessage(String token,String title,String body) async {
@@ -115,13 +78,40 @@ class ExportPageState extends State<ExportPage>{
         print(message);
       }
     });
-
     return completer.future;
+  }
+
+  uploadFiles(File files)async{
+    CommonMethods.showAlertDialog(this.context);
+    String userId = await CommonMethods.getUserId();
+    var postUri = Uri.parse(ApiInterface.UPLOAD_XLS_FILE+'/'+widget.athleteId.id);
+    http.MultipartRequest request = http.MultipartRequest("POST", postUri);
+    http.MultipartFile multipartFile = await http.MultipartFile.fromPath(
+        'sendfile', files.path);
+    request.files.add(multipartFile);
+    http.StreamedResponse response = await request.send();
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      Navigator.pop(this.context);
+      getData().then((value){
+        sendAndRetrieveMessage(value,'Training Assigned','You have assigned new training data');
+      });
+      Map notifSendMap = {
+        "title": "Training Assigned",
+        "message": "You have assigned new training data"
+      };
+      Response myRes = await CommonMethods
+          .commonPostApiData(
+          ApiInterface.SEND_NOTIFICATIONS + widget.athleteId.id +
+              '/' + userId, notifSendMap);
+      print(myRes);
+      CommonMethods.showToast(this.context, 'Files uploaded');
+      Navigator.pop(this.context);
+    }
   }
 
   checkFileTypeAndSize()async{
     FilePickerResult? result = await FilePicker.platform.pickFiles();
-
     if(result != null) {
       File file = File(result.files.single.path!);
       String fileNameFromPath = file.path;
@@ -163,7 +153,9 @@ class ExportPageState extends State<ExportPage>{
     // TODO: implement build
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: Platform.isMacOS?const BoxDecoration(
+          color: CommonVar.BLACK_BG_BG_COLOR,
+        ):const BoxDecoration(
           color: Colors.black,
           image: DecorationImage(
             image: AssetImage(
@@ -237,5 +229,4 @@ class ExportPageState extends State<ExportPage>{
       ),
     );
   }
-
 }

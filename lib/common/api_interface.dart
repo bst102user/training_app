@@ -24,6 +24,7 @@ class ApiInterface{
   static const String UPLOAD_PROFILE_PICTURE = BASE_URL+'sportsfood/api/profile_file/';
   static const String TRAINING_DATES         = BASE_URL+'sportsfood/api/getdatetime/';
   static const String GRAPH_DATES            = BASE_URL+'sportsfood/api/getalldate/';
+  static const String GET_DOCUMENT           = BASE_URL+'sportsfood/api/get_all_files/';
 
 //  =======================================  ATHLETES API'S =======================================
 
@@ -32,4 +33,7 @@ class ApiInterface{
   static const String IMPORT_FILE               = BASE_URL+'sportsfood/api/export_file/105';
   static const String GET_LINK_XLS              = BASE_URL+'sportsfood/api/link_excel';
   static const String TRAINER_NOTIFICATIONS     = BASE_URL+'sportsfood/api/notification_trainer/';
+  static const String SHOW_ATHLETE_RACES        = BASE_URL+'sportsfood/api/show_race/';
+  static const String ATH_LAST_TRAINING         = BASE_URL+'sportsfood/api/get_maxDateTime/';
+  static const String UPLOAD_DOCUMENT           = BASE_URL+'sportsfood/api/trainer_upload_file/';
 }

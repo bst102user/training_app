@@ -107,6 +107,7 @@ class SplashScreenState extends State<SplashScreen>{
               Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) =>
                       ChatRoom(chatRoomId: message.data['room_id'],
+                          isSetNavigation: false,
                           userMap: json.decode(message.data['user_map']))),
                       (Route<dynamic> route) => false);
             }

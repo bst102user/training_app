@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -177,7 +178,9 @@ class AddRaceState extends State<AddRace>{
     return SafeArea(
       child: Scaffold(
         body: Container(
-          decoration: const BoxDecoration(
+          decoration: Platform.isMacOS?const BoxDecoration(
+            color: CommonVar.BLACK_BG_BG_COLOR,
+          ):const BoxDecoration(
             color: Colors.black,
             image: DecorationImage(
               image: AssetImage(

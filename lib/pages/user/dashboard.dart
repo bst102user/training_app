@@ -15,6 +15,7 @@ import 'package:training_app/models/athlete_notif_model.dart';
 import 'package:training_app/models/profile_model.dart';
 import 'package:training_app/models/training_date_model.dart';
 import 'package:training_app/pages/user/daily_training.dart';
+import 'package:training_app/pages/user/notification_page.dart';
 import 'account_page.dart';
 import 'monthly_overview.dart';
 
@@ -155,7 +156,6 @@ class DashboardState extends State<Dashboard>{
                       Text(
                         date,
                         style: GoogleFonts.roboto(
-                            fontSize: 17.0,
                             fontWeight: FontWeight.w500,
                             color: Colors.white
                         ),
@@ -163,7 +163,6 @@ class DashboardState extends State<Dashboard>{
                       Text(
                         time==''?'0 min':time+' min',
                         style: GoogleFonts.roboto(
-                            fontSize: 17.0,
                             fontWeight: FontWeight.w500,
                             color: Colors.white
                         ),
@@ -292,7 +291,7 @@ class DashboardState extends State<Dashboard>{
                                 Text(
                                   dataList[1]+' '+dataList[2],
                                   style: GoogleFonts.roboto(
-                                      fontSize: 20.0,
+                                      fontSize: 15.0,
                                       color: Colors.white
                                   ),
                                 ),
@@ -300,8 +299,7 @@ class DashboardState extends State<Dashboard>{
                                 Text(
                                   dataList[0],
                                   style: GoogleFonts.roboto(
-                                      fontSize: 17.0,
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: 15.0,
                                       color: Colors.white
                                   ),
                                 ),
@@ -347,87 +345,82 @@ class DashboardState extends State<Dashboard>{
                               'No Recent Notification',
                               style: GoogleFonts.roboto(
                                   color: CupertinoColors.white,
-                                  fontWeight: FontWeight.w600
                               ),
                             ),
                           );
                         }
                         else{
                           AthlNotifDatum data = snapshot.data as AthlNotifDatum;
-                          return Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment
-                                        .start,
-                                    children: [
-                                      Text(
-                                        'Date',
+                          return InkWell(
+                            onTap: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=>NotificationPage()));
+                            },
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment
+                                          .start,
+                                      children: [
+                                        Text(
+                                          'Date',
+                                          style: GoogleFonts.roboto(
+                                              color: Colors.white
+                                          ),
+                                        ),
+                                        Text(
+                                          getDateTime(data.createdAt, true),
+                                          style: GoogleFonts.roboto(
+                                              color: CommonVar.RED_BUTTON_COLOR
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    CommonWidgets.mWidthSizeBox(width: 30.0),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment
+                                          .start,
+                                      children: [
+                                        Text(
+                                          'Time',
+                                          style: GoogleFonts.roboto(
+                                              color: Colors.white
+                                          ),
+                                        ),
+                                        Text(
+                                          getDateTime(data.createdAt, false),
+                                          style: GoogleFonts.roboto(
+                                              color: CommonVar.RED_BUTTON_COLOR
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 5.0,),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment
+                                      .spaceBetween,
+                                  children: [
+                                    SizedBox(
+                                      width:MediaQuery.of(context).size.width*0.8,
+                                      child: Text(
+                                        data.title,
+                                        overflow: TextOverflow.ellipsis,
                                         style: GoogleFonts.roboto(
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.w800,
                                             color: Colors.white
                                         ),
-                                      ),
-                                      Text(
-                                        getDateTime(data.createdAt, true),
-                                        style: GoogleFonts.roboto(
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.w800,
-                                            color: CommonVar.RED_BUTTON_COLOR
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  CommonWidgets.mWidthSizeBox(width: 30.0),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment
-                                        .start,
-                                    children: [
-                                      Text(
-                                        'Time',
-                                        style: GoogleFonts.roboto(
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.w800,
-                                            color: Colors.white
-                                        ),
-                                      ),
-                                      Text(
-                                        getDateTime(data.createdAt, false),
-                                        style: GoogleFonts.roboto(
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.w800,
-                                            color: CommonVar.RED_BUTTON_COLOR
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 5.0,),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment
-                                    .spaceBetween,
-                                children: [
-                                  SizedBox(
-                                    width:MediaQuery.of(context).size.width*0.8,
-                                    child: Text(
-                                      data.title,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: GoogleFonts.roboto(
-                                          fontSize: 16.0,
-                                          color: Colors.white
                                       ),
                                     ),
-                                  ),
-                                  const Icon(
-                                    Icons.notifications_rounded,
-                                    color: Colors.white,
-                                  )
-                                ],
-                              ),
-                            ],
+                                    const Icon(
+                                      Icons.notifications_rounded,
+                                      color: Colors.white,
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
                           );
                         }
                       }
@@ -480,7 +473,7 @@ class DashboardState extends State<Dashboard>{
                                         'No training data found',
                                       style: GoogleFonts.roboto(
                                         color: Colors.white,
-                                        fontSize: 20.0
+                                        fontSize: 17.0
                                       ),
                                     )
                                 );

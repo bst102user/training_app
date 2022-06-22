@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:loader_animated/loader.dart';
 import 'package:training_app/common/api_interface.dart';
 import 'package:training_app/common/common_methods.dart';
+import 'package:training_app/common/common_var.dart';
 import 'package:training_app/common/common_widgets.dart';
 import 'package:training_app/models/trainer/tr_assign_athletes_model.dart';
 import 'package:training_app/pages/trainer/athletes_detail.dart';
@@ -22,7 +25,9 @@ class TrAssgnAthletesPageState extends State<TrAssgnAthletesPage>{
     // TODO: implement build
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: Platform.isMacOS?const BoxDecoration(
+          color: CommonVar.BLACK_BG_BG_COLOR,
+        ):const BoxDecoration(
           color: Colors.black,
           image: DecorationImage(
             image: AssetImage(

@@ -256,7 +256,9 @@ class ProfilePageState extends State<ProfilePage>{
       body: Container(
         height: CommonMethods.deviceHeight(context),
         width: CommonMethods.deviceWidth(context),
-        decoration: const BoxDecoration(
+        decoration: Platform.isMacOS?const BoxDecoration(
+          color: CommonVar.BLACK_BG_BG_COLOR,
+        ):const BoxDecoration(
           color: Colors.black,
           image: DecorationImage(
             image: AssetImage(
@@ -328,7 +330,7 @@ class ProfilePageState extends State<ProfilePage>{
                 ),
               ),
               SizedBox(
-                height: MediaQuery.of(context).size.height*0.7,
+                height: MediaQuery.of(context).size.height*0.70,
                 child: ListView(
                   children: [
                     CommonWidgets.mHeightSizeBox(height: 25.0),
@@ -337,7 +339,8 @@ class ProfilePageState extends State<ProfilePage>{
                         mIcon: Icons.person,
                         mTitle: 'Name',
                         keybordType: TextInputType.text,
-                        mController: nameController
+                        mController: nameController,
+                        mHeight: MediaQuery.of(context).size.height*0.1
                     ),
                     CommonWidgets.mHeightSizeBox(),
                     CommonWidgets.commonTextField(
@@ -345,7 +348,8 @@ class ProfilePageState extends State<ProfilePage>{
                         mIcon: Icons.person,
                         mTitle: 'Last Name',
                         keybordType: TextInputType.text,
-                        mController: lastnameController
+                        mController: lastnameController,
+                        mHeight: MediaQuery.of(context).size.height*0.1
                     ),
                     CommonWidgets.mHeightSizeBox(),
                     CommonWidgets.commonTextField(
@@ -353,7 +357,8 @@ class ProfilePageState extends State<ProfilePage>{
                         mIcon: Icons.email,
                         mTitle: 'Email',
                         keybordType: TextInputType.emailAddress,
-                        mController: emailController
+                        mController: emailController,
+                        mHeight: MediaQuery.of(context).size.height*0.1
                     ),
                     CommonWidgets.mHeightSizeBox(),
                     CommonWidgets.commonTextField(
@@ -361,7 +366,8 @@ class ProfilePageState extends State<ProfilePage>{
                         mIcon: Icons.phone,
                         mTitle: 'Mobile Number',
                         keybordType: TextInputType.number,
-                        mController: mobileController
+                        mController: mobileController,
+                        mHeight: MediaQuery.of(context).size.height*0.1
                     ),
                     CommonWidgets.mHeightSizeBox(),
                     CommonWidgets.containerLikeTextField(
@@ -370,7 +376,8 @@ class ProfilePageState extends State<ProfilePage>{
                         mTitle: birthDate,
                         callBack: (){
                           _selectDate(context);
-                        }
+                        },
+                        mHeight: MediaQuery.of(context).size.height*0.1
                     ),
                     CommonWidgets.mHeightSizeBox(height: 20.0),
                     CommonWidgets.mHeightSizeBox(height: 20.0),
@@ -391,6 +398,9 @@ class ProfilePageState extends State<ProfilePage>{
                         SharedPreferences mPref = await SharedPreferences
                             .getInstance();
                         String userId = mPref.getString('user_id').toString();
+                        mPref.setString('user_email', emailController.text);
+                        mPref.setString('user_lname', lastnameController.text);
+                        mPref.setString('user_fname', nameController.text);
                         Map mMap = {
                           "fname": nameController.text,
                           "lname": lastnameController.text,

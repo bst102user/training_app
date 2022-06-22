@@ -6,6 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:training_app/common/common_var.dart';
 import 'package:training_app/firebase/screens/chat_room.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:io' show Platform;
+
+import 'package:training_app/firebase/screens/chat_room_for_mac.dart';
 
 class MyAthleteChat extends StatefulWidget{
   MyAthleteChatState createState() => MyAthleteChatState();
@@ -60,11 +63,11 @@ class MyAthleteChatState extends State<MyAthleteChat> with WidgetsBindingObserve
             _auth.currentUser!.uid,
             usersList[index]['uid']);
         userListMap = usersList[index];
+        SharedPreferences mPref = await SharedPreferences.getInstance();
+        mPref.setString('ch_fname', usersList[index]['name']);
+        mPref.setString('ch_lname', usersList[index]['lname']);
         isEverythingOk = true;
         break;
-        // Navigator.of(context).pushAndRemoveUntil(
-        //     MaterialPageRoute(builder: (context) => ChatRoom(chatRoomId: roomId, userMap: usersList[index])),
-        //         (Route<dynamic> route) => false);
       }
       else{
         isEverythingOk = false;
@@ -159,7 +162,8 @@ class MyAthleteChatState extends State<MyAthleteChat> with WidgetsBindingObserve
               if(isEvrthngOk){
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 30.0),
-                  child: ChatRoom(chatRoomId: roomId!, userMap: userListMap!),
+                  child: Platform.isMacOS?ChatRoomForMac(chatRoomId: roomId!, userMap: userListMap!,isSetNavigation: true,):
+                  ChatRoom(chatRoomId: roomId!, userMap: userListMap!,isSetNavigation: true,),
                 );
               }
               else{

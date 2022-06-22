@@ -2,7 +2,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:d_chart/d_chart.dart';
+
 import 'package:dio/dio.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -21,20 +21,11 @@ import 'package:training_app/pages/user/test2.dart';
 import 'daily_training.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
-import 'package:smoothie/smoothie.dart';
 
 class MonthlyOverview extends StatefulWidget {
   Map<DateTime,String> toHighlight;
   MonthlyOverview(this.toHighlight);
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
 
   @override
@@ -142,6 +133,8 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
                             day.month == d.month &&
                             day.year == d.year) {
                           return Container(
+                            height: 40.0,
+                            width: 40.0,
                             decoration: BoxDecoration(
                               color: widget.toHighlight[d]=='0'?Colors.transparent:CommonVar.RED_BUTTON_COLOR,
                               border: Border.all(color: widget.toHighlight[d]=='0'?CommonVar.RED_BUTTON_COLOR:Colors.transparent),
@@ -309,78 +302,88 @@ class MonthlyOverviewState extends State<MonthlyOverview> {
                   }
                 },
               ),
-              Container(
-                  height: 200.0,
-                  width: 200.0,
-                  child: FutureBuilder(
-                    future: CommonMethods.getUserId(),
-                    builder: (context, snapshot){
-                      if(snapshot.data == null){
-                        return const Text('Loading..');
-                      }
-                      else{
-                        String userId = snapshot.data as String;
-                        Map sendMap = {"user_date" : dateForGraph};
-                        return FutureBuilder(
-                          future: CommonMethods.commonPostApiData(ApiInterface.GRAPH_DATES+userId, sendMap),
-                          builder: (context, snapshot){
-                            if(snapshot.data == null){
-                              return Padding(
-                                padding: const EdgeInsets.all(20.0),
-                                child: Column(
-                                  children: [
-                                    const CircularProgressIndicator(
-                                      value: 0.8,
-                                    ),
-                                    const SizedBox(height: 10.0,),
-                                    Text('Loading...',
-                                      style: GoogleFonts.roboto(
-                                          color: Colors.white
-                                      ),)
-                                  ],
+              const SizedBox(height: 30.0,),
+              FutureBuilder(
+                future: CommonMethods.getUserId(),
+                builder: (context, snapshot){
+                  if(snapshot.data == null){
+                    return const Text('Loading...');
+                  }
+                  else{
+                    String userId = snapshot.data as String;
+                    Map sendMap = {"user_date" : dateForGraph};
+                    return FutureBuilder(
+                      future: CommonMethods.commonPostApiData(ApiInterface.GRAPH_DATES+userId, sendMap),
+                      builder: (context, snapshot){
+                        if(snapshot.data == null){
+                          return Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              children: [
+                                const CircularProgressIndicator(
+                                  value: 0.8,
                                 ),
-                              );
+                                const SizedBox(height: 10.0,),
+                                Text('Loading...',
+                                  style: GoogleFonts.roboto(
+                                      color: Colors.white
+                                  ),)
+                              ],
+                            ),
+                          );
+                        }
+                        else{
+                          Response myRes = snapshot.data as Response;
+                          Map myMap = json.decode(myRes.data);
+                          if(myMap['data'].runtimeType == bool){
+                            return SizedBox(
+                                child: Center(
+                                  child: Text(
+                                    'No training data found',
+                                    style: GoogleFonts.roboto(
+                                        color: Colors.white,
+                                        fontSize: 20.0
+                                    ),
+                                  ),
+                                )
+                            );
+                          }
+                          else{
+                            TrainingDateModel dates = trainingDateModelFromJson(myRes.data);
+                            List<TrainingDateDatum> listData = dates.data;
+                            List<Map<String, dynamic>> showVal = [];
+                            List<FlSpot> mFlSpot = [];
+                            List<TimeSeriesSales> mData = [];
+                            for(int i=0;i<listData.length;i++){
+                              // Map<String, dynamic> myMap = {'domain' : int.parse(DateFormat('dd').format(listData[i].dates)), 'measure' : int.parse(listData[i].aWeight)};
+                              // showVal.add(myMap);
+                              FlSpot mm = FlSpot(double.parse(DateFormat('dd').format(listData[i].dates)), double.parse(listData[i].aWeight.replaceAll(' ', '')==''?'0.0':listData[i].aWeight));
+                              mFlSpot.add(mm);
+                              TimeSeriesSales tss = TimeSeriesSales(listData[i].dates,double.parse(listData[i].aWeight.replaceAll(' ', '')==''?'0.0':listData[i].aWeight).round());
+                              mData.add(tss);
                             }
-                            else{
-                              Response myRes = snapshot.data as Response;
-                              Map myMap = json.decode(myRes.data);
-                              if(myMap['data'].runtimeType == bool){
-                                return SizedBox(
-                                    child: Center(
-                                      child: Text(
-                                        'No training data found',
-                                        style: GoogleFonts.roboto(
-                                            color: Colors.white,
-                                            fontSize: 20.0
-                                        ),
-                                      ),
-                                    )
-                                );
-                              }
-                              else{
-                                TrainingDateModel dates = trainingDateModelFromJson(myRes.data);
-                                List<TrainingDateDatum> listData = dates.data;
-                                List<Map<String, dynamic>> showVal = [];
-                                // TimeSeriesSales(DateTime(2017, 9, 19), 5),
-                                List<FlSpot> mFlSpot = [];
-                                List<TimeSeriesSales> mData = [];
-                                for(int i=0;i<listData.length;i++){
-                                  Map<String, dynamic> myMap = {'domain' : int.parse(DateFormat('dd').format(listData[i].dates)), 'measure' : int.parse(listData[i].totalRainingstime)};
-                                  showVal.add(myMap);
-                                  FlSpot mm = FlSpot(double.parse(DateFormat('dd').format(listData[i].dates)), double.parse(listData[i].totalRainingstime));
-                                  mFlSpot.add(mm);
-                                  TimeSeriesSales tss = TimeSeriesSales(listData[i].dates,int.parse(listData[i].totalRainingstime));
-                                  mData.add(tss);
-                                }
-                                return LineChartSample2(mFlSpot);
-                              }
-                            }
-                          },
-                        );
-                      }
-                    },
-                  ),
-                  // child: LLineChart(myList)
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 15.0,bottom: 5.0),
+                                  child: Text(
+                                    'Weight',
+                                    style: GoogleFonts.roboto(
+                                        color: Colors.white,
+                                        fontSize: 16.0
+                                    ),
+                                  ),
+                                ),
+                                Container(height: 180.0,child: LineChartSample2(mFlSpot)),
+                              ],
+                            );
+                          }
+                        }
+                      },
+                    );
+                  }
+                },
               )//
             ],
           ),

@@ -48,7 +48,7 @@ class CommonWidgets{
                     label,
                   style: GoogleFonts.roboto(
                     color: Colors.white,
-                    fontSize: 16.0,
+                    fontSize: 17.0,
                   ),
                 )
             ),
@@ -92,7 +92,8 @@ class CommonWidgets{
           keyboardType: keybordType,
           textAlign: isTextCenter?TextAlign.center:TextAlign.left,
           style: GoogleFonts.roboto(
-            color: enterTextColor
+            color: enterTextColor,
+            fontSize: 14.0
           ),
           onChanged: mOnchangedStr,
           decoration: InputDecoration(
@@ -327,13 +328,12 @@ class CommonWidgets{
           Icon(
               mIconData,
             color: Colors.white,
-            size: 50.0,
+            size: 35.0,
           ),
           Text(
               text,
             style: GoogleFonts.roboto(
               color: Colors.white,
-              fontSize: 17.0
             ),
           )
         ],
